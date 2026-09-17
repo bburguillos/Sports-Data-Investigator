@@ -1,21 +1,12 @@
 import streamlit as st
 import json
 import random
-from openai import OpenAI
 
 st.set_page_config(
     page_title="Sports Data Investigator",
     page_icon="📊",
     layout="wide"
 )
-
-# -----------------------------
-# OPENAI — ONLY FOR COACH/SCORE
-# -----------------------------
-try:
-    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-except Exception:
-    client = None
 
 # -----------------------------
 # PREBUILT QUESTION BANK
@@ -182,8 +173,8 @@ def numeric_value(value):
 
 def reset_investigation():
     for key in [
-        "active_question","evidence","observation","original_claim","coach_reply",
-        "coach_answer","revised_claim","final_feedback","score_result"
+        "active_question","evidence","observation","original_claim","coach_stage",
+        "coach_answers","coach_message","ready_to_revise","revised_claim","score_result"
     ]:
         st.session_state.pop(key, None)
 
@@ -234,82 +225,122 @@ def make_graph(rows, columns):
     }
     return spec, None
 
-def ask_coach(question, rows, observation, claim, student_answer=""):
-    if not client:
-        return "AI Coach is unavailable right now."
-    prompt = f"""
-You are a supportive Sports Data Coach for a 7th-grade statistics class.
+def evidence_numbers(rows, columns):
+    values = []
+    for row in rows:
+        for col in columns[1:]:
+            val = numeric_value(row.get(col))
+            if val is not None:
+                values.append(val)
+    return values
 
-INVESTIGATION:
-{question}
+def built_in_coach_stage(stage, claim, observation):
+    """
+    Predictable 7th-grade coaching. No API.
+    Returns one question/check at a time.
+    """
+    if stage == 0:
+        return {
+            "question": "Does your claim clearly answer the investigation question?",
+            "options": ["Yes", "Not yet", "I'm not sure"]
+        }
+    if stage == 1:
+        return {
+            "question": "Does your claim use at least one specific number from your evidence?",
+            "options": ["Yes", "No", "I'm not sure"]
+        }
+    if stage == 2:
+        return {
+            "question": "Did you explain what the numbers show, instead of only listing them?",
+            "options": ["Yes", "Not yet", "I'm not sure"]
+        }
+    return {
+        "question": "Is your claim limited to the seasons, teams, or comparisons you actually researched?",
+        "options": ["Yes", "No — I made a bigger claim", "I'm not sure"]
+    }
 
-STUDENT-ENTERED EVIDENCE (unverified):
-{json.dumps(rows)}
+def coach_feedback(stage, answer):
+    if stage == 0:
+        if answer == "Yes":
+            return "Good. Your reader should be able to tell your answer right away."
+        return "Before revising, make sure your first sentence gives a clear answer to the investigation."
+    if stage == 1:
+        if answer == "Yes":
+            return "Good evidence makes a claim more convincing."
+        return "Choose at least one number from your evidence table and work it into your revised claim or explanation."
+    if stage == 2:
+        if answer == "Yes":
+            return "Nice. Explaining the pattern is the reasoning part of your argument."
+        return "Add a sentence explaining what your numbers mean. Try: “This shows that…”"
+    if answer == "Yes":
+        return "Good. Your wording matches the amount of evidence you actually collected."
+    return "Be careful not to turn 2–3 examples into a claim about an entire career. Narrow your wording to what you researched."
 
-WHAT THE STUDENT NOTICED:
-{observation}
+def built_in_score(rows, columns, observation, original, revised, coach_answers):
+    """
+    Transparent 100-point classroom rubric. No AI.
+    This scores completion and argument features, not whether the sports conclusion is correct.
+    """
+    revised_lower = revised.lower()
+    nums = evidence_numbers(rows, columns)
 
-STUDENT'S CLAIM:
-{claim}
+    # Clear Claim /25
+    claim_score = 25 if len(revised.split()) >= 8 else 20 if len(revised.split()) >= 5 else 15
 
-STUDENT'S LATEST ANSWER TO THE COACH:
-{student_answer or "(none yet)"}
+    # Evidence /25: reward explicit use of at least one entered number.
+    used_number = False
+    for n in nums:
+        forms = {str(int(n)) if float(n).is_integer() else str(n), f"{n:g}"}
+        if any(form in revised.replace(",", "") for form in forms):
+            used_number = True
+            break
+    evidence_score = 25 if used_number else 15
 
-Rules:
-- Never supply missing sports statistics.
-- Treat the student's entered numbers as unverified.
-- Do not write the claim for the student.
-- Focus on whether the claim matches the evidence and whether the reasoning is clear.
-- Use simple grade-7 language.
-- Ask exactly ONE short question if the student still needs to think.
-- If the student is ready to revise, end with exactly: READY TO REVISE
-- Keep the whole response under 90 words.
-"""
-    try:
-        r = client.responses.create(
-            model="gpt-5.6-luna",
-            input=prompt,
-            max_output_tokens=180
-        )
-        return r.output_text.strip()
-    except Exception as e:
-        if "429" in str(e) or "rate" in str(e).lower():
-            return "AI Coach is temporarily unavailable because the class API limit has been reached. Your evidence and claim are saved on this page."
-        return "AI Coach is temporarily unavailable. Your work is still saved on this page."
+    # Reasoning /25: observation + explanatory language in revision.
+    reasoning_words = ["because", "shows", "suggests", "therefore", "so ", "compared", "higher", "lower", "more", "less"]
+    has_reasoning = any(w in revised_lower for w in reasoning_words)
+    if observation.strip() and has_reasoning:
+        reasoning_score = 25
+    elif observation.strip() or has_reasoning:
+        reasoning_score = 20
+    else:
+        reasoning_score = 15
 
-def score_argument(question, rows, observation, original, revised):
-    if not client:
-        return None
-    prompt = f"""
-Grade this 7th-grade sports-data ARGUMENT, not whether the sports conclusion is factually correct.
-Treat all student-entered statistics as unverified.
+    # Strength & Fairness /25: completed coaching + actual revision.
+    completed = len(coach_answers) >= 4
+    changed = revised.strip().lower() != original.strip().lower()
+    fairness_score = 25 if completed and changed else 20 if completed or changed else 15
 
-Question: {question}
-Evidence: {json.dumps(rows)}
-Observation: {observation}
-Original claim: {original}
-Revised claim: {revised}
+    total = claim_score + evidence_score + reasoning_score + fairness_score
 
-Score:
-Clear Claim /25
-Use of Evidence /25
-Reasoning /25
-Strength & Fairness /25
+    strengths = []
+    if used_number:
+        strengths.append("You used a specific number from your research.")
+    if has_reasoning:
+        strengths.append("You explained what your evidence shows.")
+    if changed:
+        strengths.append("You revised your original thinking.")
+    strength = strengths[0] if strengths else "You completed the investigation and made a claim."
 
-Do not grade spelling unless meaning is unclear.
-Return ONLY JSON:
-{{"claim":0,"evidence":0,"reasoning":0,"fairness":0,"strength":"one short strength","next_step":"one short next step"}}
-"""
-    try:
-        r = client.responses.create(model="gpt-5.6-luna", input=prompt, max_output_tokens=220)
-        raw = r.output_text.replace("```json","").replace("```","").strip()
-        data = json.loads(raw)
-        for k in ["claim","evidence","reasoning","fairness"]:
-            data[k] = max(0, min(25, int(data[k])))
-        data["total"] = data["claim"]+data["evidence"]+data["reasoning"]+data["fairness"]
-        return data
-    except Exception:
-        return None
+    if not used_number:
+        next_step = "Add at least one specific number from your evidence to your final argument."
+    elif not has_reasoning:
+        next_step = "Explain why your evidence supports your claim using words such as “shows,” “because,” or “compared with.”"
+    elif not changed:
+        next_step = "Make your revision meaningfully stronger than your first claim."
+    else:
+        next_step = "Check that every part of your claim is supported by the evidence you researched."
+
+    return {
+        "claim": claim_score,
+        "evidence": evidence_score,
+        "reasoning": reasoning_score,
+        "fairness": fairness_score,
+        "total": total,
+        "strength": strength,
+        "next_step": next_step
+    }
+
 
 # -----------------------------
 # HEADER
@@ -441,52 +472,53 @@ st.session_state.original_claim = claim
 
 ready_for_coach = (graph_error is None and observation.strip() and claim.strip())
 
-if st.button("🤖 Ask the Sports Data Coach", disabled=not ready_for_coach, use_container_width=True):
-    st.session_state.coach_reply = ask_coach(
-        challenge["student_question"],
-        st.session_state.evidence,
-        observation,
-        claim
-    )
+if st.button("🧠 Start Built-In Coach", disabled=not ready_for_coach, use_container_width=True):
+    st.session_state.coach_stage = 0
+    st.session_state.coach_answers = []
+    st.session_state.coach_message = ""
     st.rerun()
 
 # -----------------------------
-# STEP 5 — COACH
+# STEP 5 — BUILT-IN COACH
 # -----------------------------
-if st.session_state.get("coach_reply"):
+if "coach_stage" in st.session_state and not st.session_state.get("ready_to_revise"):
     st.markdown("---")
-    st.markdown('<div class="step">Step 5 · Coach</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="card">🤖 <b>Coach:</b><br>{st.session_state.coach_reply}</div>', unsafe_allow_html=True)
+    st.markdown('<div class="step">Step 5 · Built-In Coach</div>', unsafe_allow_html=True)
+    st.caption("No AI or API is being used. Work through four quick checks.")
 
-    answer = st.text_area(
-        "Answer your coach",
-        value=st.session_state.get("coach_answer",""),
-        height=90
+    stage = st.session_state.coach_stage
+    check = built_in_coach_stage(stage, claim, observation)
+
+    st.markdown(f'<div class="card">🧠 <b>Coach Check {stage+1} of 4:</b><br>{check["question"]}</div>', unsafe_allow_html=True)
+
+    answer = st.radio(
+        "Choose your answer",
+        check["options"],
+        key=f"coach_check_{stage}"
     )
-    st.session_state.coach_answer = answer
 
-    c1,c2 = st.columns(2)
-    with c1:
-        if st.button("💬 Send Answer", disabled=not answer.strip(), use_container_width=True):
-            st.session_state.coach_reply = ask_coach(
-                challenge["student_question"],
-                st.session_state.evidence,
-                observation,
-                claim,
-                answer
-            )
-            st.rerun()
-    with c2:
-        if st.button("✏️ I'm Ready to Revise", use_container_width=True):
+    if st.session_state.get("coach_message"):
+        st.info(st.session_state.coach_message)
+
+    if st.button("Continue →", use_container_width=True):
+        st.session_state.coach_answers.append(answer)
+        st.session_state.coach_message = coach_feedback(stage, answer)
+        if stage >= 3:
             st.session_state.ready_to_revise = True
-            st.rerun()
+        else:
+            st.session_state.coach_stage += 1
+        st.rerun()
 
 # -----------------------------
-# STEP 6 — REVISE + SCORE
+# STEP 6 — REVISE + BUILT-IN SCORE
 # -----------------------------
-if st.session_state.get("ready_to_revise") or "READY TO REVISE" in st.session_state.get("coach_reply",""):
+if st.session_state.get("ready_to_revise"):
     st.markdown("---")
     st.markdown('<div class="step">Step 6 · Revise</div>', unsafe_allow_html=True)
+
+    if st.session_state.get("coach_message"):
+        st.info(st.session_state.coach_message)
+
     st.markdown(f"**Your first claim:** {claim}")
 
     revised = st.text_area(
@@ -498,12 +530,13 @@ if st.session_state.get("ready_to_revise") or "READY TO REVISE" in st.session_st
     st.session_state.revised_claim = revised
 
     if st.button("🏆 Score My Argument", disabled=not revised.strip(), use_container_width=True):
-        st.session_state.score_result = score_argument(
-            challenge["student_question"],
+        st.session_state.score_result = built_in_score(
             st.session_state.evidence,
+            columns,
             observation,
             claim,
-            revised
+            revised,
+            st.session_state.get("coach_answers", [])
         )
         st.rerun()
 
@@ -512,13 +545,23 @@ if st.session_state.get("score_result"):
     st.markdown("---")
     st.markdown('<div class="step">Final · Argument score</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="score">{s["total"]}/100</div>', unsafe_allow_html=True)
+
     a,b,c,d = st.columns(4)
     a.metric("Clear Claim", f'{s["claim"]}/25')
     b.metric("Evidence", f'{s["evidence"]}/25')
     c.metric("Reasoning", f'{s["reasoning"]}/25')
     d.metric("Strength & Fairness", f'{s["fairness"]}/25')
+
     st.success(f'**Strength:** {s.get("strength","")}')
     st.info(f'**Next step:** {s.get("next_step","")}')
 
+    with st.expander("How was this scored?"):
+        st.write(
+            "This is a built-in classroom rubric, not an AI judgment. "
+            "It checks whether your final claim is clear, uses a number from your evidence, "
+            "explains what the evidence shows, and improves after the coaching checks. "
+            "It does not decide whether your sports opinion is right or wrong."
+        )
+
 st.markdown("---")
-st.caption("Sports by the Numbers · Student-entered statistics are not independently verified by the app.")
+st.caption("Sports by the Numbers · Core investigation, coaching, graphing, and scoring use zero AI/API requests.")
