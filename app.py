@@ -1635,12 +1635,17 @@ INVESTIGATION_SCHEMA = {
                         "minItems": 4,
                         "maxItems": 5,
                         "items": {"type": "string"}
+                    },
+                    "evidence_rows": {
+                        "type": "integer",
+                        "minimum": 2,
+                        "maximum": 5
                     }
                 },
                 "required": [
                     "type", "question", "student_question", "why_this_athlete",
                     "research", "fields", "sentence", "pattern_question",
-                    "pattern_options"
+                    "pattern_options", "evidence_rows"
                 ],
                 "additionalProperties": False
             }
@@ -1679,6 +1684,7 @@ def _convert_investigations(athlete, items):
             },
             "starter_pattern_question": item["pattern_question"].strip(),
             "starter_pattern_options": item["pattern_options"][:5],
+            "evidence_rows": max(2, min(5, int(item.get("evidence_rows", 3)))),
             "_source": "AI_CUSTOM"
         })
 
@@ -1740,6 +1746,19 @@ Requirements:
 - students research all numbers themselves
 - never give the answer
 - evidence fields must directly match each custom question
+- choose evidence_rows based on the LOGIC of the question, not a fixed classroom rule
+- evidence_rows means the number of comparison rows/cards the student must complete
+- if the question compares TWO people/teams/eras, evidence_rows MUST be 2
+- if the question compares THREE seasons/teams/eras, evidence_rows MUST be 3
+- use 4 or 5 only when the actual investigation genuinely requires that many comparisons
+- never invent a third comparison just to create three evidence rows
+- multiple statistics about ONE comparison belong in that comparison's SAME evidence row
+
+Example: "Did Mark Duper or Mark Clayton contribute more to Dan Marino's success?"
+should use exactly 2 evidence rows:
+  Row 1 = Mark Duper, with the relevant statistics
+  Row 2 = Mark Clayton, with the same relevant statistics
+It should NOT ask for a third person.
 
 Examples of the desired LEVEL of specificity:
 Artemi Panarin: Chicago vs Columbus vs New York contexts.
@@ -2050,6 +2069,27 @@ def render_graph(rows, cfg, graph_type):
             enc["xOffset"]={"field":"Statistic"}
         spec={"title":cfg["title"],"data":{"values":values},"mark":mark,"encoding":enc}
     st.vega_lite_chart(spec, use_container_width=True)
+
+
+def ensure_evidence_rows(challenge):
+    """
+    Keep the number of evidence cards aligned to the investigation.
+    A 2-way comparison gets 2 cards; a 3-way comparison gets 3, etc.
+    """
+    required = max(2, min(5, int(challenge.get("evidence_rows", 3))))
+
+    current = st.session_state.get("evidence", [])
+    if not isinstance(current, list):
+        current = []
+
+    if len(current) < required:
+        current = current + [{} for _ in range(required - len(current))]
+    elif len(current) > required:
+        current = current[:required]
+
+    st.session_state.evidence = current
+    return required
+
 
 # =========================================================
 # AI COACH
@@ -2702,6 +2742,17 @@ if (
             athlete_info_for_ai["sport"],
             athlete_info_for_ai.get("league", athlete_info_for_ai["sport"])
         )
+
+        # Automatic second attempt on first-load failure. Students should not
+        # have to click Try Again just because the first API response hiccupped.
+        if not generated:
+            discover_athlete_story.clear()
+            generated, diagnostic = build_personalized_set(
+                athlete_choice,
+                athlete_info_for_ai["sport"],
+                athlete_info_for_ai.get("league", athlete_info_for_ai["sport"])
+            )
+
         st.session_state.ai_challenges = generated
         st.session_state.ai_generation_error = diagnostic if not generated else None
         st.session_state.ai_research_note = diagnostic if generated else None
@@ -3099,6 +3150,7 @@ if st.session_state.challenge:
         challenge
     )
 
+    required_evidence = challenge.get("evidence_rows", 3)
     complete_count = len(
         evidence
     )
@@ -3127,7 +3179,7 @@ if st.session_state.challenge:
     # STEP 5 — VISUALIZE + INTERPRET
     # =====================================================
 
-    if complete_count < 3:
+    if complete_count < required_evidence:
         st.divider()
         st.markdown("## 📊 Step 5: Visualize Your Data")
         st.info("Complete at least **3 pieces of evidence** to unlock your graph.")
@@ -3232,7 +3284,7 @@ if st.session_state.challenge:
     # STEP 6 — ORIGINAL CLAIM
     # =====================================================
 
-    if complete_count >= 3:
+    if complete_count >= required_evidence:
 
         st.divider()
 
