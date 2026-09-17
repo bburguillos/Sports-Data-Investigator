@@ -1,9 +1,10 @@
 import streamlit as st
 import random
+from openai import OpenAI
 
-# ---------------------------------------------------------
+# =========================================================
 # PAGE SETUP
-# ---------------------------------------------------------
+# =========================================================
 
 st.set_page_config(
     page_title="Sports Data Investigator",
@@ -11,9 +12,20 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------------------------------------------------
+# =========================================================
+# OPENAI SETUP
+# =========================================================
+
+try:
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    AI_AVAILABLE = True
+except Exception:
+    client = None
+    AI_AVAILABLE = False
+
+# =========================================================
 # STYLING
-# ---------------------------------------------------------
+# =========================================================
 
 st.markdown("""
 <style>
@@ -62,6 +74,14 @@ st.markdown("""
     letter-spacing: 1px;
 }
 
+.coach-box {
+    padding: 20px;
+    border-radius: 15px;
+    border-left: 6px solid #374151;
+    background-color: rgba(127, 127, 127, 0.08);
+    margin-top: 15px;
+}
+
 div.stButton > button {
     border-radius: 10px;
     font-weight: 700;
@@ -71,10 +91,10 @@ div.stButton > button {
 """, unsafe_allow_html=True)
 
 
-# ---------------------------------------------------------
+# =========================================================
 # ATHLETE DATABASE
-# Temporary database until live sports data is connected.
-# ---------------------------------------------------------
+# Temporary until we connect live sports data.
+# =========================================================
 
 ATHLETES = {
 
@@ -82,16 +102,20 @@ ATHLETES = {
         "sport": "🏀 Basketball",
         "league": "NBA",
         "challenges": [
+
             {
                 "type": "Change Over Time",
+
                 "question":
                     "Has LeBron James become a better 3-point shooter "
                     "as his career has progressed?",
+
                 "research": [
                     "Find his 3-point percentage from 3 early-career seasons.",
                     "Find his 3-point percentage from 3 middle-career seasons.",
                     "Find his 3-point percentage from 3 recent seasons."
                 ],
+
                 "thinking": [
                     "Do the percentages show a clear pattern?",
                     "Does one unusually high or low season affect your conclusion?",
@@ -101,14 +125,17 @@ ATHLETES = {
 
             {
                 "type": "Consistency",
+
                 "question":
                     "Has LeBron James been a consistent scorer "
                     "throughout his career?",
+
                 "research": [
                     "Find points per game from at least 6 seasons.",
                     "Include seasons from different parts of his career.",
                     "Identify the highest and lowest values you found."
                 ],
+
                 "thinking": [
                     "How much do his scoring averages change?",
                     "What is the range of your selected values?",
@@ -118,14 +145,17 @@ ATHLETES = {
 
             {
                 "type": "Rate vs. Total",
+
                 "question":
                     "Which tells us more about LeBron James as a scorer: "
                     "total points or points per game?",
+
                 "research": [
                     "Find total points from several seasons.",
                     "Find points per game from those same seasons.",
                     "Record how many games he played each season."
                 ],
+
                 "thinking": [
                     "How does games played affect a season total?",
                     "Can a player have a great scoring rate but a lower total?",
@@ -135,20 +165,27 @@ ATHLETES = {
         ]
     },
 
+
     "Aaron Judge": {
+
         "sport": "⚾ Baseball",
         "league": "MLB",
+
         "challenges": [
+
             {
                 "type": "Relationship",
+
                 "question":
                     "Does Aaron Judge hit more home runs mainly because "
                     "he plays more games?",
+
                 "research": [
                     "Find games played for at least 5 seasons.",
                     "Find home runs for those same seasons.",
                     "Look for a season that does not fit the pattern."
                 ],
+
                 "thinking": [
                     "When games played increase, do home runs always increase?",
                     "Are there seasons that challenge the pattern?",
@@ -158,14 +195,17 @@ ATHLETES = {
 
             {
                 "type": "Rate vs. Total",
+
                 "question":
                     "Is total home runs the fairest way to compare "
                     "Aaron Judge's seasons?",
+
                 "research": [
                     "Find home runs from at least 5 seasons.",
                     "Find games played for those seasons.",
                     "Compare totals with a home-run rate."
                 ],
+
                 "thinking": [
                     "How does playing time affect totals?",
                     "Would a rate make the comparison fairer?",
@@ -175,20 +215,27 @@ ATHLETES = {
         ]
     },
 
+
     "Patrick Mahomes": {
+
         "sport": "🏈 Football",
         "league": "NFL",
+
         "challenges": [
+
             {
                 "type": "Change Over Time",
+
                 "question":
                     "Has Patrick Mahomes' passing production changed "
                     "as his career has progressed?",
+
                 "research": [
                     "Find passing yards from at least 6 seasons.",
                     "Find passing touchdowns from those seasons.",
                     "Record games played for each season."
                 ],
+
                 "thinking": [
                     "Do passing yards and touchdowns show the same pattern?",
                     "Could games played affect the totals?",
@@ -198,20 +245,27 @@ ATHLETES = {
         ]
     },
 
+
     "Connor McDavid": {
+
         "sport": "🏒 Hockey",
         "league": "NHL",
+
         "challenges": [
+
             {
                 "type": "Relationship",
+
                 "question":
                     "For Connor McDavid, do more goals usually lead "
                     "to more total points?",
+
                 "research": [
                     "Find goals from at least 6 seasons.",
                     "Find assists from those same seasons.",
                     "Find total points from those seasons."
                 ],
+
                 "thinking": [
                     "Do goals and points always rise together?",
                     "How do assists affect total points?",
@@ -221,20 +275,27 @@ ATHLETES = {
         ]
     },
 
+
     "Lionel Messi": {
+
         "sport": "⚽ Soccer",
         "league": "Soccer",
+
         "challenges": [
+
             {
                 "type": "Change Over Time",
+
                 "question":
                     "How has Lionel Messi's goal-scoring rate changed "
                     "across different stages of his career?",
+
                 "research": [
                     "Choose seasons from early, middle and later parts of his career.",
                     "Find goals for each selected season.",
                     "Find appearances or minutes played."
                 ],
+
                 "thinking": [
                     "Is total goals enough for a fair comparison?",
                     "Would goals per game or goals per 90 minutes be better?",
@@ -246,28 +307,198 @@ ATHLETES = {
 }
 
 
-# ---------------------------------------------------------
+# =========================================================
 # FUNCTIONS
-# ---------------------------------------------------------
+# =========================================================
 
 def get_challenge(athlete):
     return random.choice(ATHLETES[athlete]["challenges"])
 
 
 def reset_investigation():
+
     for key in [
         "evidence_1",
         "evidence_2",
         "evidence_3",
         "claim"
     ]:
+
         if key in st.session_state:
             st.session_state[key] = ""
 
+    st.session_state.coach_feedback = None
 
-# ---------------------------------------------------------
+
+def ask_data_coach(
+    athlete_name,
+    sport,
+    league,
+    difficulty,
+    challenge,
+    evidence,
+    claim,
+    coach_mode="full"
+):
+
+    if not AI_AVAILABLE:
+        return (
+            "The Sports Data Coach is not connected yet. "
+            "Please ask your teacher to check the app's AI settings."
+        )
+
+    evidence_text = "\n".join(
+        [
+            f"Evidence {i + 1}: {item}"
+            for i, item in enumerate(evidence)
+            if item.strip()
+        ]
+    )
+
+    if not evidence_text:
+        evidence_text = "The student has not entered evidence yet."
+
+    if not claim.strip():
+        claim_text = "The student has not written a claim yet."
+    else:
+        claim_text = claim
+
+    if coach_mode == "hint":
+
+        task_instruction = """
+The student is asking for a RESEARCH HINT.
+
+Do not provide statistics or answer the research question.
+
+Give:
+1. One short encouraging sentence.
+2. One specific suggestion about the TYPE of statistic or comparison
+   the student should research next.
+3. One question for the student to think about.
+
+Keep the entire response under 90 words.
+"""
+
+    elif coach_mode == "simple":
+
+        task_instruction = """
+The student wants the feedback explained more simply.
+
+Explain what the student should do next using very simple
+7th-grade language.
+
+Do not provide the answer or write a claim for the student.
+
+Keep the response under 90 words.
+"""
+
+    else:
+
+        task_instruction = """
+Evaluate the student's work as a sports statistics coach.
+
+Your response must contain exactly these four sections:
+
+### 🟢 What You're Doing Well
+Identify ONE specific thing the student is doing well.
+
+### 🟡 Look Closer
+Identify ONE weakness, missing piece, unsupported conclusion,
+or possible problem with the student's evidence or reasoning.
+
+### 🔎 Your Next Move
+Give ONE specific action the student should take next.
+Do not provide the missing statistic or do the research for them.
+
+### 🧠 Coach's Question
+Ask ONE question that will make the student think more deeply
+about the data.
+
+Keep the response between 100 and 180 words.
+"""
+
+    teacher_instructions = """
+You are the Sports Data Coach inside a middle-school statistics
+course called Sports by the Numbers.
+
+The students are approximately 7th grade.
+
+Your job is to COACH statistical reasoning, not complete assignments.
+
+IMPORTANT RULES:
+
+- Never write the student's final claim for them.
+- Never provide the research answer.
+- Never invent statistics.
+- Never pretend a statistic supplied by the student has been verified.
+- Treat student-entered statistics as unverified evidence.
+- If a statistic looks suspicious, tell the student to verify it
+  using a reliable sports statistics source.
+- Focus on whether the evidence is relevant to the research question.
+- Help students notice trends, comparisons, outliers, rates,
+  percentages, sample size, fairness, and limitations when appropriate.
+- Challenge words such as "always," "never," "proves," or "definitely"
+  when the evidence does not justify them.
+- Distinguish association from causation when relevant.
+- Use encouraging, age-appropriate language.
+- Avoid complicated statistical vocabulary unless you explain it.
+- Do not shame a student for an incorrect answer.
+- Ask questions that cause the student to think.
+- Do not give grades or numerical scores.
+"""
+
+    student_context = f"""
+ATHLETE:
+{athlete_name}
+
+SPORT:
+{sport}
+
+LEAGUE:
+{league}
+
+CHALLENGE LEVEL:
+{difficulty}
+
+INVESTIGATION TYPE:
+{challenge["type"]}
+
+RESEARCH QUESTION:
+{challenge["question"]}
+
+STUDENT EVIDENCE:
+{evidence_text}
+
+STUDENT CLAIM:
+{claim_text}
+
+COACH REQUEST:
+{task_instruction}
+"""
+
+    try:
+
+        response = client.responses.create(
+            model="gpt-5.6-luna",
+            instructions=teacher_instructions,
+            input=student_context,
+            max_output_tokens=500
+        )
+
+        return response.output_text
+
+    except Exception as error:
+
+        return (
+            "⚠️ The Sports Data Coach couldn't respond right now.\n\n"
+            "Your work has not been lost. Try again in a moment.\n\n"
+            f"Teacher note: {str(error)}"
+        )
+
+
+# =========================================================
 # SESSION STATE
-# ---------------------------------------------------------
+# =========================================================
 
 if "challenge" not in st.session_state:
     st.session_state.challenge = None
@@ -275,10 +506,13 @@ if "challenge" not in st.session_state:
 if "current_athlete" not in st.session_state:
     st.session_state.current_athlete = None
 
+if "coach_feedback" not in st.session_state:
+    st.session_state.coach_feedback = None
 
-# ---------------------------------------------------------
+
+# =========================================================
 # HERO
-# ---------------------------------------------------------
+# =========================================================
 
 st.markdown("""
 <div class="hero">
@@ -292,9 +526,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ---------------------------------------------------------
+# =========================================================
 # ATHLETE SEARCH
-# ---------------------------------------------------------
+# =========================================================
 
 st.subheader("🏆 Who do you want to investigate?")
 
@@ -309,27 +543,23 @@ difficulty = st.radio(
     horizontal=True
 )
 
-col1, col2 = st.columns([1, 3])
+if st.button(
+    "🚀 BUILD MY CHALLENGE",
+    type="primary",
+    use_container_width=False
+):
 
-with col1:
+    st.session_state.current_athlete = athlete
+    st.session_state.challenge = get_challenge(athlete)
 
-    if st.button(
-        "🚀 BUILD MY CHALLENGE",
-        type="primary",
-        use_container_width=True
-    ):
+    reset_investigation()
 
-        st.session_state.current_athlete = athlete
-        st.session_state.challenge = get_challenge(athlete)
-
-        reset_investigation()
-
-        st.rerun()
+    st.rerun()
 
 
-# ---------------------------------------------------------
+# =========================================================
 # CHALLENGE
-# ---------------------------------------------------------
+# =========================================================
 
 if st.session_state.challenge:
 
@@ -347,18 +577,18 @@ if st.session_state.challenge:
 
         st.markdown(
             f"""
-            **{athlete_name}**
+**{athlete_name}**
 
-            {athlete_info["sport"]}
+{athlete_info["sport"]}
 
-            **League:** {athlete_info["league"]}
+**League:** {athlete_info["league"]}
 
-            **Investigation:**  
-            {challenge["type"]}
+**Investigation:**  
+{challenge["type"]}
 
-            **Difficulty:**  
-            {difficulty}
-            """
+**Difficulty:**  
+{difficulty}
+"""
         )
 
     with col2:
@@ -367,12 +597,12 @@ if st.session_state.challenge:
 
         st.markdown(
             f"""
-            <div class="challenge-box">
-                <div class="mission">
-                    {challenge["question"]}
-                </div>
-            </div>
-            """,
+<div class="challenge-box">
+    <div class="mission">
+        {challenge["question"]}
+    </div>
+</div>
+""",
             unsafe_allow_html=True
         )
 
@@ -385,9 +615,9 @@ if st.session_state.challenge:
             st.rerun()
 
 
-    # -----------------------------------------------------
+    # =====================================================
     # RESEARCH DIRECTIONS
-    # -----------------------------------------------------
+    # =====================================================
 
     st.divider()
 
@@ -419,17 +649,15 @@ if st.session_state.challenge:
 
         else:
 
-            st.markdown(
-                """
-                You are the lead analyst.
+            st.markdown("""
+You are the lead analyst.
 
-                Decide:
+Decide:
 
-                - What statistics should be researched?
-                - How many seasons should be included?
-                - What would make the comparison fair?
-                """
-            )
+- What statistics should be researched?
+- How many seasons should be included?
+- What would make the comparison fair?
+""")
 
 
     with right:
@@ -450,9 +678,9 @@ if st.session_state.challenge:
             )
 
 
-    # -----------------------------------------------------
+    # =====================================================
     # EVIDENCE
-    # -----------------------------------------------------
+    # =====================================================
 
     st.divider()
 
@@ -482,9 +710,9 @@ if st.session_state.challenge:
     )
 
 
-    # -----------------------------------------------------
+    # =====================================================
     # CLAIM
-    # -----------------------------------------------------
+    # =====================================================
 
     st.divider()
 
@@ -519,64 +747,185 @@ if st.session_state.challenge:
     )
 
 
-    # -----------------------------------------------------
-    # TEMPORARY COACH
-    # -----------------------------------------------------
+    # =====================================================
+    # REAL AI SPORTS DATA COACH
+    # =====================================================
 
     st.divider()
 
     st.markdown("## 🤖 Sports Data Coach")
 
-    st.caption(
-        "For now this uses simple checks. "
-        "Next we'll replace this with the real AI coach."
+    st.write(
+        "Your coach will read your **actual evidence and claim** "
+        "and help you improve your statistical reasoning."
     )
 
-    if st.button(
-        "🏟️ ASK MY DATA COACH",
-        type="primary"
-    ):
+    st.caption(
+        "The coach will help you think — it will not write "
+        "your final answer for you."
+    )
 
-        evidence_count = sum(
-            bool(x.strip())
-            for x in [
-                evidence_1,
-                evidence_2,
-                evidence_3
-            ]
+    evidence_list = [
+        evidence_1,
+        evidence_2,
+        evidence_3
+    ]
+
+    evidence_count = sum(
+        bool(item.strip())
+        for item in evidence_list
+    )
+
+    if not AI_AVAILABLE:
+
+        st.error(
+            "The AI coach is not connected. "
+            "Ask your teacher to check the Streamlit secret."
         )
 
-        if evidence_count < 2:
+    coach_col1, coach_col2 = st.columns(2)
 
-            st.warning(
-                "You need more evidence before making a strong claim. "
-                "Try finding at least two useful statistics."
-            )
+    with coach_col1:
 
-        elif len(claim.strip()) < 20:
+        if st.button(
+            "🏟️ ASK MY DATA COACH",
+            type="primary",
+            use_container_width=True
+        ):
 
-            st.warning(
-                "You've collected evidence, but your claim needs "
-                "more explanation. What do your numbers actually show?"
-            )
+            if evidence_count < 2:
 
-        else:
+                st.session_state.coach_feedback = (
+                    "### 🔎 Collect More Evidence\n\n"
+                    "Before your coach evaluates your claim, find at least "
+                    "**two pieces of numerical evidence** related to your "
+                    "research question."
+                )
 
-            st.success(
-                "You have multiple pieces of evidence and a claim. "
-                "Now ask yourself: Does every part of your claim match "
-                "what your evidence actually proves?"
-            )
+            elif len(claim.strip()) < 15:
 
-            st.info(
-                "💡 **Next step:** Look for one statistic that might "
-                "challenge your conclusion. Does your claim still hold?"
-            )
+                st.session_state.coach_feedback = (
+                    "### 📣 Make a Claim First\n\n"
+                    "You have evidence. Now write what you think the "
+                    "evidence shows. It does not have to be perfect — "
+                    "your coach will help you improve it."
+                )
+
+            else:
+
+                with st.spinner(
+                    "Coach is studying your evidence..."
+                ):
+
+                    st.session_state.coach_feedback = ask_data_coach(
+                        athlete_name=athlete_name,
+                        sport=athlete_info["sport"],
+                        league=athlete_info["league"],
+                        difficulty=difficulty,
+                        challenge=challenge,
+                        evidence=evidence_list,
+                        claim=claim,
+                        coach_mode="full"
+                    )
+
+    with coach_col2:
+
+        if st.button(
+            "🔎 GIVE ME A RESEARCH HINT",
+            use_container_width=True
+        ):
+
+            with st.spinner(
+                "Coach is thinking of a useful hint..."
+            ):
+
+                st.session_state.coach_feedback = ask_data_coach(
+                    athlete_name=athlete_name,
+                    sport=athlete_info["sport"],
+                    league=athlete_info["league"],
+                    difficulty=difficulty,
+                    challenge=challenge,
+                    evidence=evidence_list,
+                    claim=claim,
+                    coach_mode="hint"
+                )
 
 
-# ---------------------------------------------------------
+    # =====================================================
+    # DISPLAY AI FEEDBACK
+    # =====================================================
+
+    if st.session_state.coach_feedback:
+
+        st.markdown("### 🧢 Coach's Feedback")
+
+        st.markdown(
+            st.session_state.coach_feedback
+        )
+
+        st.markdown("---")
+
+        st.markdown(
+            "**Don't just accept the feedback. "
+            "Use it to improve your research or revise your claim.**"
+        )
+
+        if st.button(
+            "💡 EXPLAIN THE FEEDBACK MORE SIMPLY"
+        ):
+
+            with st.spinner(
+                "Coach is simplifying the feedback..."
+            ):
+
+                simple_feedback = ask_data_coach(
+                    athlete_name=athlete_name,
+                    sport=athlete_info["sport"],
+                    league=athlete_info["league"],
+                    difficulty=difficulty,
+                    challenge=challenge,
+                    evidence=evidence_list,
+                    claim=claim,
+                    coach_mode="simple"
+                )
+
+                st.session_state.coach_feedback = simple_feedback
+
+                st.rerun()
+
+
+    # =====================================================
+    # STUDENT REMINDER
+    # =====================================================
+
+    st.divider()
+
+    st.markdown("### 🏁 Before You Finish")
+
+    st.checkbox(
+        "My claim answers the research question."
+    )
+
+    st.checkbox(
+        "I used numerical evidence."
+    )
+
+    st.checkbox(
+        "My evidence actually supports my claim."
+    )
+
+    st.checkbox(
+        "I checked that my statistics came from a reliable source."
+    )
+
+    st.checkbox(
+        "I revised my work after reading my coach's feedback."
+    )
+
+
+# =========================================================
 # FOOTER
-# ---------------------------------------------------------
+# =========================================================
 
 st.divider()
 
