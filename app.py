@@ -110,6 +110,17 @@ st.markdown("""
 .stButton button { border-radius:12px; font-weight:800; min-height:44px; }
 .stButton button[kind="primary"] { background:linear-gradient(90deg,var(--accent),var(--accent2)); color:white; border:none; }
 div[data-testid="stMetric"] { border:1px solid rgba(var(--sport-rgb),.28); border-radius:14px; padding:10px; }
+
+/* Step 2 investigation question — high contrast */
+.challenge-box .mission {
+    color: #ffffff !important;
+    font-weight: 850 !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,.35);
+}
+.challenge-box {
+    color: #f8fafc !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
