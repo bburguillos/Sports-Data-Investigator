@@ -1539,263 +1539,254 @@ def normalize_ai_field(field):
 @st.cache_data(show_spinner=False, ttl=604800)
 def discover_athlete_story(athlete, sport, league):
     """
-    Research THIS athlete's career story.
-    Returns a factual brief. If web-grounded research fails, returns a clear marker
-    rather than silently switching the student to generic static questions.
+    Research the athlete's real career context. No session-state writes occur
+    inside cached functions.
     """
     if not client:
-        return ""
+        return "", "OpenAI client unavailable"
 
     prompt = f"""
-Build a concise career-story brief for {athlete} ({sport}, {league}) for a
-7th-grade Sports by the Numbers investigation generator.
+Research {athlete} ({sport}, {league}) for a 7th-grade sports-data project.
 
-Identify 10-15 CONCRETE hooks that are distinctive to this athlete:
-named teams/clubs/constructors, specific seasons or eras, career moves,
-championship/playoff contexts, teammate/role changes, breakout periods,
-documented before/after moments, or other athlete-specific situations.
+Return a concise career brief with 10-15 concrete, distinctive hooks:
+named teams/clubs/constructors, specific seasons/eras, teammates when relevant,
+career moves, championships/playoff contexts, role changes, breakout periods,
+or other real before/after situations.
 
-For Formula 1, look especially for constructor/team context, teammates,
-championship seasons, qualifying/race patterns, wins/podium eras, and
-specific season-to-season turning points.
-
-Do not write generic questions. Do not provide a giant stat table.
-Do not invent facts. The next step will turn these hooks into questions.
+Do NOT write the five student questions yet.
+Do NOT provide a giant stat table.
+Do NOT invent facts.
 """
 
-    # Try web-grounded research first.
+    # Official Responses API supports web_search_preview. If the deployed model/key
+    # cannot use it, fall back to model knowledge rather than failing the whole app.
     try:
         response = client.responses.create(
             model="gpt-5.6-luna",
             tools=[{"type": "web_search_preview"}],
             input=prompt,
-            max_output_tokens=1600
+            max_output_tokens=1400
         )
-        text = response.output_text.strip()
+        text = (response.output_text or "").strip()
         if text:
-            return text
-    except Exception:
-        pass
+            return text, None
+    except Exception as exc:
+        web_error = f"{type(exc).__name__}: {exc}"
+    else:
+        web_error = "Web research returned no text"
 
-    # If web-search tooling is unavailable in the deployed API environment,
-    # still create an athlete-specific brief from model knowledge instead of
-    # falling all the way back to static generic templates.
     try:
         response = client.responses.create(
             model="gpt-5.6-luna",
             instructions=(
-                "Use only athlete-specific career facts you are confident about. "
-                "Do not invent details. Produce concrete named career hooks, not generic categories."
+                "Use only athlete-specific career facts you are confident are correct. "
+                "Do not invent details."
             ),
             input=prompt,
-            max_output_tokens=1600
+            max_output_tokens=1400
         )
-        return response.output_text.strip()
-    except Exception:
-        return ""
+        text = (response.output_text or "").strip()
+        if text:
+            return text, f"Web search unavailable; used model knowledge. ({web_error})"
+        return "", f"No athlete brief returned. ({web_error})"
+    except Exception as exc:
+        return "", f"Career research failed: {type(exc).__name__}: {exc}; web: {web_error}"
 
 
-def _parse_json_object(raw):
-    import json, re as _re
-    raw = (raw or "").strip()
-    raw = raw.replace("```json", "").replace("```JSON", "").replace("```", "").strip()
+INVESTIGATION_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "investigations": {
+            "type": "array",
+            "minItems": 5,
+            "maxItems": 5,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "type": {"type": "string"},
+                    "question": {"type": "string"},
+                    "student_question": {"type": "string"},
+                    "why_this_athlete": {"type": "string"},
+                    "research": {
+                        "type": "array",
+                        "minItems": 3,
+                        "maxItems": 4,
+                        "items": {"type": "string"}
+                    },
+                    "fields": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 4,
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {"type": "string"},
+                                "label": {"type": "string"},
+                                "placeholder": {"type": "string"}
+                            },
+                            "required": ["name", "label", "placeholder"],
+                            "additionalProperties": False
+                        }
+                    },
+                    "sentence": {"type": "string"},
+                    "pattern_question": {"type": "string"},
+                    "pattern_options": {
+                        "type": "array",
+                        "minItems": 4,
+                        "maxItems": 5,
+                        "items": {"type": "string"}
+                    }
+                },
+                "required": [
+                    "type", "question", "student_question", "why_this_athlete",
+                    "research", "fields", "sentence", "pattern_question",
+                    "pattern_options"
+                ],
+                "additionalProperties": False
+            }
+        }
+    },
+    "required": ["investigations"],
+    "additionalProperties": False
+}
 
-    # First try direct JSON.
-    try:
-        return json.loads(raw)
-    except Exception:
-        pass
 
-    # Then recover the outermost JSON object if the model added prose.
-    match = _re.search(r"\{.*\}", raw, flags=_re.S)
-    if match:
-        return json.loads(match.group(0))
-    raise ValueError("No valid JSON object returned")
-
-
-def _build_challenges_from_items(athlete, items):
-    """Validate and convert model JSON into the app's challenge structure."""
-    if len(items) != 5:
-        raise ValueError("Generator did not return exactly five investigations")
-
+def _convert_investigations(athlete, items):
+    """Convert guaranteed structured output into the app's challenge format."""
     challenges = []
-    fingerprints = set()
 
     for index, item in enumerate(items):
-        fields = [
-            normalize_ai_field(f)
-            for f in item.get("fields", [])
-            if isinstance(f, dict)
-        ][:4]
+        fields = []
+        used_names = set()
 
-        if len(fields) < 2:
-            raise ValueError("Investigation did not include enough evidence fields")
-
-        # Unique evidence keys.
-        used = set()
-        for j, f in enumerate(fields):
-            if f["name"] in used:
-                f["name"] = f"value{j+2}"
-            used.add(f["name"])
-
-        question = str(item.get("question", "")).strip()
-        student_question = str(item.get("student_question", "")).strip()
-        why = str(item.get("why_this_athlete", "")).strip()
-
-        if not question or not student_question:
-            raise ValueError("Investigation question was blank")
-
-        fp = re.sub(r"[^a-z0-9 ]", "", student_question.lower())
-        fp = fp.replace(athlete.lower(), "").strip()
-        if fp in fingerprints:
-            raise ValueError("Duplicate investigations returned")
-        fingerprints.add(fp)
+        for j, raw_field in enumerate(item["fields"][:4]):
+            field = normalize_ai_field(raw_field)
+            if field["name"] in used_names:
+                field["name"] = f"value{j+2}"
+            used_names.add(field["name"])
+            fields.append(field)
 
         challenges.append({
             "id": f"custom_{''.join(ch.lower() if ch.isalnum() else '_' for ch in athlete)}_{index}",
-            "type": str(item.get("type", "Custom Investigation"))[:60],
-            "question": question,
-            "student_question": student_question,
-            "why_this_athlete": why,
-            "research": [str(x) for x in item.get("research", [])][:4],
+            "type": item["type"][:60],
+            "question": item["question"].strip(),
+            "student_question": item["student_question"].strip(),
+            "why_this_athlete": item["why_this_athlete"].strip(),
+            "research": item["research"][:4],
             "schema": {
                 "fields": fields,
-                "sentence": str(item.get("sentence", "")).strip()
+                "sentence": item["sentence"].strip()
             },
-            "starter_pattern_question": str(
-                item.get("pattern_question", "What does your evidence seem to show?")
-            ),
-            "starter_pattern_options": [
-                str(x) for x in item.get(
-                    "pattern_options",
-                    ["The first side was stronger", "The second side was stronger",
-                     "They were similar", "The evidence was mixed", "I'm not sure yet"]
-                )
-            ][:5],
+            "starter_pattern_question": item["pattern_question"].strip(),
+            "starter_pattern_options": item["pattern_options"][:5],
             "_source": "AI_CUSTOM"
         })
 
     return challenges
 
 
-@st.cache_data(show_spinner=False, ttl=86400)
 def generate_player_specific_challenges(athlete, sport, league):
     """
-    Generate five athlete-specific investigations.
-    IMPORTANT: this function NEVER silently returns the old generic five.
-    It retries generation, then returns an empty list so the UI can show the failure.
+    Reliable generator:
+    - career research first
+    - Structured Outputs for the five investigations
+    - no hand-parsing of free-form JSON
+    - no silent generic fallback
+    Returns (challenges, diagnostic)
     """
     if not client:
-        st.session_state.ai_generation_error = "OpenAI client is unavailable."
-        return []
+        return [], "OpenAI client unavailable"
 
-    st.session_state.ai_generation_error = None
-    story = discover_athlete_story(athlete, sport, league)
-
+    story, research_note = discover_athlete_story(athlete, sport, league)
     if not story:
-        return []
+        return [], research_note or "Could not create athlete career brief"
 
-    base_prompt = f"""
-Create exactly FIVE genuinely different statistical investigations for a
+    prompt = f"""
+Create exactly five genuinely different statistical investigations for a
 7th-grade Sports by the Numbers student.
 
 ATHLETE: {athlete}
 SPORT: {sport}
 LEAGUE/SERIES: {league}
 
-ATHLETE-SPECIFIC CAREER BRIEF:
+RESEARCHED CAREER BRIEF:
 {story}
 
-This is NOT a template-filling exercise.
+The questions must emerge from THIS athlete's career story.
 
-The five questions must be ABOUT EVENTS IN {athlete.upper()}'S ACTUAL CAREER,
-not five generic statistical categories.
+STRICT PERSONALIZATION TEST:
+If another athlete from the same sport could receive a question by changing only
+the athlete's name, reject that question.
 
-ABSOLUTE RULE:
-If a question could be reused for another athlete by changing only the name,
-DO NOT USE IT.
+Do NOT use generic prompts such as:
+- How did this athlete change over time?
+- How consistent was this athlete?
+- Which season was best?
+- Is one season enough?
+- Rate versus total in general.
 
-For example, if the athlete is Max Verstappen, questions like these are forbidden:
-- How has Max Verstappen changed over time?
-- How consistent is Max Verstappen?
-- Which Max Verstappen season was best?
-- Is one season enough to judge Max Verstappen?
-- How do Max Verstappen's totals compare to his rates?
+Instead use named teams/clubs/constructors, specific seasons or eras, real career
+moves, teammates when relevant, championship/playoff/tournament contexts,
+specific before/after moments, or another concrete hook in the career brief.
 
-Instead, use concrete hooks from the career brief: named constructors/teams,
-specific championship seasons, particular teammates, real career turning points,
-specific eras, or other context distinctive to him.
+Requirements:
+- all five use DIFFERENT career hooks
+- at least four explicitly contain concrete athlete-specific context
+- at least two would make little sense for a random athlete in the sport
+- at least one is a compelling A-vs-B comparison if the career supports it
+- at least one tests a concrete claim about this athlete
+- use only sport-appropriate statistics
+- keep math appropriate for grade 7
+- students research all numbers themselves
+- never give the answer
+- evidence fields must directly match each custom question
 
-DIVERSITY RULES:
-- All 5 must use different career hooks.
-- At least 4 must explicitly name a team/club/constructor, teammate, season,
-  championship/playoff/tournament, career move, or other concrete event.
-- At least 2 must be so athlete-specific that they would make little sense for
-  another athlete in the sport.
-- Do not force "change over time / consistency / rate vs total / best season /
-  fair claim" as the five structures.
-- Let the STORY determine the math question.
-- Keep the math accessible to grade 7.
-- Never give the student the actual researched numbers or the answer.
-- Evidence labels must be sport-appropriate and question-specific.
+Examples of the desired LEVEL of specificity:
+Artemi Panarin: Chicago vs Columbus vs New York contexts.
+Max Verstappen: questions anchored to actual Red Bull/Toro Rosso seasons,
+championship eras, teammates, qualifying/race contexts, or specific turning points.
+Dan Marino: questions anchored to actual Dolphins seasons, his early-career peak,
+playoff/Super Bowl context, or other real Marino-specific career hooks.
 
-Return ONLY JSON:
-{{
-  "investigations": [
-    {{
-      "type": "short custom label",
-      "question": "full specific question",
-      "student_question": "short specific question",
-      "why_this_athlete": "the concrete career hook that makes this question specific",
-      "research": ["what to research", "what else to research", "what to compare"],
-      "fields": [
-        {{"name":"period","label":"question-specific label","placeholder":"format example"}},
-        {{"name":"value","label":"question-specific statistic","placeholder":"format example"}}
-      ],
-      "sentence": "evidence sentence using the field placeholders",
-      "pattern_question": "question-specific pattern question",
-      "pattern_options": ["specific choice 1","specific choice 2","specific choice 3","I'm not sure yet"]
-    }}
-  ]
-}}
+Do not copy those examples unless supported by the supplied career brief.
 """
 
-    # Two attempts. The second explicitly tells the model why the first failed.
-    last_error = None
-    for attempt in range(2):
-        prompt = base_prompt
-        if attempt == 1:
-            prompt += """
-RETRY INSTRUCTION:
-Your previous output could not be used. Be even MORE concrete.
-Every question should visibly contain athlete-specific nouns from the career brief.
-Do not return five generic categories with customized wording.
-"""
+    try:
+        response = client.responses.create(
+            model="gpt-5.6-luna",
+            instructions=(
+                "Create highly athlete-specific student investigations. "
+                "Never supply the researched statistics or conclusions."
+            ),
+            input=prompt,
+            text={
+                "format": {
+                    "type": "json_schema",
+                    "name": "athlete_investigations",
+                    "strict": True,
+                    "schema": INVESTIGATION_SCHEMA
+                }
+            },
+            max_output_tokens=3000
+        )
 
-        try:
-            response = client.responses.create(
-                model="gpt-5.6-luna",
-                instructions=(
-                    "Return valid JSON only. Exactly five investigations. "
-                    "Use concrete athlete-specific career context. Never answer the questions."
-                ),
-                input=prompt,
-                max_output_tokens=3200
-            )
-            data = _parse_json_object(response.output_text)
-            items = data.get("investigations", [])
-            challenges = _build_challenges_from_items(athlete, items)
-            st.session_state.ai_generation_error = None
-            return challenges
-        except Exception as exc:
-            last_error = f"{type(exc).__name__}: {exc}"
-            continue
+        import json
+        data = json.loads(response.output_text)
+        challenges = _convert_investigations(athlete, data["investigations"])
 
-    st.session_state.ai_generation_error = last_error
+        if len(challenges) != 5:
+            return [], "Structured generator returned the wrong number of investigations"
 
-    # DO NOT fall back to the static five: that was the bug that made every
-    # athlete appear to receive the same questions.
-    return []
+        return challenges, research_note
+
+    except Exception as exc:
+        return [], f"{type(exc).__name__}: {exc}"
+
+
+def build_personalized_set(athlete, sport, league):
+    """Non-cached wrapper so diagnostics and retries behave predictably in Streamlit."""
+    challenges, diagnostic = generate_player_specific_challenges(athlete, sport, league)
+    return challenges, diagnostic
 
 
 # =========================================================
@@ -1820,7 +1811,8 @@ DEFAULTS = {
     "graded_claim": "",
     "ai_topic_athlete": None,
     "ai_challenges": None,
-    "ai_generation_error": None
+    "ai_generation_error": None,
+    "ai_research_note": None
 }
 
 for key, value in DEFAULTS.items():
@@ -2705,11 +2697,14 @@ if (
 ):
     with st.spinner(f"🔎 Discovering {athlete_choice}’s career story and building 5 unique investigations..."):
         athlete_info_for_ai = ATHLETES[athlete_choice]
-        st.session_state.ai_challenges = generate_player_specific_challenges(
+        generated, diagnostic = build_personalized_set(
             athlete_choice,
             athlete_info_for_ai["sport"],
             athlete_info_for_ai.get("league", athlete_info_for_ai["sport"])
         )
+        st.session_state.ai_challenges = generated
+        st.session_state.ai_generation_error = diagnostic if not generated else None
+        st.session_state.ai_research_note = diagnostic if generated else None
         st.session_state.ai_topic_athlete = athlete_choice
 
 available_challenges = st.session_state.ai_challenges or []
@@ -2724,7 +2719,6 @@ if not available_challenges:
         with st.expander("Teacher diagnostic"):
             st.code(st.session_state.ai_generation_error)
     if st.button("🔄 Try Again — Build 5 Personalized Questions"):
-        generate_player_specific_challenges.clear()
         discover_athlete_story.clear()
         st.session_state.ai_challenges = None
         st.session_state.ai_topic_athlete = None
@@ -2749,15 +2743,17 @@ selected_challenge = available_challenges[
 ]
 
 if st.button("✨ Research a Different 5 Questions for This Athlete"):
-    generate_player_specific_challenges.clear()
     discover_athlete_story.clear()
     with st.spinner(f"🔎 Finding new career angles for {athlete_choice}..."):
         athlete_info_for_ai = ATHLETES[athlete_choice]
-        st.session_state.ai_challenges = generate_player_specific_challenges(
+        generated, diagnostic = build_personalized_set(
             athlete_choice,
             athlete_info_for_ai["sport"],
             athlete_info_for_ai.get("league", athlete_info_for_ai["sport"])
         )
+        st.session_state.ai_challenges = generated
+        st.session_state.ai_generation_error = diagnostic if not generated else None
+        st.session_state.ai_research_note = diagnostic if generated else None
     st.rerun()
 
 if st.button(
