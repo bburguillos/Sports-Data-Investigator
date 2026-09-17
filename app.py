@@ -1145,6 +1145,22 @@ CURATED_DATA = json.loads(r'''{
 
 records = CURATED_DATA["records"]
 
+
+SPORT_ICONS = {
+    "NFL": "🏈",
+    "NBA": "🏀",
+    "MLB": "⚾",
+    "NHL": "🏒",
+    "Soccer": "⚽",
+    "Formula 1": "🏎️",
+}
+
+MODE_ICONS = {
+    "Percent Change": "📈",
+    "MAD Consistency": "🎯",
+    "Frequency Table": "📊",
+}
+
 def reset_work():
     keep = {"sport_select","athlete_select","mode_select"}
     for key in list(st.session_state.keys()):
