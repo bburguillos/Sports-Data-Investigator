@@ -1244,8 +1244,9 @@ def percent_change_engine(rec):
     st.markdown('<div class="formula">Percent Change = (New − Old) ÷ Old × 100</div>', unsafe_allow_html=True)
 
     st.info(
-        "Rounding is allowed. For percent change, answers within **0.5 percentage points** "
-        "of the exact answer are accepted."
+        "For each pair, you will find the numerical change, calculate the percent change, "
+        "and identify whether it is a **percent increase** or **percent decrease**. "
+        "Rounding is allowed within **0.5 percentage points**."
     )
 
     st.markdown("### 1. Read the data")
@@ -1281,8 +1282,18 @@ def percent_change_engine(rec):
             help="You may round. Answers within 0.5 percentage points are accepted."
         )
 
+        direction = st.radio(
+            "Was this an increase or decrease?",
+            ["Increase", "Decrease", "No Change"],
+            key=f"pc_direction_{i}",
+            horizontal=True
+        )
+
+        true_direction = "Increase" if true_change > 0 else "Decrease" if true_change < 0 else "No Change"
+
         change_ok = math.isclose(float(student_change), true_change, abs_tol=0.5)
         pct_ok = math.isclose(float(student_pct), true_pct, abs_tol=0.5)
+        direction_ok = direction == true_direction
 
         results.append({
             "i": i,
@@ -1292,8 +1303,11 @@ def percent_change_engine(rec):
             "true_pct": true_pct,
             "student_change": float(student_change),
             "student_pct": float(student_pct),
+            "student_direction": direction,
+            "true_direction": true_direction,
             "change_ok": change_ok,
             "pct_ok": pct_ok,
+            "direction_ok": direction_ok,
             "label": f"{labels[i-1]} → {labels[i]}",
         })
 
@@ -1301,7 +1315,7 @@ def percent_change_engine(rec):
         st.session_state.pc_check_attempts = 0
 
     if st.button("Check My Percent Changes", use_container_width=True):
-        all_correct = all(r["change_ok"] and r["pct_ok"] for r in results)
+        all_correct = all(r["change_ok"] and r["pct_ok"] and r["direction_ok"] for r in results)
 
         if all_correct:
             st.success("✅ Correct! Your answers are within the accepted rounding range.")
@@ -1319,10 +1333,17 @@ def percent_change_engine(rec):
                 st.warning("You’ve missed it twice, so here’s a more specific hint for each row that needs work:")
 
                 for r in results:
-                    if r["change_ok"] and r["pct_ok"]:
+                    if r["change_ok"] and r["pct_ok"] and r["direction_ok"]:
                         continue
 
                     st.markdown(f"#### {r['label']}")
+
+                    if not r["direction_ok"]:
+                        st.write(
+                            f"**Check whether the value went up or down.** "
+                            f"It went from {fmt(r['old'])} to {fmt(r['new'])}, "
+                            f"so this is a **{r['true_direction'].lower()}**."
+                        )
 
                     if not r["change_ok"]:
                         expected_change = r["true_change"]
