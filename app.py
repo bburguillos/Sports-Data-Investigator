@@ -4,7 +4,7 @@ import random
 import re
 import nflreadpy as nfl
 import polars as pl
-from pybaseball import batting_stats, pitching_stats
+import requests
 
 st.set_page_config(
     page_title="Sports Data Investigator",
@@ -500,204 +500,176 @@ def nfl_prefill_evidence(challenge, player_df):
     return rows
 
 # -----------------------------
-# MLB AUTOMATIC DATA
+# MLB AUTOMATIC DATA — MLB STATS API
 # -----------------------------
-@st.cache_data(ttl=21600, show_spinner=False)
-def load_mlb_batting_stats(start_year, end_year):
-    """Season-level MLB batting data from pybaseball/FanGraphs."""
-    return batting_stats(int(start_year), int(end_year), qual=0)
+MLB_API = "https://statsapi.mlb.com/api/v1"
 
 @st.cache_data(ttl=21600, show_spinner=False)
-def load_mlb_pitching_stats(start_year, end_year):
-    """Season-level MLB pitching data from pybaseball/FanGraphs."""
-    return pitching_stats(int(start_year), int(end_year), qual=0)
+def mlb_api_get(path, params=None):
+    response = requests.get(
+        f"{MLB_API}{path}",
+        params=params or {},
+        timeout=15,
+        headers={"User-Agent": "Sports-by-the-Numbers classroom app"}
+    )
+    response.raise_for_status()
+    return response.json()
 
 def normalize_person_name(value):
     return re.sub(r"[^a-z0-9 ]", "", str(value).lower()).strip()
 
-def best_name_match(df, player_name):
-    if df is None or df.empty or "Name" not in df.columns:
+@st.cache_data(ttl=21600, show_spinner=False)
+def mlb_find_player(player_name):
+    data = mlb_api_get("/people/search", {"names": player_name, "sportIds": 1})
+    people = data.get("people", [])
+    if not people:
+        # Retry with surname; useful for punctuation/accents.
+        surname = player_name.strip().split()[-1]
+        data = mlb_api_get("/people/search", {"names": surname, "sportIds": 1})
+        people = data.get("people", [])
+    if not people:
         return None
+
     target = normalize_person_name(player_name)
-    normalized = df["Name"].astype(str).map(normalize_person_name)
+    exact = [p for p in people if normalize_person_name(p.get("fullName","")) == target]
+    if exact:
+        return exact[0]
 
-    exact = df[normalized == target]
-    if not exact.empty:
-        return exact.copy()
+    # Prefer active MLB player when exact punctuation/casing differs.
+    active = [p for p in people if p.get("active")]
+    return (active or people)[0]
 
-    parts = target.split()
-    if parts:
-        last = parts[-1]
-        candidates = df[normalized.str.contains(last, regex=False, na=False)]
-        if not candidates.empty:
-            # Prefer rows whose normalized name contains all target name pieces.
-            cand_norm = candidates["Name"].astype(str).map(normalize_person_name)
-            mask = cand_norm.map(lambda n: all(p in n.split() for p in parts))
-            stronger = candidates[mask]
-            if not stronger.empty:
-                return stronger.copy()
-            return candidates.copy()
-    return None
+@st.cache_data(ttl=21600, show_spinner=False)
+def mlb_year_by_year(player_id, group):
+    data = mlb_api_get(
+        f"/people/{int(player_id)}/stats",
+        {"stats": "yearByYear", "group": group, "gameType": "R"}
+    )
+    rows = []
+    for block in data.get("stats", []):
+        for split in block.get("splits", []):
+            season = split.get("season")
+            stat = split.get("stat", {})
+            if not season or not stat:
+                continue
+            try:
+                season_int = int(season)
+            except Exception:
+                continue
+            rows.append({"Season": season_int, **stat})
+    return rows
 
 @st.cache_data(ttl=21600, show_spinner=False)
 def mlb_player_profile(player_name):
-    """
-    Search recent MLB seasons and decide whether the selected player is primarily
-    represented as a hitter or pitcher. Returns one row per season.
-    """
-    # Use a broad modern window for the current classroom player pool.
-    start_year, end_year = 2000, 2026
-    errors = []
-
-    batting_match = None
-    pitching_match = None
-
     try:
-        batting = load_mlb_batting_stats(start_year, end_year)
-        batting_match = best_name_match(batting, player_name)
+        person = mlb_find_player(player_name)
+        if not person:
+            return None, None, f"No MLB player match was found for {player_name}."
+
+        pid = person["id"]
+        position = (person.get("primaryPosition") or {}).get("abbreviation", "")
+        pitcher_positions = {"P", "SP", "RP", "CP", "TWP"}
+
+        # For two-way players, hitting is the simpler classroom default.
+        if position == "TWP":
+            preferred = ["hitting", "pitching"]
+        elif position in pitcher_positions:
+            preferred = ["pitching", "hitting"]
+        else:
+            preferred = ["hitting", "pitching"]
+
+        for group in preferred:
+            rows = mlb_year_by_year(pid, group)
+            # Keep MLB-level regular-season rows with usable classroom stats.
+            usable = []
+            for r in rows:
+                if group == "hitting":
+                    if r.get("hits") is not None or r.get("homeRuns") is not None:
+                        usable.append(r)
+                else:
+                    if r.get("strikeOuts") is not None or r.get("wins") is not None:
+                        usable.append(r)
+            if usable:
+                # De-duplicate by season. Stats API normally supplies one MLB season split.
+                by_season = {}
+                for r in usable:
+                    by_season[r["Season"]] = r
+                return [by_season[y] for y in sorted(by_season)], (
+                    "pitcher" if group == "pitching" else "hitter"
+                ), None
+
+        return None, None, f"MLB found {person.get('fullName', player_name)}, but no usable season stats were returned."
     except Exception as exc:
-        errors.append(f"batting: {exc}")
+        return None, None, f"MLB data could not be loaded right now: {exc}"
 
-    try:
-        pitching = load_mlb_pitching_stats(start_year, end_year)
-        pitching_match = best_name_match(pitching, player_name)
-    except Exception as exc:
-        errors.append(f"pitching: {exc}")
-
-    bat_seasons = 0 if batting_match is None else batting_match["Season"].nunique()
-    pit_seasons = 0 if pitching_match is None else pitching_match["Season"].nunique()
-
-    if bat_seasons == 0 and pit_seasons == 0:
-        detail = "; ".join(errors[:2])
-        return None, None, f"No automatic MLB season data was found for {player_name}." + (f" ({detail})" if detail else "")
-
-    # Two-way players such as Ohtani appear in both. Default to batting if tied;
-    # this keeps the classroom investigation simple and predictable.
-    if bat_seasons >= pit_seasons:
-        df = batting_match
-        kind = "hitter"
-    else:
-        df = pitching_match
-        kind = "pitcher"
-
-    # Aggregate traded-team rows into one season row when needed.
-    numeric_cols = df.select_dtypes(include="number").columns.tolist()
-    agg = {c: "sum" for c in numeric_cols if c != "Season"}
-
-    # Rate stats should not be summed. We recompute/select them later when possible.
-    for rate_col in ["AVG", "OBP", "SLG", "OPS", "ERA", "WHIP", "K/9", "BB/9"]:
-        agg.pop(rate_col, None)
-
-    grouped_parts = []
-    for season, g in df.groupby("Season"):
-        row = {"Season": int(season)}
-        for c, method in agg.items():
-            try:
-                row[c] = g[c].fillna(0).sum()
-            except Exception:
-                pass
-        # Keep simple rate values from a total row when one exists, otherwise weighted-ish first.
-        for rate_col in ["AVG", "OBP", "SLG", "OPS", "ERA", "WHIP"]:
-            if rate_col in g.columns:
-                vals = g[rate_col].dropna()
-                if not vals.empty:
-                    row[rate_col] = float(vals.iloc[0])
-        grouped_parts.append(row)
-
-    import pandas as pd
-    season_df = pd.DataFrame(grouped_parts).sort_values("Season")
-    return season_df, kind, None
-
-def mlb_stat_profile(kind, df):
+def mlb_stat_profile(kind):
     if kind == "pitcher":
-        # Wins + strikeouts are intuitive for grade 7 and have compatible count scales.
-        return "Strikeouts", "SO", "Wins", "W"
-    # Hits + home runs are intuitive counting stats.
-    return "Hits", "H", "Home Runs", "HR"
+        return "Strikeouts", "strikeOuts", "Wins", "wins"
+    return "Hits", "hits", "Home Runs", "homeRuns"
 
-def mlb_auto_investigations(player_name, player_df, kind):
-    stat1_label, stat1_col, stat2_label, stat2_col = mlb_stat_profile(kind, player_df)
-    available = sorted(set(int(s) for s in player_df["Season"].tolist()))
+def mlb_auto_investigations(player_name, player_rows, kind):
+    stat1_label, stat1_col, stat2_label, stat2_col = mlb_stat_profile(kind)
+    available = sorted({int(r["Season"]) for r in player_rows})
     if not available:
         return []
 
     last3 = available[-3:]
     last5 = available[-5:]
     early_recent = [available[0], available[-1]] if len(available) > 1 else available
-
     role_word = "pitching" if kind == "pitcher" else "hitting"
+
+    base_schema = lambda: {"fields": [
+        {"name":"period","label":"Season"},
+        {"name":"value1","label":stat1_label},
+        {"name":"value2","label":stat2_label},
+    ]}
 
     return [
         {
-            "id": f"mlb_auto_last3_{player_name}",
+            "id": f"mlb_api_last3_{player_name}",
             "type": "Automatic · Last 3 Seasons",
             "student_question": f"What do {player_name}'s last three available MLB seasons show about {role_word} production?",
             "why_this_athlete": f"The app supplies {stat1_label.lower()} and {stat2_label.lower()} automatically.",
-            "auto_seasons": last3,
-            "schema": {"fields": [
-                {"name":"period","label":"Season"},
-                {"name":"value1","label":stat1_label},
-                {"name":"value2","label":stat2_label},
-            ]},
-            "evidence_rows": len(last3),
-            "_source": "MLB_AUTO",
+            "auto_seasons": last3, "schema": base_schema(),
+            "evidence_rows": len(last3), "_source": "MLB_API_AUTO",
             "_stat_cols": [stat1_col, stat2_col],
         },
         {
-            "id": f"mlb_auto_early_recent_{player_name}",
+            "id": f"mlb_api_early_recent_{player_name}",
             "type": "Automatic · Early vs Recent",
-            "student_question": f"How does an early available MLB season compare with {player_name}'s most recent available season?",
+            "student_question": f"How does an early MLB season compare with {player_name}'s most recent available season?",
             "why_this_athlete": f"Compare {stat1_label.lower()} and {stat2_label.lower()}.",
-            "auto_seasons": early_recent,
-            "schema": {"fields": [
-                {"name":"period","label":"Season"},
-                {"name":"value1","label":stat1_label},
-                {"name":"value2","label":stat2_label},
-            ]},
-            "evidence_rows": len(early_recent),
-            "_source": "MLB_AUTO",
+            "auto_seasons": early_recent, "schema": base_schema(),
+            "evidence_rows": len(early_recent), "_source": "MLB_API_AUTO",
             "_stat_cols": [stat1_col, stat2_col],
         },
         {
-            "id": f"mlb_auto_last5_{player_name}",
+            "id": f"mlb_api_last5_{player_name}",
             "type": "Automatic · Five-Season Trend",
             "student_question": f"What pattern appears across {player_name}'s last five available MLB seasons?",
-            "why_this_athlete": "The data is supplied; your job is to identify and explain the pattern.",
-            "auto_seasons": last5,
-            "schema": {"fields": [
-                {"name":"period","label":"Season"},
-                {"name":"value1","label":stat1_label},
-                {"name":"value2","label":stat2_label},
-            ]},
-            "evidence_rows": len(last5),
-            "_source": "MLB_AUTO",
+            "why_this_athlete": "The app supplies the data; your job is to identify and explain the pattern.",
+            "auto_seasons": last5, "schema": base_schema(),
+            "evidence_rows": len(last5), "_source": "MLB_API_AUTO",
             "_stat_cols": [stat1_col, stat2_col],
         },
     ]
 
-def mlb_prefill_evidence(challenge, player_df):
+def mlb_prefill_evidence(challenge, player_rows):
     columns = universal_columns(challenge)
     stat_cols = challenge.get("_stat_cols", [])
+    by_season = {int(r["Season"]): r for r in player_rows}
     rows = []
     for season in challenge.get("auto_seasons", []):
-        g = player_df[player_df["Season"] == int(season)]
-        if g.empty:
-            continue
-        r = {columns[0]: str(season)}
+        statrow = by_season.get(int(season), {})
+        row = {columns[0]: str(season)}
         for idx, stat_col in enumerate(stat_cols, start=1):
-            if stat_col in g.columns:
-                value = g.iloc[0][stat_col]
-                if value is None:
-                    r[columns[idx]] = "0"
-                else:
-                    try:
-                        fv = float(value)
-                        r[columns[idx]] = str(int(fv)) if fv.is_integer() else str(round(fv, 3))
-                    except Exception:
-                        r[columns[idx]] = str(value)
-            else:
-                r[columns[idx]] = "0"
-        rows.append(r)
+            value = statrow.get(stat_col, 0)
+            try:
+                fv = float(value)
+                row[columns[idx]] = str(int(fv)) if fv.is_integer() else str(round(fv, 3))
+            except Exception:
+                row[columns[idx]] = str(value or 0)
+        rows.append(row)
     return rows
 
 # -----------------------------
@@ -752,7 +724,7 @@ elif sport_code == "mlb":
     else:
         challenges = mlb_auto_investigations(athlete, mlb_rows, mlb_kind)
         role_label = "pitcher" if mlb_kind == "pitcher" else "hitter"
-        st.success(f"⚾ MLB data mode is on — {role_label} statistics will be filled in automatically.")
+        st.success(f"⚾ MLB data mode is on — {role_label} statistics are coming directly from the MLB Stats API.")
 
 else:
     challenges = QUESTION_BANK.get(bank_key, [])
@@ -782,7 +754,7 @@ if st.button("🚀 Start This Investigation", use_container_width=True):
     columns = universal_columns(selected_challenge)
     if selected_challenge.get("_source") == "NFLVERSE_AUTO" and nfl_rows is not None:
         st.session_state.evidence = nfl_prefill_evidence(selected_challenge, nfl_rows)
-    elif selected_challenge.get("_source") == "MLB_AUTO" and mlb_rows is not None:
+    elif selected_challenge.get("_source") == "MLB_API_AUTO" and mlb_rows is not None:
         st.session_state.evidence = mlb_prefill_evidence(selected_challenge, mlb_rows)
     else:
         st.session_state.evidence = [
@@ -808,11 +780,11 @@ st.markdown("---")
 st.markdown('<div class="step">Step 2 · Evidence</div>', unsafe_allow_html=True)
 st.subheader(challenge["student_question"])
 
-if challenge.get("_source") in ("NFLVERSE_AUTO", "MLB_AUTO"):
+if challenge.get("_source") in ("NFLVERSE_AUTO", "MLB_API_AUTO"):
     if challenge.get("_source") == "NFLVERSE_AUTO":
         st.caption("The statistics below were loaded automatically from nflverse regular-season player summaries. Your job is to analyze them.")
     else:
-        st.caption("The statistics below were loaded automatically from pybaseball season-level MLB data. Your job is to analyze them.")
+        st.caption("The statistics below were loaded automatically from the MLB Stats API. Your job is to analyze them.")
     if st.session_state.evidence:
         st.dataframe(st.session_state.evidence, use_container_width=True, hide_index=True)
     st.info("💡 You do not need to copy these numbers anywhere. Move directly to the graph and look for a pattern.")
