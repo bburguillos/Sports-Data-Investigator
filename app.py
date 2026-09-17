@@ -1583,7 +1583,65 @@ def save_question_bank(bank):
 
 
 def athlete_cache_key(athlete, sport, league):
-    return f"{sport}|{league}|{athlete}".lower()
+    """
+    Build one canonical key regardless of whether the app passes a display label
+    such as "🏒 Hockey" or a code such as "NHL".
+    """
+    sport_text = str(sport).strip()
+    league_text = str(league).strip()
+
+    sport_aliases = {
+        "🏀 Basketball": "NBA",
+        "Basketball": "NBA",
+        "NBA": "NBA",
+        "🏈 Football": "NFL",
+        "Football": "NFL",
+        "NFL": "NFL",
+        "⚾ Baseball": "MLB",
+        "Baseball": "MLB",
+        "MLB": "MLB",
+        "🏒 Hockey": "NHL",
+        "Hockey": "NHL",
+        "NHL": "NHL",
+        "⚽ Soccer": "SOCCER",
+        "Soccer": "SOCCER",
+        "SOCCER": "SOCCER",
+        "🏎️ Formula 1": "F1",
+        "Formula 1": "F1",
+        "F1": "F1",
+    }
+
+    canonical_sport = sport_aliases.get(sport_text, sport_text)
+
+    league_aliases = {
+        "🏀 Basketball": "NBA",
+        "Basketball": "NBA",
+        "🏈 Football": "NFL",
+        "Football": "NFL",
+        "⚾ Baseball": "MLB",
+        "Baseball": "MLB",
+        "🏒 Hockey": "NHL",
+        "Hockey": "NHL",
+        "⚽ Soccer": "Soccer",
+        "SOCCER": "Soccer",
+        "🏎️ Formula 1": "Formula 1",
+        "F1": "Formula 1",
+    }
+    canonical_league = league_aliases.get(league_text, league_text)
+
+    # If league accidentally repeats the display sport, repair it from sport.
+    default_leagues = {
+        "NBA": "NBA",
+        "NFL": "NFL",
+        "MLB": "MLB",
+        "NHL": "NHL",
+        "SOCCER": "Soccer",
+        "F1": "Formula 1",
+    }
+    if canonical_league not in {"NBA", "NFL", "MLB", "NHL", "Soccer", "Formula 1"}:
+        canonical_league = default_leagues.get(canonical_sport, canonical_league)
+
+    return f"{canonical_sport}|{canonical_league}|{athlete}".lower()
 
 
 def normalize_generated_investigation(athlete, item, index):
@@ -1765,8 +1823,8 @@ def get_or_create_personalized_set(athlete, sport, league, force_new=False):
 
     # Never call the API from athlete selection.
     return [], (
-        f"No embedded question-bank entry matched {athlete} "
-        f"({sport} / {league}). This is a bank-key issue, not an API issue."
+        f"No pre-generated question set was found for {athlete}. "
+        f"Normalized lookup: {athlete_cache_key(athlete, sport, league)}."
     ), False
 
 
