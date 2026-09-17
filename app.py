@@ -578,7 +578,10 @@ DEFAULTS = {
     "original_claim_saved": "",
     "coach_started": False,
     "ready_to_revise": False,
-    "revision_feedback": None
+    "revision_feedback": None,
+    "graph_observation": None,
+    "graph_choice": None,
+    "graph_reason": None
 }
 
 for key, value in DEFAULTS.items():
@@ -618,6 +621,7 @@ def clear_investigation():
             or key.startswith("analyst_")
             or key.startswith("expert_")
             or key.startswith("coach_answer_")
+            or key.startswith("graph_")
             or key == "claim"
             or key == "revised_claim"
         ):
@@ -635,6 +639,9 @@ def clear_investigation():
     st.session_state.coach_started = False
     st.session_state.ready_to_revise = False
     st.session_state.revision_feedback = None
+    st.session_state.graph_observation = None
+    st.session_state.graph_choice = None
+    st.session_state.graph_reason = None
 
 
 def get_field_value(row, field):
@@ -713,6 +720,65 @@ def collect_evidence(challenge):
 
 
 # =========================================================
+# VISUALIZATION HELPERS
+# =========================================================
+
+GRAPH_CONFIGS = {
+    "lebron_three_change": {"kind":"line","x":"season","x_label":"Season","series":[("value","3-Point %")],"title":"LeBron James: 3-Point Percentage by Season"},
+    "lebron_consistency": {"kind":"line","x":"season","x_label":"Season","series":[("value","Points Per Game")],"title":"LeBron James: Points Per Game by Season"},
+    "lebron_rate_total": {"kind":"bar","x":"season","x_label":"Season","series":[("total","Total Points"),("rate","Points Per Game")],"title":"LeBron James: Total Points and Points Per Game"},
+    "judge_relationship": {"kind":"scatter","x":"games","x_label":"Games Played","y":"value","y_label":"Home Runs","title":"Aaron Judge: Games Played vs. Home Runs"},
+    "mahomes_change": {"kind":"line","x":"season","x_label":"Season","series":[("yards","Passing Yards"),("td","Passing TDs")],"title":"Patrick Mahomes: Passing Production by Season"},
+    "mcdavid_relationship": {"kind":"scatter","x":"goals","x_label":"Goals","y":"points","y_label":"Total Points","title":"Connor McDavid: Goals vs. Total Points"},
+    "messi_change": {"kind":"line","x":"season","x_label":"Season","series":[("goals","Goals"),("games","Appearances")],"title":"Lionel Messi: Goals and Appearances by Season"}
+}
+
+def to_number(value):
+    try:
+        return float(str(value).replace(",","").replace("%","").strip())
+    except (TypeError, ValueError):
+        return None
+
+def collect_evidence_rows(challenge):
+    rows=[]
+    for row in range(st.session_state.evidence_count):
+        if evidence_complete(row, challenge["schema"]):
+            rows.append({f["name"]:get_field_value(row,f) for f in challenge["schema"]["fields"]})
+    return rows
+
+def graph_data_is_valid(rows, cfg):
+    if len(rows) < 3:
+        return False
+    if cfg["kind"]=="scatter":
+        return all(to_number(r.get(cfg["x"])) is not None and to_number(r.get(cfg["y"])) is not None for r in rows)
+    return all(to_number(r.get(field)) is not None for r in rows for field,_ in cfg["series"])
+
+def graph_type_name(kind):
+    return {"line":"Line Graph","bar":"Bar Graph","scatter":"Scatter Plot"}[kind]
+
+def render_graph(rows, cfg, graph_type):
+    if graph_type=="Scatter Plot":
+        values=[{"X":to_number(r[cfg["x"]]),"Y":to_number(r[cfg["y"]]),"Season":str(r.get("season",""))} for r in rows]
+        spec={"title":cfg["title"],"data":{"values":values},"mark":{"type":"point","filled":True,"size":120},
+              "encoding":{"x":{"field":"X","type":"quantitative","title":cfg["x_label"],"scale":{"zero":False}},
+                          "y":{"field":"Y","type":"quantitative","title":cfg["y_label"],"scale":{"zero":False}},
+                          "tooltip":[{"field":"Season","type":"nominal"},{"field":"X","type":"quantitative","title":cfg["x_label"]},{"field":"Y","type":"quantitative","title":cfg["y_label"]}]}}
+    else:
+        values=[]
+        for r in rows:
+            for field,label in cfg["series"]:
+                values.append({"Season":str(r.get(cfg["x"],"")),"Statistic":label,"Value":to_number(r.get(field))})
+        mark={"type":"line","point":True} if graph_type=="Line Graph" else "bar"
+        enc={"x":{"field":"Season","type":"ordinal","title":cfg["x_label"],"sort":None},
+             "y":{"field":"Value","type":"quantitative","title":"Value","scale":{"zero":False} if graph_type=="Line Graph" else {}},
+             "color":{"field":"Statistic","type":"nominal","title":"Statistic"},
+             "tooltip":[{"field":"Season","type":"nominal"},{"field":"Statistic","type":"nominal"},{"field":"Value","type":"quantitative"}]}
+        if graph_type=="Bar Graph":
+            enc["xOffset"]={"field":"Statistic"}
+        spec={"title":cfg["title"],"data":{"values":values},"mark":mark,"encoding":enc}
+    st.vega_lite_chart(spec, use_container_width=True)
+
+# =========================================================
 # AI COACH
 # =========================================================
 
@@ -724,6 +790,7 @@ def ask_coach(
     evidence,
     pattern,
     confidence,
+    graph_observation,
     original_claim,
     conversation,
     revised_claim="",
@@ -1028,6 +1095,9 @@ STUDENT'S PATTERN OBSERVATION:
 
 STUDENT'S CONFIDENCE:
 {confidence or "Not answered"}
+
+STUDENT'S GRAPH OBSERVATION:
+{graph_observation or "Not answered"}
 
 {task}
 
@@ -1506,154 +1576,115 @@ if st.session_state.challenge:
 
 
     # =====================================================
-    # STEP 5 — STARTER INTERPRETATION
+    # STEP 5 — VISUALIZE + INTERPRET
     # =====================================================
 
-    if (
-        difficulty == "Starter"
-        and complete_count >= 2
-    ):
-
+    if complete_count < 3:
         st.divider()
-
-        st.markdown(
-            "## 👀 Step 5: What Do You Notice?"
-        )
-
-        st.write(
-            "Don't worry about writing a big answer yet. "
-            "**Just look at your numbers.**"
-        )
-
-
-        pattern = st.radio(
-            challenge[
-                "starter_pattern_question"
-            ],
-            challenge[
-                "starter_pattern_options"
-            ],
-            index=None,
-            key="starter_pattern"
-        )
-
-        st.session_state.pattern_answer = (
-            pattern
-        )
-
-
-        if pattern:
-
-            st.success(
-                f"You noticed: **{pattern}**"
-            )
-
-            confidence = st.radio(
-                "How sure are you after looking at your data?",
-                [
-                    "👍 Pretty sure",
-                    "🤔 Somewhat sure",
-                    "🔎 I think I need more evidence"
-                ],
-                index=None,
-                key="starter_confidence"
-            )
-
-            st.session_state.confidence_answer = (
-                confidence
-            )
-
-
-    # =====================================================
-    # STEP 5 — ANALYST
-    # =====================================================
-
-    elif (
-        difficulty == "Analyst"
-        and complete_count >= 2
-    ):
-
+        st.markdown("## 📊 Step 5: Visualize Your Data")
+        st.info("Complete at least **3 pieces of evidence** to unlock your graph.")
+    else:
         st.divider()
+        st.markdown("## 📊 Step 5: Visualize Your Data")
+        evidence_rows = collect_evidence_rows(challenge)
+        graph_config = GRAPH_CONFIGS.get(challenge["id"])
 
-        st.markdown(
-            "## 👀 Step 5: Study Your Numbers"
-        )
+        if graph_config and graph_data_is_valid(evidence_rows, graph_config):
+            recommended_graph = graph_type_name(graph_config["kind"])
 
-        pattern = st.text_area(
-            "What pattern do you notice?",
-            placeholder=(
-                "Example: As the seasons changed, "
-                "I noticed..."
-            ),
-            height=90,
-            key="analyst_pattern"
-        )
+            if difficulty == "Starter":
+                st.write("You did the research. Now let's turn **your numbers** into a picture.")
+                st.caption("The graph below only uses the data you entered above.")
+                render_graph(evidence_rows, graph_config, recommended_graph)
+                st.markdown("### 👀 What do you notice?")
+                pattern = st.radio(
+                    challenge["starter_pattern_question"],
+                    challenge["starter_pattern_options"],
+                    index=None,
+                    key="starter_pattern"
+                )
+                st.session_state.pattern_answer = pattern
+                st.session_state.graph_observation = pattern
+                if pattern:
+                    st.success(f"You noticed: **{pattern}**")
+                    confidence = st.radio(
+                        "How sure are you after looking at your data and graph?",
+                        ["👍 Pretty sure","🤔 Somewhat sure","🔎 I think I need more evidence"],
+                        index=None,
+                        key="starter_confidence"
+                    )
+                    st.session_state.confidence_answer = confidence
 
-        st.session_state.pattern_answer = (
-            pattern
-        )
+            elif difficulty == "Analyst":
+                st.write("Study the graph made from your evidence. Then explain what the visual adds to your thinking.")
+                st.caption(f"For this investigation, the app selected a **{recommended_graph}**.")
+                render_graph(evidence_rows, graph_config, recommended_graph)
+                pattern = st.text_area(
+                    "What pattern do you notice in the graph?",
+                    placeholder="Describe what happens across the seasons or between the two statistics...",
+                    height=100,
+                    key="analyst_pattern"
+                )
+                st.session_state.pattern_answer = pattern
+                st.session_state.graph_observation = pattern
+                confidence = st.radio(
+                    "Do you think the graph and your evidence are enough to support a claim?",
+                    ["Yes","Maybe","Not yet"],
+                    horizontal=True,
+                    index=None,
+                    key="analyst_confidence"
+                )
+                st.session_state.confidence_answer = confidence
 
-
-        confidence = st.radio(
-            "Do you think you have enough evidence?",
-            [
-                "Yes",
-                "Maybe",
-                "Not yet"
-            ],
-            horizontal=True,
-            index=None,
-            key="analyst_confidence"
-        )
-
-        st.session_state.confidence_answer = (
-            confidence
-        )
-
-
-    # =====================================================
-    # STEP 5 — EXPERT
-    # =====================================================
-
-    elif (
-        difficulty == "Expert"
-        and complete_count >= 2
-    ):
-
-        st.divider()
-
-        st.markdown(
-            "## 🧠 Step 5: Analyze Your Evidence"
-        )
-
-
-        pattern = st.text_area(
-            "What does your dataset suggest?",
-            height=110,
-            key="expert_pattern"
-        )
-
-        st.session_state.pattern_answer = (
-            pattern
-        )
-
-
-        limitation = st.text_area(
-            "What is one limitation of your evidence?",
-            height=90,
-            key="expert_limitation"
-        )
-
-        st.session_state.confidence_answer = (
-            limitation
-        )
+            else:
+                st.write("Choose a graph type, then decide whether it is a good way to represent this investigation.")
+                allowed_graphs=["Line Graph","Bar Graph"]
+                if graph_config["kind"]=="scatter":
+                    allowed_graphs.append("Scatter Plot")
+                graph_choice=st.selectbox(
+                    "Which graph would you like to use?",
+                    allowed_graphs,
+                    index=allowed_graphs.index(recommended_graph) if recommended_graph in allowed_graphs else 0,
+                    key="graph_type_choice"
+                )
+                st.session_state.graph_choice=graph_choice
+                render_graph(evidence_rows,graph_config,graph_choice)
+                graph_reason=st.text_area(
+                    "Why is this graph a useful choice for your data?",
+                    placeholder="Explain what this graph helps someone see...",
+                    height=90,
+                    key="graph_reason_text"
+                )
+                st.session_state.graph_reason=graph_reason
+                pattern=st.text_area(
+                    "What does the graph suggest?",
+                    placeholder="Describe the pattern you see. Mention any value that does not seem to fit the pattern.",
+                    height=110,
+                    key="expert_pattern"
+                )
+                st.session_state.pattern_answer=pattern
+                limitation=st.text_area(
+                    "What is one thing this graph does NOT prove or show?",
+                    height=90,
+                    key="expert_limitation"
+                )
+                st.session_state.confidence_answer=limitation
+                st.session_state.graph_observation=(
+                    f"Graph chosen: {graph_choice}. Reason: {graph_reason or 'Not answered'}. "
+                    f"Pattern noticed: {pattern or 'Not answered'}. Limitation: {limitation or 'Not answered'}."
+                )
+        else:
+            st.warning(
+                "I can make the graph once the number boxes contain usable numerical data. "
+                "Check the evidence entries above for words, symbols, or missing numbers."
+            )
 
 
     # =====================================================
     # STEP 6 — ORIGINAL CLAIM
     # =====================================================
 
-    if complete_count >= 2:
+    if complete_count >= 3:
 
         st.divider()
 
@@ -1784,6 +1815,7 @@ if st.session_state.challenge:
                             evidence=evidence,
                             pattern=st.session_state.pattern_answer,
                             confidence=st.session_state.confidence_answer,
+                            graph_observation=st.session_state.graph_observation,
                             original_claim=st.session_state.original_claim_saved,
                             conversation=[],
                             mode="conversation"
