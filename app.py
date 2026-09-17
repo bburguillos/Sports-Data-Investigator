@@ -2,6 +2,15 @@
 import streamlit as st
 import json
 import math
+import uuid
+from io import BytesIO
+from datetime import datetime
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
 
 st.set_page_config(page_title="Sports by the Numbers", page_icon="📊", layout="wide")
 
@@ -1320,7 +1329,7 @@ def reset_work():
         if key not in keep and (
             key.startswith("pc_") or key.startswith("mad_") or key.startswith("freq_")
             or key.startswith("coach_")
-            or key in {"claim","observation","revised","score_result","ready_to_revise","coach_stage","coach_answers"}
+            or key in {"claim","observation","revised","score_result","ready_to_revise","coach_stage","coach_answers","completion_id"}
         ):
             del st.session_state[key]
 
@@ -1385,6 +1394,279 @@ def score_argument(original, revised, observation, answers):
     fairness = 25 if len(answers)>=4 and changed else 20 if changed else 15
     return {"claim":claim,"evidence":evidence,"reasoning":reasoning,"fairness":fairness,
             "total":claim+evidence+reasoning+fairness}
+
+
+def clean_filename(text):
+    safe = "".join(ch if ch.isalnum() else "_" for ch in str(text).strip())
+    return "_".join(part for part in safe.split("_") if part) or "student"
+
+def current_work_rows(mode, rec):
+    """Collect exactly what the student entered for the selected investigation."""
+    if mode == "Percent Change":
+        labels = rec["labels"]
+        values = [float(x) for x in rec["values"]]
+        idx = selected_indices(len(values))
+        labels = [labels[i] for i in idx]
+        values = [values[i] for i in idx]
+
+        rows = [["Comparison", "Old", "New", "Student Change", "Student %", "Direction"]]
+        for i in range(1, len(values)):
+            rows.append([
+                f"{labels[i-1]} to {labels[i]}",
+                fmt(values[i-1]),
+                fmt(values[i]),
+                str(st.session_state.get(f"pc_change_{i}", "")),
+                str(st.session_state.get(f"pc_pct_{i}", "")),
+                str(st.session_state.get(f"pc_direction_{i}", "")),
+            ])
+        return rows
+
+    if mode == "MAD Consistency":
+        labels = rec["labels"]
+        values = [float(x) for x in rec["values"]]
+        rows = [["Period", "Value", "Student Deviation", "Student Absolute Deviation"]]
+        for i, (label, value) in enumerate(zip(labels, values)):
+            rows.append([
+                str(label),
+                fmt(value),
+                str(st.session_state.get(f"mad_dev_{i}", "")),
+                str(st.session_state.get(f"mad_abs_{i}", "")),
+            ])
+        return rows
+
+    # Frequency
+    values = [float(x) for x in rec["values"]]
+    bins = make_bins(values)
+    rows = [["Range", "Student Frequency", "Student Relative Frequency %"]]
+    for label, low, high in bins:
+        rows.append([
+            str(label),
+            str(st.session_state.get(f"freq_{label}", "")),
+            str(st.session_state.get(f"freq_rel_{label}", "")),
+        ])
+    return rows
+
+def summary_lines(mode):
+    if mode == "Percent Change":
+        return [
+            ["Check", "Student Entry"],
+            ["Percent-change check attempts", str(st.session_state.get("pc_check_attempts", 0))],
+        ]
+    if mode == "MAD Consistency":
+        return [
+            ["MAD Step", "Student Entry"],
+            ["Mean", str(st.session_state.get("mad_mean", ""))],
+            ["Sum of absolute deviations", str(st.session_state.get("mad_abs_sum", ""))],
+            ["Final MAD", str(st.session_state.get("mad_final", ""))],
+        ]
+    return []
+
+def build_submission_pdf(student_name, class_period, sport, athlete, mode, rec, question):
+    """Generate a self-contained student submission receipt as a PDF in memory."""
+    if "completion_id" not in st.session_state:
+        st.session_state.completion_id = uuid.uuid4().hex[:8].upper()
+
+    completion_id = st.session_state.completion_id
+    generated = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        rightMargin=0.55*inch,
+        leftMargin=0.55*inch,
+        topMargin=0.55*inch,
+        bottomMargin=0.55*inch,
+    )
+
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        "ReportTitle",
+        parent=styles["Title"],
+        alignment=TA_CENTER,
+        fontSize=19,
+        leading=22,
+        spaceAfter=8,
+        textColor=colors.HexColor("#0F2747"),
+    )
+    heading = ParagraphStyle(
+        "Heading",
+        parent=styles["Heading2"],
+        fontSize=12,
+        leading=14,
+        spaceBefore=8,
+        spaceAfter=5,
+        textColor=colors.HexColor("#173F73"),
+    )
+    body = ParagraphStyle(
+        "Body",
+        parent=styles["BodyText"],
+        fontSize=9.5,
+        leading=13,
+        textColor=colors.HexColor("#1F2937"),
+    )
+    small = ParagraphStyle(
+        "Small",
+        parent=body,
+        fontSize=8,
+        leading=10,
+        textColor=colors.HexColor("#4B5563"),
+    )
+
+    story = []
+    story.append(Paragraph("Sports by the Numbers - Investigation Report", title_style))
+    story.append(Paragraph(
+        f"<b>Completion ID:</b> {completion_id} &nbsp;&nbsp;&nbsp; "
+        f"<b>Generated:</b> {generated}",
+        small
+    ))
+    story.append(Spacer(1, 8))
+
+    info_data = [
+        ["Student", student_name, "Class Period", class_period],
+        ["Sport", sport, "Athlete", athlete],
+        ["Investigation", mode, "Stat Focus", rec.get("stat_label", "")],
+    ]
+    info = Table(info_data, colWidths=[0.85*inch, 2.25*inch, 0.95*inch, 2.35*inch])
+    info.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,-1), colors.HexColor("#F8FAFC")),
+        ("GRID", (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
+        ("FONTNAME", (0,0), (-1,-1), "Helvetica"),
+        ("FONTNAME", (0,0), (0,-1), "Helvetica-Bold"),
+        ("FONTNAME", (2,0), (2,-1), "Helvetica-Bold"),
+        ("FONTSIZE", (0,0), (-1,-1), 8.5),
+        ("VALIGN", (0,0), (-1,-1), "TOP"),
+        ("LEFTPADDING", (0,0), (-1,-1), 6),
+        ("RIGHTPADDING", (0,0), (-1,-1), 6),
+        ("TOPPADDING", (0,0), (-1,-1), 5),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 5),
+    ]))
+    story.append(info)
+
+    story.append(Paragraph("Investigation Question", heading))
+    story.append(Paragraph(str(question), body))
+
+    story.append(Paragraph("Source Data", heading))
+    source_rows = [["Period", rec.get("stat_label","")]]
+    for label, value in zip(rec.get("labels", []), rec.get("values", [])):
+        source_rows.append([str(label), str(value)])
+    source_table = Table(source_rows, repeatRows=1, colWidths=[2.4*inch, 2.4*inch])
+    source_table.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#DCEBFA")),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.HexColor("#0F2747")),
+        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+        ("GRID", (0,0), (-1,-1), 0.45, colors.HexColor("#CBD5E1")),
+        ("FONTSIZE", (0,0), (-1,-1), 8.5),
+        ("ALIGN", (1,1), (-1,-1), "CENTER"),
+        ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
+    ]))
+    story.append(source_table)
+
+    story.append(Paragraph("Student Work", heading))
+    work_rows = current_work_rows(mode, rec)
+    col_count = len(work_rows[0])
+    widths = [6.8*inch/col_count] * col_count
+    work_table = Table(work_rows, repeatRows=1, colWidths=widths)
+    work_table.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#E8EEF7")),
+        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+        ("GRID", (0,0), (-1,-1), 0.4, colors.HexColor("#CBD5E1")),
+        ("FONTSIZE", (0,0), (-1,-1), 7.5),
+        ("VALIGN", (0,0), (-1,-1), "TOP"),
+        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#F9FAFB")]),
+    ]))
+    story.append(work_table)
+
+    extra = summary_lines(mode)
+    if extra:
+        story.append(Spacer(1, 6))
+        extra_table = Table(extra, colWidths=[2.4*inch, 2.4*inch])
+        extra_table.setStyle(TableStyle([
+            ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#F3F4F6")),
+            ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+            ("GRID", (0,0), (-1,-1), 0.4, colors.HexColor("#D1D5DB")),
+            ("FONTSIZE", (0,0), (-1,-1), 8),
+        ]))
+        story.append(extra_table)
+
+    story.append(Paragraph("Student Interpretation", heading))
+    story.append(Paragraph(
+        st.session_state.get("observation", "") or "(No observation entered.)",
+        body
+    ))
+
+    story.append(Paragraph("Original Claim", heading))
+    story.append(Paragraph(
+        st.session_state.get("claim", "") or "(No original claim entered.)",
+        body
+    ))
+
+    story.append(Paragraph("Built-In Coach Responses", heading))
+    coach_answers = st.session_state.get("coach_answers", [])
+    if coach_answers:
+        coach_data = [["Coach Check", "Student Response"]]
+        for i, answer in enumerate(coach_answers, start=1):
+            coach_data.append([f"Check {i}", str(answer)])
+        coach_table = Table(coach_data, colWidths=[1.3*inch, 4.8*inch], repeatRows=1)
+        coach_table.setStyle(TableStyle([
+            ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#E8EEF7")),
+            ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+            ("GRID", (0,0), (-1,-1), 0.4, colors.HexColor("#CBD5E1")),
+            ("FONTSIZE", (0,0), (-1,-1), 8.5),
+            ("VALIGN", (0,0), (-1,-1), "TOP"),
+        ]))
+        story.append(coach_table)
+    else:
+        story.append(Paragraph("(No Coach responses recorded.)", body))
+
+    story.append(Paragraph("Final Revised Claim", heading))
+    story.append(Paragraph(
+        st.session_state.get("revised", "") or "(No revised claim entered.)",
+        body
+    ))
+
+    score = st.session_state.get("score_result", {})
+    story.append(Paragraph("Argument Score", heading))
+    score_data = [
+        ["Category", "Score"],
+        ["Clear Claim", f'{score.get("claim","")}/25'],
+        ["Evidence", f'{score.get("evidence","")}/25'],
+        ["Reasoning", f'{score.get("reasoning","")}/25'],
+        ["Strength & Fairness", f'{score.get("fairness","")}/25'],
+        ["TOTAL", f'{score.get("total","")}/100'],
+    ]
+    score_table = Table(score_data, colWidths=[3.3*inch, 1.4*inch])
+    score_table.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#173F73")),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+        ("FONTNAME", (0,-1), (-1,-1), "Helvetica-Bold"),
+        ("BACKGROUND", (0,-1), (-1,-1), colors.HexColor("#E8F3E8")),
+        ("GRID", (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
+        ("FONTSIZE", (0,0), (-1,-1), 9),
+        ("ALIGN", (1,1), (1,-1), "CENTER"),
+    ]))
+    story.append(score_table)
+
+    story.append(Paragraph("Classroom Data Source", heading))
+    story.append(Paragraph(
+        f'{rec.get("source","")} - {rec.get("note","")}',
+        small
+    ))
+    if rec.get("source_url"):
+        story.append(Paragraph(str(rec["source_url"]), small))
+
+    story.append(Spacer(1, 10))
+    story.append(Paragraph(
+        "This report records the student's entries from the Sports by the Numbers app. "
+        "The argument score evaluates features of the written argument, not whether the student's sports opinion matches an outside answer.",
+        small
+    ))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer.getvalue()
 
 def percent_change_engine(rec):
     labels, values = rec["labels"], [float(x) for x in rec["values"]]
@@ -1838,6 +2120,28 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+
+st.markdown("""
+<div class="card">
+<div class="step">Student Information</div>
+<p style="margin:.1rem 0 .65rem;"><b>Enter this before beginning.</b> It will appear on your final submission report.</p>
+</div>
+""", unsafe_allow_html=True)
+
+student_col1, student_col2 = st.columns([2,1])
+with student_col1:
+    student_name = st.text_input(
+        "Student Name",
+        key="student_name",
+        placeholder="First and last name"
+    )
+with student_col2:
+    class_period = st.text_input(
+        "Class Period",
+        key="class_period",
+        placeholder="Example: 4E"
+    )
+
 # Selection
 sports = ["NFL","NBA","MLB","NHL","Soccer","Formula 1"]
 c1,c2,c3 = st.columns(3)
@@ -1924,5 +2228,66 @@ if st.session_state.get("score_result"):
     d.metric("Strength & Fairness",f'{s["fairness"]}/25')
     st.caption("The score checks argument features, not whether the student's sports opinion matches an outside answer.")
 
+
+    st.markdown("---")
+    st.markdown('<div class="step">Final Submission</div>', unsafe_allow_html=True)
+
+    student_ready = bool(st.session_state.get("student_name", "").strip())
+    period_ready = bool(st.session_state.get("class_period", "").strip())
+    revised_ready = bool(st.session_state.get("revised", "").strip())
+    coach_ready = len(st.session_state.get("coach_answers", [])) >= 4
+
+    if student_ready and period_ready and revised_ready and coach_ready:
+        if "completion_id" not in st.session_state:
+            st.session_state.completion_id = uuid.uuid4().hex[:8].upper()
+
+        completion_id = st.session_state.completion_id
+        st.success(f"✅ Investigation Complete · Completion ID: **{completion_id}**")
+        st.write(
+            "Download your Investigation Report and submit the PDF to your teacher "
+            "through Google Classroom or the class submission method."
+        )
+
+        pdf_bytes = build_submission_pdf(
+            st.session_state.get("student_name", "").strip(),
+            st.session_state.get("class_period", "").strip(),
+            sport,
+            athlete,
+            mode,
+            rec,
+            question,
+        )
+
+        pdf_filename = (
+            f"Sports_by_the_Numbers_"
+            f"{clean_filename(st.session_state.get('student_name',''))}_"
+            f"{clean_filename(athlete)}_"
+            f"{completion_id}.pdf"
+        )
+
+        st.download_button(
+            "📄 Download My Investigation Report",
+            data=pdf_bytes,
+            file_name=pdf_filename,
+            mime="application/pdf",
+            use_container_width=True,
+        )
+
+        st.caption(
+            "Your report includes your data, calculations, interpretation, original claim, "
+            "Coach responses, revised claim, score, and completion ID."
+        )
+    else:
+        missing = []
+        if not student_ready:
+            missing.append("student name")
+        if not period_ready:
+            missing.append("class period")
+        if not coach_ready:
+            missing.append("all 4 Coach checks")
+        if not revised_ready:
+            missing.append("revised claim")
+        st.info("Complete these before the report unlocks: " + ", ".join(missing) + ".")
+
 st.markdown("---")
-st.caption("Sports by the Numbers · Curated classroom edition · 50 athletes · 150 investigations")
+st.caption("Sports by the Numbers · Curated classroom edition · 50 athletes · 150 investigations · PDF submission receipt")
