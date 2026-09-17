@@ -903,6 +903,280 @@ ATHLETES = {
 
 
 # =========================================================
+# LARGE ATHLETE POOL
+# =========================================================
+# The original hand-built athlete investigations above stay intact.
+# Everyone added below receives sport-specific research challenges.
+# This keeps the app fast while allowing a much larger choice of athletes.
+
+def make_large_pool_challenge(name, sport_key):
+    safe_id = "".join(ch.lower() if ch.isalnum() else "_" for ch in name).strip("_")
+
+    if sport_key == "NBA":
+        return {
+            "id": f"{safe_id}_scoring",
+            "type": "Change Over Time",
+            "question": f"How has {name}'s scoring production changed across different seasons?",
+            "student_question": f"How has {name}'s scoring changed over time?",
+            "research": [
+                "Choose at least 3 seasons.",
+                "Find points per game for each season.",
+                "Compare the seasons."
+            ],
+            "schema": {
+                "fields": [
+                    {"name": "season", "label": "Season", "placeholder": "Example: 2023-24"},
+                    {"name": "value", "label": "Points Per Game", "placeholder": "Example: 24.7"}
+                ],
+                "sentence": f"In {{season}}, {name} averaged {{value}} points per game."
+            },
+            "starter_pattern_question": f"What happened to {name}'s scoring averages?",
+            "starter_pattern_options": [
+                "They mostly increased", "They mostly decreased",
+                "They stayed fairly similar", "They went up and down",
+                "I'm not sure yet"
+            ]
+        }
+
+    if sport_key == "NFL":
+        return {
+            "id": f"{safe_id}_production",
+            "type": "Change Over Time",
+            "question": f"How has {name}'s statistical production changed across different NFL seasons?",
+            "student_question": f"How have {name}'s numbers changed over time?",
+            "research": [
+                "Choose at least 3 seasons.",
+                "Choose one important statistic for this player's position.",
+                "Record the SAME statistic for all 3 seasons."
+            ],
+            "schema": {
+                "fields": [
+                    {"name": "season", "label": "Season", "placeholder": "Example: 2024"},
+                    {"name": "stat_name", "label": "Statistic", "placeholder": "Example: Receiving Yards"},
+                    {"name": "value", "label": "Value", "placeholder": "Example: 1289"}
+                ],
+                "sentence": f"In {{season}}, {name} recorded {{value}} {{stat_name}}."
+            },
+            "starter_pattern_question": f"What happened to the statistic you tracked for {name}?",
+            "starter_pattern_options": [
+                "It mostly increased", "It mostly decreased",
+                "It stayed fairly similar", "It went up and down",
+                "I'm not sure yet"
+            ]
+        }
+
+    if sport_key == "MLB":
+        return {
+            "id": f"{safe_id}_production",
+            "type": "Change Over Time",
+            "question": f"How has {name}'s production changed across different MLB seasons?",
+            "student_question": f"How have {name}'s numbers changed over time?",
+            "research": [
+                "Choose at least 3 seasons.",
+                "Choose one useful statistic for this player.",
+                "Record the SAME statistic for all 3 seasons."
+            ],
+            "schema": {
+                "fields": [
+                    {"name": "season", "label": "Season", "placeholder": "Example: 2024"},
+                    {"name": "stat_name", "label": "Statistic", "placeholder": "Example: Home Runs"},
+                    {"name": "value", "label": "Value", "placeholder": "Example: 32"}
+                ],
+                "sentence": f"In {{season}}, {name} recorded {{value}} {{stat_name}}."
+            },
+            "starter_pattern_question": f"What happened to the statistic you tracked for {name}?",
+            "starter_pattern_options": [
+                "It mostly increased", "It mostly decreased",
+                "It stayed fairly similar", "It went up and down",
+                "I'm not sure yet"
+            ]
+        }
+
+    if sport_key == "NHL":
+        return {
+            "id": f"{safe_id}_production",
+            "type": "Change Over Time",
+            "question": f"How has {name}'s production changed across different NHL seasons?",
+            "student_question": f"How have {name}'s numbers changed over time?",
+            "research": [
+                "Choose at least 3 seasons.",
+                "Choose one useful statistic for this player.",
+                "Record the SAME statistic for all 3 seasons."
+            ],
+            "schema": {
+                "fields": [
+                    {"name": "season", "label": "Season", "placeholder": "Example: 2023-24"},
+                    {"name": "stat_name", "label": "Statistic", "placeholder": "Example: Points"},
+                    {"name": "value", "label": "Value", "placeholder": "Example: 92"}
+                ],
+                "sentence": f"In {{season}}, {name} recorded {{value}} {{stat_name}}."
+            },
+            "starter_pattern_question": f"What happened to the statistic you tracked for {name}?",
+            "starter_pattern_options": [
+                "It mostly increased", "It mostly decreased",
+                "It stayed fairly similar", "It went up and down",
+                "I'm not sure yet"
+            ]
+        }
+
+    if sport_key == "SOCCER":
+        return {
+            "id": f"{safe_id}_goals",
+            "type": "Change Over Time",
+            "question": f"How has {name}'s goal-scoring production changed across different club seasons?",
+            "student_question": f"How has {name}'s scoring changed over time?",
+            "research": [
+                "Choose at least 3 club seasons.",
+                "Find appearances.",
+                "Find goals.",
+                "Use the same competition type or source for each season when possible."
+            ],
+            "schema": {
+                "fields": [
+                    {"name": "season", "label": "Season", "placeholder": "Example: 2023-24"},
+                    {"name": "games", "label": "Appearances", "placeholder": "Example: 32"},
+                    {"name": "goals", "label": "Goals", "placeholder": "Example: 21"}
+                ],
+                "sentence": f"In {{season}}, {name} scored {{goals}} goals in {{games}} appearances."
+            },
+            "starter_pattern_question": f"What happened to {name}'s goal totals?",
+            "starter_pattern_options": [
+                "They mostly increased", "They mostly decreased",
+                "They stayed fairly similar", "They went up and down",
+                "I'm not sure yet"
+            ]
+        }
+
+    # FORMULA 1
+    return {
+        "id": f"{safe_id}_f1_points",
+        "type": "Change Over Time",
+        "question": f"How has {name}'s Formula 1 performance changed across different seasons?",
+        "student_question": f"How have {name}'s F1 results changed over time?",
+        "research": [
+            "Choose at least 3 Formula 1 seasons.",
+            "Find races entered.",
+            "Find championship points.",
+            "Find podium finishes."
+        ],
+        "schema": {
+            "fields": [
+                {"name": "season", "label": "Season", "placeholder": "Example: 2024"},
+                {"name": "races", "label": "Races", "placeholder": "Example: 24"},
+                {"name": "points", "label": "Championship Points", "placeholder": "Example: 300"},
+                {"name": "podiums", "label": "Podiums", "placeholder": "Example: 8"}
+            ],
+            "sentence": f"In {{season}}, {name} entered {{races}} races, scored {{points}} championship points, and earned {{podiums}} podiums."
+        },
+        "starter_pattern_question": f"What do the seasons you researched suggest about {name}'s F1 results?",
+        "starter_pattern_options": [
+            "They mostly improved", "They mostly decreased",
+            "They stayed fairly similar", "They went up and down",
+            "I'm not sure yet"
+        ]
+    }
+
+
+SPORT_POOLS = {
+    "NBA": [
+        "Michael Jordan","Kobe Bryant","Shaquille O'Neal","Tim Duncan","Kevin Garnett",
+        "Dirk Nowitzki","Dwyane Wade","Allen Iverson","Steve Nash","Jason Kidd",
+        "Kevin Durant","Russell Westbrook","James Harden","Chris Paul","Kawhi Leonard",
+        "Anthony Davis","Damian Lillard","Jimmy Butler","Paul George","Kyrie Irving",
+        "Giannis Antetokounmpo","Joel Embiid","Devin Booker","Donovan Mitchell","Ja Morant",
+        "Trae Young","Anthony Edwards","Shai Gilgeous-Alexander","Jaylen Brown","Bam Adebayo",
+        "Tyrese Haliburton","Jalen Brunson","Paolo Banchero","Victor Wembanyama","Chet Holmgren",
+        "De'Aaron Fox","Domantas Sabonis","Karl-Anthony Towns","Jamal Murray","Zion Williamson",
+        "Scottie Barnes","Cade Cunningham","LaMelo Ball","Tyrese Maxey","Jaren Jackson Jr.",
+        "Alperen Sengun","Evan Mobley","Darius Garland","Jalen Williams","Franz Wagner"
+    ],
+    "NFL": [
+        "Tom Brady","Peyton Manning","Aaron Rodgers","Drew Brees","Brett Favre",
+        "Joe Montana","Dan Marino","Jerry Rice","Randy Moss","Terrell Owens",
+        "Emmitt Smith","Barry Sanders","Walter Payton","Adrian Peterson","LaDainian Tomlinson",
+        "Travis Kelce","Rob Gronkowski","Davante Adams","Tyreek Hill","Cooper Kupp",
+        "Ja'Marr Chase","CeeDee Lamb","A.J. Brown","Amon-Ra St. Brown","Garrett Wilson",
+        "Breece Hall","Christian McCaffrey","Derrick Henry","Jonathan Taylor","Bijan Robinson",
+        "Joe Burrow","Jalen Hurts","Justin Herbert","Jordan Love","C.J. Stroud",
+        "Brock Purdy","Trevor Lawrence","Tua Tagovailoa","Dak Prescott","Matthew Stafford",
+        "George Kittle","Sam LaPorta","T.J. Hockenson","Puka Nacua","DK Metcalf",
+        "Mike Evans","Terry McLaurin","Deebo Samuel","Josh Jacobs","Alvin Kamara"
+    ],
+    "MLB": [
+        "Babe Ruth","Willie Mays","Hank Aaron","Ted Williams","Mickey Mantle",
+        "Jackie Robinson","Roberto Clemente","Ken Griffey Jr.","Derek Jeter","Albert Pujols",
+        "Mike Trout","Mookie Betts","Freddie Freeman","Bryce Harper","Manny Machado",
+        "Ronald Acuna Jr.","Fernando Tatis Jr.","Vladimir Guerrero Jr.","Jose Ramirez","Corey Seager",
+        "Pete Alonso","Gunnar Henderson","Corbin Carroll","Julio Rodriguez","Elly De La Cruz",
+        "Paul Skenes","Tarik Skubal","Zack Wheeler","Gerrit Cole","Jacob deGrom",
+        "Chris Sale","Max Scherzer","Justin Verlander","Clayton Kershaw","Blake Snell",
+        "Nolan Arenado","Jose Altuve","Yordan Alvarez","Kyle Tucker","Rafael Devers",
+        "Matt Olson","Austin Riley","Trea Turner","Adley Rutschman","Cal Raleigh",
+        "Jazz Chisholm Jr.","Anthony Volpe","Brandon Nimmo","Mark Vientos","Jackson Merrill"
+    ],
+    "NHL": [
+        "Wayne Gretzky","Mario Lemieux","Gordie Howe","Bobby Orr","Mark Messier",
+        "Jaromir Jagr","Alex Ovechkin","Evgeni Malkin","Patrick Kane","Jonathan Toews",
+        "Steven Stamkos","Nikita Kucherov","Leon Draisaitl","David Pastrnak","Mikko Rantanen",
+        "Cale Makar","Quinn Hughes","Adam Fox","Roman Josi","Victor Hedman",
+        "Artemi Panarin","Mitch Marner","William Nylander","Jack Hughes","Brady Tkachuk",
+        "Matthew Tkachuk","Jack Eichel","Aleksander Barkov","Sam Reinhart","Kirill Kaprizov",
+        "Jason Robertson","Mika Zibanejad","Chris Kreider","Vincent Trocheck","Adam Fantilli",
+        "Connor Bedard","Macklin Celebrini","Ilya Sorokin","Connor Hellebuyck","Andrei Vasilevskiy",
+        "Sergei Bobrovsky","Juuse Saros","Jake Oettinger","Jeremy Swayman","Marc-Andre Fleury",
+        "Henrik Lundqvist","Martin Brodeur","Patrick Roy","Dominik Hasek","Carey Price"
+    ],
+    "SOCCER": [
+        "Pele","Diego Maradona","Zinedine Zidane","Ronaldinho","Ronaldo Nazario",
+        "Thierry Henry","David Beckham","Wayne Rooney","Andres Iniesta","Xavi",
+        "Neymar","Luis Suarez","Robert Lewandowski","Mohamed Salah","Harry Kane",
+        "Kevin De Bruyne","Vinicius Junior","Jude Bellingham","Lamine Yamal","Bukayo Saka",
+        "Phil Foden","Cole Palmer","Son Heung-min","Antoine Griezmann","Karim Benzema",
+        "Luka Modric","Sergio Ramos","Virgil van Dijk","Rodri","Pedri",
+        "Aitana Bonmati","Alexia Putellas","Marta","Megan Rapinoe","Carli Lloyd",
+        "Christine Sinclair","Sam Kerr","Sophia Smith","Trinity Rodman","Mallory Swanson",
+        "Ada Hegerberg","Wendie Renard","Lucy Bronze","Lauren James","Alessia Russo",
+        "Lindsey Horan","Rose Lavelle","Naomi Girma","Sarina Bolden","Khvicha Kvaratskhelia"
+    ],
+    "F1": [
+        "Lewis Hamilton","Max Verstappen","Charles Leclerc","Lando Norris","Oscar Piastri",
+        "George Russell","Fernando Alonso","Carlos Sainz","Sergio Perez","Valtteri Bottas",
+        "Pierre Gasly","Esteban Ocon","Alex Albon","Yuki Tsunoda","Lance Stroll",
+        "Nico Hulkenberg","Daniel Ricciardo","Sebastian Vettel","Kimi Raikkonen","Jenson Button",
+        "Michael Schumacher","Ayrton Senna","Alain Prost","Niki Lauda","Nelson Piquet",
+        "Nigel Mansell","Mika Hakkinen","Damon Hill","Jacques Villeneuve","Juan Pablo Montoya",
+        "Felipe Massa","Rubens Barrichello","Mark Webber","David Coulthard","Ralf Schumacher",
+        "Nico Rosberg","Heikki Kovalainen","Robert Kubica","Kamui Kobayashi","Pastor Maldonado",
+        "Romain Grosjean","Kevin Magnussen","Zhou Guanyu","Logan Sargeant","Liam Lawson",
+        "Oliver Bearman","Andrea Kimi Antonelli","Gabriel Bortoleto","Franco Colapinto","Jack Doohan"
+    ]
+}
+
+SPORT_DISPLAY = {
+    "NBA": ("🏀 Basketball", "NBA"),
+    "NFL": ("🏈 Football", "NFL"),
+    "MLB": ("⚾ Baseball", "MLB"),
+    "NHL": ("🏒 Hockey", "NHL"),
+    "SOCCER": ("⚽ Soccer", "Soccer"),
+    "F1": ("🏎️ Formula 1", "Formula 1")
+}
+
+for sport_key, names in SPORT_POOLS.items():
+    sport_label, league_label = SPORT_DISPLAY[sport_key]
+
+    for athlete_name in names:
+        if athlete_name not in ATHLETES:
+            ATHLETES[athlete_name] = {
+                "sport": sport_label,
+                "league": league_label,
+                "challenges": [
+                    make_large_pool_challenge(athlete_name, sport_key)
+                ]
+            }
+
+
+
+# =========================================================
 # SESSION STATE
 # =========================================================
 
@@ -1665,9 +1939,38 @@ st.subheader(
     "🏆 Step 1: Pick an Athlete"
 )
 
+sport_filter = st.selectbox(
+    "Choose a sport first:",
+    [
+        "All Sports",
+        "🏀 Basketball",
+        "🏈 Football",
+        "⚾ Baseball",
+        "🏒 Hockey",
+        "⚽ Soccer",
+        "🏎️ Formula 1"
+    ]
+)
+
+if sport_filter == "All Sports":
+    athlete_options = sorted(ATHLETES.keys())
+else:
+    athlete_options = sorted(
+        [
+            name
+            for name, athlete_info in ATHLETES.items()
+            if athlete_info["sport"] == sport_filter
+        ]
+    )
+
 athlete_choice = st.selectbox(
     "Who do you want to investigate?",
-    list(ATHLETES.keys())
+    athlete_options
+)
+
+st.caption(
+    f"🏟️ {len(athlete_options)} athletes available in this selection • "
+    f"{len(ATHLETES)} total athletes in the app"
 )
 
 st.markdown(
