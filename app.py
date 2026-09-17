@@ -2035,6 +2035,7 @@ if st.session_state.challenge:
                                 evidence=evidence,
                                 pattern=st.session_state.pattern_answer,
                                 confidence=st.session_state.confidence_answer,
+                                graph_observation=st.session_state.graph_observation,
                                 original_claim=st.session_state.original_claim_saved,
                                 conversation=st.session_state.coach_conversation,
                                 mode="conversation"
@@ -2204,6 +2205,7 @@ if st.session_state.challenge:
                                 evidence=evidence,
                                 pattern=st.session_state.pattern_answer,
                                 confidence=st.session_state.confidence_answer,
+                                graph_observation=st.session_state.graph_observation,
                                 original_claim=st.session_state.original_claim_saved,
                                 conversation=st.session_state.coach_conversation,
                                 revised_claim=revised_claim,
