@@ -1538,256 +1538,255 @@ def normalize_ai_field(field):
 @st.cache_data(show_spinner=False, ttl=604800)
 def discover_athlete_story(athlete, sport, league):
     """
-    PASS 1 — Discover THIS athlete's story.
-    The model searches the web for concrete career events and statistical hooks.
-    It does NOT write investigations yet.
+    Research THIS athlete's career story.
+    Returns a factual brief. If web-grounded research fails, returns a clear marker
+    rather than silently switching the student to generic static questions.
     """
     if not client:
         return ""
 
     prompt = f"""
-You are the research editor for a 7th-grade course called Sports by the Numbers.
+Build a concise career-story brief for {athlete} ({sport}, {league}) for a
+7th-grade Sports by the Numbers investigation generator.
 
-ATHLETE: {athlete}
-SPORT: {sport}
-LEAGUE/SERIES: {league}
+Identify 10-15 CONCRETE hooks that are distinctive to this athlete:
+named teams/clubs/constructors, specific seasons or eras, career moves,
+championship/playoff contexts, teammate/role changes, breakout periods,
+documented before/after moments, or other athlete-specific situations.
 
-Research THIS athlete's actual career and identify 8-12 DISTINCT "career hooks"
-that could become interesting statistical investigations.
+For Formula 1, look especially for constructor/team context, teammates,
+championship seasons, qualifying/race patterns, wins/podium eras, and
+specific season-to-season turning points.
 
-A career hook is a concrete part of THIS PERSON'S story, such as:
-- a real team/club/constructor change
-- a rookie season versus a later season
-- before and after a documented role change
-- a specific championship/playoff/tournament era
-- a teammate or lineup context that genuinely affected the athlete's role
-- a documented injury return when appropriate
-- a position change
-- a breakout season
-- a move to a different league/club/team
-- a specific record chase or milestone
-- a qualifying-vs-race story for an F1 driver
-- a goals-vs-assists/scoring-vs-playmaking story for a hockey/soccer player
-- a regular-season-vs-postseason story when meaningful
-- another athlete-specific event that creates a natural data question
-
-DO NOT force generic categories.
-DO NOT write "how did performance change over time?" as a hook.
-DO NOT give a season-stat table.
-DO NOT answer any potential investigation.
-DO NOT invent facts.
-
-For EACH hook include:
-1. a short title,
-2. the concrete athlete-specific context,
-3. why it could create an interesting data comparison,
-4. 2-4 sport-appropriate statistics a student could research,
-5. the relevant teams/seasons/eras/events.
-
-Prioritize hooks that would NOT make sense if {athlete}'s name were replaced
-with a random athlete from the same sport.
-
-Return a concise research brief.
+Do not write generic questions. Do not provide a giant stat table.
+Do not invent facts. The next step will turn these hooks into questions.
 """
 
+    # Try web-grounded research first.
     try:
         response = client.responses.create(
             model="gpt-5.6-luna",
-            tools=[{"type": "web_search"}],
-            tool_choice="auto",
+            tools=[{"type": "web_search_preview"}],
+            input=prompt,
+            max_output_tokens=1600
+        )
+        text = response.output_text.strip()
+        if text:
+            return text
+    except Exception:
+        pass
+
+    # If web-search tooling is unavailable in the deployed API environment,
+    # still create an athlete-specific brief from model knowledge instead of
+    # falling all the way back to static generic templates.
+    try:
+        response = client.responses.create(
+            model="gpt-5.6-luna",
             instructions=(
-                "Use web search. Ground the career hooks in reliable factual information. "
-                "Do not invent athlete history or statistics."
+                "Use only athlete-specific career facts you are confident about. "
+                "Do not invent details. Produce concrete named career hooks, not generic categories."
             ),
             input=prompt,
-            max_output_tokens=1800
+            max_output_tokens=1600
         )
         return response.output_text.strip()
     except Exception:
         return ""
 
 
+def _parse_json_object(raw):
+    import json, re as _re
+    raw = (raw or "").strip()
+    raw = raw.replace("```json", "").replace("```JSON", "").replace("```", "").strip()
+
+    # First try direct JSON.
+    try:
+        return json.loads(raw)
+    except Exception:
+        pass
+
+    # Then recover the outermost JSON object if the model added prose.
+    match = _re.search(r"\{.*\}", raw, flags=_re.S)
+    if match:
+        return json.loads(match.group(0))
+    raise ValueError("No valid JSON object returned")
+
+
+def _build_challenges_from_items(athlete, items):
+    """Validate and convert model JSON into the app's challenge structure."""
+    if len(items) != 5:
+        raise ValueError("Generator did not return exactly five investigations")
+
+    challenges = []
+    fingerprints = set()
+
+    for index, item in enumerate(items):
+        fields = [
+            normalize_ai_field(f)
+            for f in item.get("fields", [])
+            if isinstance(f, dict)
+        ][:4]
+
+        if len(fields) < 2:
+            raise ValueError("Investigation did not include enough evidence fields")
+
+        # Unique evidence keys.
+        used = set()
+        for j, f in enumerate(fields):
+            if f["name"] in used:
+                f["name"] = f"value{j+2}"
+            used.add(f["name"])
+
+        question = str(item.get("question", "")).strip()
+        student_question = str(item.get("student_question", "")).strip()
+        why = str(item.get("why_this_athlete", "")).strip()
+
+        if not question or not student_question:
+            raise ValueError("Investigation question was blank")
+
+        fp = re.sub(r"[^a-z0-9 ]", "", student_question.lower())
+        fp = fp.replace(athlete.lower(), "").strip()
+        if fp in fingerprints:
+            raise ValueError("Duplicate investigations returned")
+        fingerprints.add(fp)
+
+        challenges.append({
+            "id": f"custom_{''.join(ch.lower() if ch.isalnum() else '_' for ch in athlete)}_{index}",
+            "type": str(item.get("type", "Custom Investigation"))[:60],
+            "question": question,
+            "student_question": student_question,
+            "why_this_athlete": why,
+            "research": [str(x) for x in item.get("research", [])][:4],
+            "schema": {
+                "fields": fields,
+                "sentence": str(item.get("sentence", "")).strip()
+            },
+            "starter_pattern_question": str(
+                item.get("pattern_question", "What does your evidence seem to show?")
+            ),
+            "starter_pattern_options": [
+                str(x) for x in item.get(
+                    "pattern_options",
+                    ["The first side was stronger", "The second side was stronger",
+                     "They were similar", "The evidence was mixed", "I'm not sure yet"]
+                )
+            ][:5],
+            "_source": "AI_CUSTOM"
+        })
+
+    return challenges
+
+
 @st.cache_data(show_spinner=False, ttl=86400)
 def generate_player_specific_challenges(athlete, sport, league):
     """
-    PASS 2 — Turn the athlete's best career hooks into five custom investigations.
-    There is intentionally NO fixed menu of investigation structures.
+    Generate five athlete-specific investigations.
+    IMPORTANT: this function NEVER silently returns the old generic five.
+    It retries generation, then returns an empty list so the UI can show the failure.
     """
     if not client:
-        return fallback_player_challenges(athlete)
+        return []
 
     story = discover_athlete_story(athlete, sport, league)
 
     if not story:
-        # Better to remain usable than crash, but this fallback is clearly secondary.
-        return fallback_player_challenges(athlete)
+        return []
 
-    prompt = f"""
-You are the investigation editor for Sports by the Numbers, a 7th-grade
-sports statistics course.
+    base_prompt = f"""
+Create exactly FIVE genuinely different statistical investigations for a
+7th-grade Sports by the Numbers student.
 
 ATHLETE: {athlete}
 SPORT: {sport}
 LEAGUE/SERIES: {league}
 
-Here is a researched career-story brief:
-
---- CAREER STORY ---
+ATHLETE-SPECIFIC CAREER BRIEF:
 {story}
---- END CAREER STORY ---
 
-Your job is to select the FIVE most interesting statistical investigations
-that naturally emerge from THIS athlete's story.
+This is NOT a template-filling exercise.
 
-CRITICAL DESIGN TEST:
-For every proposed question, mentally replace "{athlete}" with another athlete
-from the same sport. If the question still works almost unchanged, REJECT IT.
+The five questions must be ABOUT EVENTS IN {athlete.upper()}'S ACTUAL CAREER,
+not five generic statistical categories.
 
-BAD:
-- How has Max Verstappen's performance changed over time?
-- How consistent has Max Verstappen been?
+ABSOLUTE RULE:
+If a question could be reused for another athlete by changing only the name,
+DO NOT USE IT.
+
+For example, if the athlete is Max Verstappen, questions like these are forbidden:
+- How has Max Verstappen changed over time?
+- How consistent is Max Verstappen?
+- Which Max Verstappen season was best?
 - Is one season enough to judge Max Verstappen?
-- Which season was Max Verstappen's best?
+- How do Max Verstappen's totals compare to his rates?
 
-Those are generic templates.
+Instead, use concrete hooks from the career brief: named constructors/teams,
+specific championship seasons, particular teammates, real career turning points,
+specific eras, or other context distinctive to him.
 
-GOOD questions contain concrete career context:
-- named teams, clubs, constructors
-- named eras or specific seasons
-- a real before/after event
-- a specific teammate/role situation
-- a championship/playoff/tournament context
-- a concrete claim tied to this athlete's career
+DIVERSITY RULES:
+- All 5 must use different career hooks.
+- At least 4 must explicitly name a team/club/constructor, teammate, season,
+  championship/playoff/tournament, career move, or other concrete event.
+- At least 2 must be so athlete-specific that they would make little sense for
+  another athlete in the sport.
+- Do not force "change over time / consistency / rate vs total / best season /
+  fair claim" as the five structures.
+- Let the STORY determine the math question.
+- Keep the math accessible to grade 7.
+- Never give the student the actual researched numbers or the answer.
+- Evidence labels must be sport-appropriate and question-specific.
 
-The FIVE questions do NOT need to represent five predetermined statistics concepts.
-Let the athlete's story determine the structure.
-
-Requirements:
-1. All five must be meaningfully different.
-2. At least FOUR must contain a concrete named team, club, constructor, season,
-   event, career move, opponent/context, or career era from the research brief.
-3. At least TWO should be questions that would be unusual or impossible to assign
-   to a random athlete in this sport.
-4. At least ONE should be a compelling A-vs-B comparison when the career story
-   supports one.
-5. At least ONE should test a concrete claim about a real part of this athlete's story.
-6. Use only age-appropriate statistics and reasoning.
-7. Do not give the student the numbers or the answer.
-8. Evidence fields must be custom-built for THAT question.
-9. Never use a statistic from another sport.
-10. Do not invent facts beyond the supplied research brief.
-
-Before returning JSON, silently run a SELF-CRITIQUE:
-- Are these five basically the same questions I would give another athlete?
-- Are any two structurally redundant?
-- Does each question contain enough career context to feel personal?
-- Do the evidence fields actually match the investigation?
-If any answer is bad, replace that investigation before returning.
-
-Return ONLY valid JSON:
+Return ONLY JSON:
 {{
   "investigations": [
     {{
-      "type": "Short descriptive label",
-      "question": "Full highly specific research question",
-      "student_question": "Short student-friendly version that retains the specific context",
-      "why_this_athlete": "One sentence explaining the athlete-specific career hook",
-      "research": [
-        "Exactly what the student should look up",
-        "Second research direction",
-        "Third research direction"
-      ],
+      "type": "short custom label",
+      "question": "full specific question",
+      "student_question": "short specific question",
+      "why_this_athlete": "the concrete career hook that makes this question specific",
+      "research": ["what to research", "what else to research", "what to compare"],
       "fields": [
-        {{"name":"period","label":"Specific evidence label","placeholder":"Example format only"}},
-        {{"name":"value","label":"Specific sport statistic","placeholder":"Example format only"}}
+        {{"name":"period","label":"question-specific label","placeholder":"format example"}},
+        {{"name":"value","label":"question-specific statistic","placeholder":"format example"}}
       ],
-      "sentence": "Evidence sentence using the exact field placeholders",
-      "pattern_question": "Question asking what THIS evidence seems to show",
-      "pattern_options": ["Specific option 1","Specific option 2","Specific option 3","I'm not sure yet"]
+      "sentence": "evidence sentence using the field placeholders",
+      "pattern_question": "question-specific pattern question",
+      "pattern_options": ["specific choice 1","specific choice 2","specific choice 3","I'm not sure yet"]
     }}
   ]
 }}
 """
 
-    try:
-        response = client.responses.create(
-            model="gpt-5.6-luna",
-            instructions=(
-                "Return JSON only. Create exactly five athlete-specific investigations. "
-                "Reject generic reusable questions. Never supply the researched statistics "
-                "or answer the investigations."
-            ),
-            input=prompt,
-            max_output_tokens=3000
-        )
+    # Two attempts. The second explicitly tells the model why the first failed.
+    for attempt in range(2):
+        prompt = base_prompt
+        if attempt == 1:
+            prompt += """
+RETRY INSTRUCTION:
+Your previous output could not be used. Be even MORE concrete.
+Every question should visibly contain athlete-specific nouns from the career brief.
+Do not return five generic categories with customized wording.
+"""
 
-        import json
-        raw = response.output_text.strip()
-        if raw.startswith("```"):
-            raw = raw.replace("```json", "", 1).replace("```", "").strip()
-
-        data = json.loads(raw)
-        items = data.get("investigations", [])
-        if len(items) != 5:
-            return fallback_player_challenges(athlete)
-
-        challenges = []
-        fingerprints = set()
-
-        for index, item in enumerate(items):
-            fields = [
-                normalize_ai_field(f)
-                for f in item.get("fields", [])
-                if isinstance(f, dict)
-            ][:4]
-            if len(fields) < 2:
-                return fallback_player_challenges(athlete)
-
-            # Ensure unique widget/data keys.
-            used = set()
-            for j, f in enumerate(fields):
-                if f["name"] in used:
-                    f["name"] = f"value{j+1}"
-                used.add(f["name"])
-
-            question = str(item.get("question", "")).strip()
-            student_question = str(item.get("student_question", "")).strip()
-            why = str(item.get("why_this_athlete", "")).strip()
-
-            # Reject empty or exact duplicate questions.
-            fp = re.sub(r"[^a-z0-9 ]", "", student_question.lower())
-            fp = fp.replace(athlete.lower(), "").strip()
-            if not question or not student_question or fp in fingerprints:
-                return fallback_player_challenges(athlete)
-            fingerprints.add(fp)
-
-            challenges.append({
-                "id": f"story_{''.join(ch.lower() if ch.isalnum() else '_' for ch in athlete)}_{index}",
-                "type": str(item.get("type", "Career Story Investigation"))[:60],
-                "question": question,
-                "student_question": student_question,
-                "why_this_athlete": why,
-                "research": [str(x) for x in item.get("research", [])][:4],
-                "schema": {
-                    "fields": fields,
-                    "sentence": str(item.get("sentence", "")).strip()
-                },
-                "starter_pattern_question": str(
-                    item.get("pattern_question", "What does this evidence seem to show?")
+        try:
+            response = client.responses.create(
+                model="gpt-5.6-luna",
+                instructions=(
+                    "Return valid JSON only. Exactly five investigations. "
+                    "Use concrete athlete-specific career context. Never answer the questions."
                 ),
-                "starter_pattern_options": [
-                    str(x) for x in item.get(
-                        "pattern_options",
-                        ["The first side was stronger", "The second side was stronger",
-                         "They were similar", "The evidence was mixed", "I'm not sure yet"]
-                    )
-                ][:5]
-            })
+                input=prompt,
+                max_output_tokens=3200
+            )
+            data = _parse_json_object(response.output_text)
+            items = data.get("investigations", [])
+            return _build_challenges_from_items(athlete, items)
+        except Exception:
+            continue
 
-        return challenges
-
-    except Exception:
-        return fallback_player_challenges(athlete)
+    # DO NOT fall back to the static five: that was the bug that made every
+    # athlete appear to receive the same questions.
+    return []
 
 
 # =========================================================
@@ -2703,7 +2702,23 @@ if (
         )
         st.session_state.ai_topic_athlete = athlete_choice
 
-available_challenges = st.session_state.ai_challenges
+available_challenges = st.session_state.ai_challenges or []
+
+if not available_challenges:
+    st.error(
+        "I couldn't build a personalized set for this athlete on this attempt. "
+        "Click **Try Again — Build 5 Personalized Questions** below. "
+        "The app will not substitute generic questions."
+    )
+    if st.button("🔄 Try Again — Build 5 Personalized Questions"):
+        generate_player_specific_challenges.clear()
+        discover_athlete_story.clear()
+        st.session_state.ai_challenges = None
+        st.session_state.ai_topic_athlete = None
+        st.rerun()
+    st.stop()
+
+st.success(f"✨ 5 custom investigations built specifically for {athlete_choice}")
 
 challenge_labels = [
     f"{c['type']} — {c['student_question']}"
@@ -2720,7 +2735,7 @@ selected_challenge = available_challenges[
     challenge_labels.index(selected_challenge_label)
 ]
 
-if st.button("✨ Make 5 New Questions for This Athlete"):
+if st.button("✨ Research a Different 5 Questions for This Athlete"):
     generate_player_specific_challenges.clear()
     discover_athlete_story.clear()
     with st.spinner(f"🔎 Finding new career angles for {athlete_choice}..."):
