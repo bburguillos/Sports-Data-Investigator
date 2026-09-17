@@ -4,6 +4,7 @@ import random
 import re
 import nflreadpy as nfl
 import polars as pl
+from pybaseball import batting_stats, pitching_stats
 
 st.set_page_config(
     page_title="Sports Data Investigator",
@@ -499,10 +500,211 @@ def nfl_prefill_evidence(challenge, player_df):
     return rows
 
 # -----------------------------
+# MLB AUTOMATIC DATA
+# -----------------------------
+@st.cache_data(ttl=21600, show_spinner=False)
+def load_mlb_batting_stats(start_year, end_year):
+    """Season-level MLB batting data from pybaseball/FanGraphs."""
+    return batting_stats(int(start_year), int(end_year), qual=0)
+
+@st.cache_data(ttl=21600, show_spinner=False)
+def load_mlb_pitching_stats(start_year, end_year):
+    """Season-level MLB pitching data from pybaseball/FanGraphs."""
+    return pitching_stats(int(start_year), int(end_year), qual=0)
+
+def normalize_person_name(value):
+    return re.sub(r"[^a-z0-9 ]", "", str(value).lower()).strip()
+
+def best_name_match(df, player_name):
+    if df is None or df.empty or "Name" not in df.columns:
+        return None
+    target = normalize_person_name(player_name)
+    normalized = df["Name"].astype(str).map(normalize_person_name)
+
+    exact = df[normalized == target]
+    if not exact.empty:
+        return exact.copy()
+
+    parts = target.split()
+    if parts:
+        last = parts[-1]
+        candidates = df[normalized.str.contains(last, regex=False, na=False)]
+        if not candidates.empty:
+            # Prefer rows whose normalized name contains all target name pieces.
+            cand_norm = candidates["Name"].astype(str).map(normalize_person_name)
+            mask = cand_norm.map(lambda n: all(p in n.split() for p in parts))
+            stronger = candidates[mask]
+            if not stronger.empty:
+                return stronger.copy()
+            return candidates.copy()
+    return None
+
+@st.cache_data(ttl=21600, show_spinner=False)
+def mlb_player_profile(player_name):
+    """
+    Search recent MLB seasons and decide whether the selected player is primarily
+    represented as a hitter or pitcher. Returns one row per season.
+    """
+    # Use a broad modern window for the current classroom player pool.
+    start_year, end_year = 2000, 2026
+    errors = []
+
+    batting_match = None
+    pitching_match = None
+
+    try:
+        batting = load_mlb_batting_stats(start_year, end_year)
+        batting_match = best_name_match(batting, player_name)
+    except Exception as exc:
+        errors.append(f"batting: {exc}")
+
+    try:
+        pitching = load_mlb_pitching_stats(start_year, end_year)
+        pitching_match = best_name_match(pitching, player_name)
+    except Exception as exc:
+        errors.append(f"pitching: {exc}")
+
+    bat_seasons = 0 if batting_match is None else batting_match["Season"].nunique()
+    pit_seasons = 0 if pitching_match is None else pitching_match["Season"].nunique()
+
+    if bat_seasons == 0 and pit_seasons == 0:
+        detail = "; ".join(errors[:2])
+        return None, None, f"No automatic MLB season data was found for {player_name}." + (f" ({detail})" if detail else "")
+
+    # Two-way players such as Ohtani appear in both. Default to batting if tied;
+    # this keeps the classroom investigation simple and predictable.
+    if bat_seasons >= pit_seasons:
+        df = batting_match
+        kind = "hitter"
+    else:
+        df = pitching_match
+        kind = "pitcher"
+
+    # Aggregate traded-team rows into one season row when needed.
+    numeric_cols = df.select_dtypes(include="number").columns.tolist()
+    agg = {c: "sum" for c in numeric_cols if c != "Season"}
+
+    # Rate stats should not be summed. We recompute/select them later when possible.
+    for rate_col in ["AVG", "OBP", "SLG", "OPS", "ERA", "WHIP", "K/9", "BB/9"]:
+        agg.pop(rate_col, None)
+
+    grouped_parts = []
+    for season, g in df.groupby("Season"):
+        row = {"Season": int(season)}
+        for c, method in agg.items():
+            try:
+                row[c] = g[c].fillna(0).sum()
+            except Exception:
+                pass
+        # Keep simple rate values from a total row when one exists, otherwise weighted-ish first.
+        for rate_col in ["AVG", "OBP", "SLG", "OPS", "ERA", "WHIP"]:
+            if rate_col in g.columns:
+                vals = g[rate_col].dropna()
+                if not vals.empty:
+                    row[rate_col] = float(vals.iloc[0])
+        grouped_parts.append(row)
+
+    import pandas as pd
+    season_df = pd.DataFrame(grouped_parts).sort_values("Season")
+    return season_df, kind, None
+
+def mlb_stat_profile(kind, df):
+    if kind == "pitcher":
+        # Wins + strikeouts are intuitive for grade 7 and have compatible count scales.
+        return "Strikeouts", "SO", "Wins", "W"
+    # Hits + home runs are intuitive counting stats.
+    return "Hits", "H", "Home Runs", "HR"
+
+def mlb_auto_investigations(player_name, player_df, kind):
+    stat1_label, stat1_col, stat2_label, stat2_col = mlb_stat_profile(kind, player_df)
+    available = sorted(set(int(s) for s in player_df["Season"].tolist()))
+    if not available:
+        return []
+
+    last3 = available[-3:]
+    last5 = available[-5:]
+    early_recent = [available[0], available[-1]] if len(available) > 1 else available
+
+    role_word = "pitching" if kind == "pitcher" else "hitting"
+
+    return [
+        {
+            "id": f"mlb_auto_last3_{player_name}",
+            "type": "Automatic · Last 3 Seasons",
+            "student_question": f"What do {player_name}'s last three available MLB seasons show about {role_word} production?",
+            "why_this_athlete": f"The app supplies {stat1_label.lower()} and {stat2_label.lower()} automatically.",
+            "auto_seasons": last3,
+            "schema": {"fields": [
+                {"name":"period","label":"Season"},
+                {"name":"value1","label":stat1_label},
+                {"name":"value2","label":stat2_label},
+            ]},
+            "evidence_rows": len(last3),
+            "_source": "MLB_AUTO",
+            "_stat_cols": [stat1_col, stat2_col],
+        },
+        {
+            "id": f"mlb_auto_early_recent_{player_name}",
+            "type": "Automatic · Early vs Recent",
+            "student_question": f"How does an early available MLB season compare with {player_name}'s most recent available season?",
+            "why_this_athlete": f"Compare {stat1_label.lower()} and {stat2_label.lower()}.",
+            "auto_seasons": early_recent,
+            "schema": {"fields": [
+                {"name":"period","label":"Season"},
+                {"name":"value1","label":stat1_label},
+                {"name":"value2","label":stat2_label},
+            ]},
+            "evidence_rows": len(early_recent),
+            "_source": "MLB_AUTO",
+            "_stat_cols": [stat1_col, stat2_col],
+        },
+        {
+            "id": f"mlb_auto_last5_{player_name}",
+            "type": "Automatic · Five-Season Trend",
+            "student_question": f"What pattern appears across {player_name}'s last five available MLB seasons?",
+            "why_this_athlete": "The data is supplied; your job is to identify and explain the pattern.",
+            "auto_seasons": last5,
+            "schema": {"fields": [
+                {"name":"period","label":"Season"},
+                {"name":"value1","label":stat1_label},
+                {"name":"value2","label":stat2_label},
+            ]},
+            "evidence_rows": len(last5),
+            "_source": "MLB_AUTO",
+            "_stat_cols": [stat1_col, stat2_col],
+        },
+    ]
+
+def mlb_prefill_evidence(challenge, player_df):
+    columns = universal_columns(challenge)
+    stat_cols = challenge.get("_stat_cols", [])
+    rows = []
+    for season in challenge.get("auto_seasons", []):
+        g = player_df[player_df["Season"] == int(season)]
+        if g.empty:
+            continue
+        r = {columns[0]: str(season)}
+        for idx, stat_col in enumerate(stat_cols, start=1):
+            if stat_col in g.columns:
+                value = g.iloc[0][stat_col]
+                if value is None:
+                    r[columns[idx]] = "0"
+                else:
+                    try:
+                        fv = float(value)
+                        r[columns[idx]] = str(int(fv)) if fv.is_integer() else str(round(fv, 3))
+                    except Exception:
+                        r[columns[idx]] = str(value)
+            else:
+                r[columns[idx]] = "0"
+        rows.append(r)
+    return rows
+
+# -----------------------------
 # HEADER
 # -----------------------------
 st.title("🏟️ Sports Data Investigator")
-st.caption("Explore real sports data, see the pattern, and defend a claim. NFL investigations can load statistics automatically.")
+st.caption("Explore real sports data, see the pattern, and defend a claim. NFL and MLB investigations can load statistics automatically.")
 
 # -----------------------------
 # STEP 1 — PICK ATHLETE
@@ -526,6 +728,9 @@ st.caption(f"{len(athlete_names)} athletes available")
 # Use the exact bank key attached to the selected player.
 selected_index = athlete_names.index(athlete)
 bank_key = athlete_records[selected_index][1]
+nfl_rows = None
+mlb_rows = None
+
 if sport_code == "nfl":
     with st.spinner("Loading NFL season data..."):
         nfl_rows, nfl_error = nfl_player_rows(athlete)
@@ -536,8 +741,20 @@ if sport_code == "nfl":
     else:
         challenges = nfl_auto_investigations(athlete, nfl_rows)
         st.success("🏈 NFL data mode is on — statistics will be filled in automatically from nflverse.")
+
+elif sport_code == "mlb":
+    with st.spinner("Loading MLB season data..."):
+        mlb_rows, mlb_kind, mlb_error = mlb_player_profile(athlete)
+    if mlb_error:
+        st.warning(mlb_error)
+        st.caption("Using the built-in investigation bank instead.")
+        challenges = QUESTION_BANK.get(bank_key, [])
+    else:
+        challenges = mlb_auto_investigations(athlete, mlb_rows, mlb_kind)
+        role_label = "pitcher" if mlb_kind == "pitcher" else "hitter"
+        st.success(f"⚾ MLB data mode is on — {role_label} statistics will be filled in automatically.")
+
 else:
-    nfl_rows = None
     challenges = QUESTION_BANK.get(bank_key, [])
 
 if not challenges:
@@ -565,6 +782,8 @@ if st.button("🚀 Start This Investigation", use_container_width=True):
     columns = universal_columns(selected_challenge)
     if selected_challenge.get("_source") == "NFLVERSE_AUTO" and nfl_rows is not None:
         st.session_state.evidence = nfl_prefill_evidence(selected_challenge, nfl_rows)
+    elif selected_challenge.get("_source") == "MLB_AUTO" and mlb_rows is not None:
+        st.session_state.evidence = mlb_prefill_evidence(selected_challenge, mlb_rows)
     else:
         st.session_state.evidence = [
             {col: "" for col in columns} for _ in range(rows_needed)
@@ -589,13 +808,16 @@ st.markdown("---")
 st.markdown('<div class="step">Step 2 · Evidence</div>', unsafe_allow_html=True)
 st.subheader(challenge["student_question"])
 
-if challenge.get("_source") == "NFLVERSE_AUTO":
-    st.caption("The statistics below were loaded automatically from nflverse regular-season player summaries. Your job is to analyze them.")
+if challenge.get("_source") in ("NFLVERSE_AUTO", "MLB_AUTO"):
+    if challenge.get("_source") == "NFLVERSE_AUTO":
+        st.caption("The statistics below were loaded automatically from nflverse regular-season player summaries. Your job is to analyze them.")
+    else:
+        st.caption("The statistics below were loaded automatically from pybaseball season-level MLB data. Your job is to analyze them.")
     if st.session_state.evidence:
         st.dataframe(st.session_state.evidence, use_container_width=True, hide_index=True)
     st.info("💡 You do not need to copy these numbers anywhere. Move directly to the graph and look for a pattern.")
 else:
-    st.caption("Use a trusted sports statistics site. Automatic data is being added sport-by-sport; NFL is available first.")
+    st.caption("Use a trusted sports statistics site. Automatic data is being added sport-by-sport; NFL and MLB are available first.")
     for i in range(rows_needed):
         st.markdown(f"**Evidence row {i+1} of {rows_needed}**")
         cols = st.columns(len(columns))
