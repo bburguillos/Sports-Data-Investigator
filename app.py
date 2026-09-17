@@ -121,6 +121,90 @@ div[data-testid="stMetric"] { border:1px solid rgba(var(--sport-rgb),.28); borde
     color: #f8fafc !important;
 }
 
+
+
+/* =======================================================
+   GLOBAL READABILITY — HIGH CONTRAST
+   ======================================================= */
+.stApp,
+.stApp p,
+.stApp li,
+.stApp label,
+.stApp span,
+.stApp div[data-testid="stMarkdownContainer"],
+.stApp div[data-testid="stCaptionContainer"] {
+    color: #f8fafc;
+}
+
+.stApp [data-testid="stCaptionContainer"],
+.stApp small {
+    color: #dbeafe !important;
+}
+
+.stApp h1,
+.stApp h2,
+.stApp h3,
+.stApp h4 {
+    color: #ffffff !important;
+}
+
+.stApp .stMarkdown,
+.stApp .stText,
+.stApp .stAlert {
+    color: #f8fafc !important;
+}
+
+/* Input/select/radio text */
+.stApp div[data-baseweb="select"] *,
+.stApp div[data-baseweb="input"] *,
+.stApp textarea,
+.stApp input {
+    color: #f8fafc !important;
+}
+
+/* Select and input surfaces */
+.stApp div[data-baseweb="select"] > div,
+.stApp div[data-baseweb="input"] > div,
+.stApp textarea,
+.stApp input {
+    background-color: #172033 !important;
+    border-color: #64748b !important;
+}
+
+/* Placeholder text */
+.stApp input::placeholder,
+.stApp textarea::placeholder {
+    color: #cbd5e1 !important;
+    opacity: 1 !important;
+}
+
+/* Evidence / question cards */
+.challenge-box,
+.sentence-preview,
+.coach-card,
+.student-card {
+    color: #ffffff !important;
+}
+.challenge-box *,
+.sentence-preview *,
+.coach-card *,
+.student-card * {
+    color: #ffffff !important;
+}
+
+/* Buttons: keep labels very visible */
+.stButton button,
+.stButton button * {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+}
+
+/* Radio labels */
+div[role="radiogroup"] label,
+div[role="radiogroup"] label * {
+    color: #f8fafc !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -1423,6 +1507,182 @@ for sport_key, names in SPORT_POOLS.items():
 
 
 
+
+# =========================================================
+# AI PLAYER-SPECIFIC INVESTIGATION GENERATOR
+# =========================================================
+
+def fallback_player_challenges(athlete):
+    """Use the existing sport-safe five structures if AI generation fails."""
+    return ATHLETES[athlete]["challenges"][:5]
+
+
+def normalize_ai_field(field):
+    allowed_names = {
+        "season", "period", "team", "games", "value", "value2",
+        "rate", "total", "goals", "assists", "points", "wins",
+        "podiums", "races", "stat_name"
+    }
+
+    name = str(field.get("name", "value")).strip().lower().replace(" ", "_")
+    if name not in allowed_names:
+        name = "value"
+
+    return {
+        "name": name,
+        "label": str(field.get("label", "Statistic"))[:50],
+        "placeholder": str(field.get("placeholder", "Enter value"))[:60]
+    }
+
+
+@st.cache_data(show_spinner=False, ttl=86400)
+def generate_player_specific_challenges(athlete, sport, league):
+    """
+    Generate five research questions tailored to the selected athlete.
+    The AI chooses the QUESTION and sport-appropriate evidence fields.
+    It does not provide the student's statistics or answer the question.
+    """
+    if not client:
+        return fallback_player_challenges(athlete)
+
+    prompt = f"""
+You are designing investigations for a 7th-grade class called Sports by the Numbers.
+
+ATHLETE: {athlete}
+SPORT: {sport}
+LEAGUE: {league}
+
+Create exactly FIVE different, player-specific statistical investigations.
+
+The investigations should feel like they were written specifically for THIS athlete,
+not copied from a generic template.
+
+Good examples of specificity:
+- Did Artemi Panarin perform better as a New York Ranger or a Chicago Blackhawk?
+- Did a player's scoring change after joining a new team?
+- Was a player's best statistical stretch early, middle, or later in a career?
+- Did a driver perform differently before and after changing F1 teams?
+- Did a soccer player's scoring change after moving clubs?
+
+IMPORTANT RULES:
+1. Use only sport-appropriate statistics. Never use football terms such as touchdowns
+   for hockey, basketball, baseball, soccer, or Formula 1.
+2. At least TWO of the five questions should use a real athlete-specific context
+   when you are confident it is correct: teams, clubs, career eras, role, position,
+   or a well-known career transition.
+3. Do NOT give the student any statistics, values, conclusion, or answer.
+4. Students must research the evidence themselves.
+5. Keep the math appropriate for grade 7.
+6. Favor concepts such as change over time, comparing periods/teams, consistency,
+   rate vs total, and whether a claim is fair.
+7. Avoid advanced statistics such as regression, correlation coefficients,
+   standard deviation, and IQR.
+8. If you are not confident about a biographical/team fact, do not invent it.
+   Use a safe career-period comparison instead.
+9. Each investigation needs 2 to 4 evidence fields. Every field must make sense
+   for {sport}.
+10. The first evidence field should normally identify the season, team, club,
+    period, or year. The remaining fields should be statistics students can research.
+11. Questions should be interesting enough that a sports fan would want to know
+    the answer.
+
+Return ONLY valid JSON in exactly this shape:
+{{
+  "investigations": [
+    {{
+      "type": "Compare Teams",
+      "question": "Teacher/full research question",
+      "student_question": "Short student-friendly version",
+      "research": [
+        "Research direction 1",
+        "Research direction 2",
+        "Research direction 3"
+      ],
+      "fields": [
+        {{"name":"period","label":"Team / Period","placeholder":"Example: Team A"}},
+        {{"name":"value","label":"Sport-appropriate statistic","placeholder":"Example: 82"}}
+      ],
+      "sentence": "Evidence sentence using {{period}} and {{value}} placeholders",
+      "pattern_question": "One simple question asking what the evidence seems to show",
+      "pattern_options": ["Option 1","Option 2","Option 3","I'm not sure yet"]
+    }}
+  ]
+}}
+"""
+
+    try:
+        response = client.responses.create(
+            model="gpt-5.6-luna",
+            instructions=(
+                "Return valid JSON only. Do not use markdown fences. "
+                "Never invent statistics. Never answer the investigation."
+            ),
+            input=prompt,
+            max_output_tokens=1800
+        )
+
+        import json
+        raw = response.output_text.strip()
+
+        if raw.startswith("```"):
+            raw = raw.replace("```json", "", 1).replace("```", "").strip()
+
+        data = json.loads(raw)
+        items = data.get("investigations", [])
+
+        if len(items) != 5:
+            return fallback_player_challenges(athlete)
+
+        challenges = []
+
+        for index, item in enumerate(items):
+            fields = [
+                normalize_ai_field(f)
+                for f in item.get("fields", [])
+                if isinstance(f, dict)
+            ][:4]
+
+            if len(fields) < 2:
+                return fallback_player_challenges(athlete)
+
+            # Avoid duplicate field names, which would break Streamlit evidence keys.
+            seen = set()
+            for f in fields:
+                if f["name"] in seen:
+                    f["name"] = "value2"
+                seen.add(f["name"])
+
+            challenges.append({
+                "id": f"ai_{''.join(ch.lower() if ch.isalnum() else '_' for ch in athlete)}_{index}",
+                "type": str(item.get("type", "Player Investigation"))[:40],
+                "question": str(item.get("question", "")).strip(),
+                "student_question": str(item.get("student_question", "")).strip(),
+                "research": [str(x) for x in item.get("research", [])][:4],
+                "schema": {
+                    "fields": fields,
+                    "sentence": str(item.get("sentence", "")).strip()
+                },
+                "starter_pattern_question": str(
+                    item.get("pattern_question", "What does your evidence seem to show?")
+                ),
+                "starter_pattern_options": [
+                    str(x) for x in item.get(
+                        "pattern_options",
+                        ["One side was stronger", "They were similar", "It was mixed", "I'm not sure yet"]
+                    )
+                ][:5]
+            })
+
+        # Basic validity check.
+        if any(not c["question"] or not c["student_question"] for c in challenges):
+            return fallback_player_challenges(athlete)
+
+        return challenges
+
+    except Exception:
+        return fallback_player_challenges(athlete)
+
+
 # =========================================================
 # SESSION STATE
 # =========================================================
@@ -1442,7 +1702,9 @@ DEFAULTS = {
     "graph_choice": None,
     "graph_reason": None,
     "argument_grade": None,
-    "graded_claim": ""
+    "graded_claim": "",
+    "ai_topic_athlete": None,
+    "ai_challenges": None
 }
 
 for key, value in DEFAULTS.items():
@@ -1607,7 +1869,7 @@ def get_graph_config(challenge):
     labels = {f["name"]: f["label"] for f in fields}
 
     # Relationship questions work best as scatter plots when two numeric measures exist.
-    numeric_candidates = [n for n in names if n not in ("season", "stage", "stat_name")]
+    numeric_candidates = [n for n in names if n not in ("season", "stage", "stat_name", "period", "team")]
 
     if challenge["type"] == "Relationship" and len(numeric_candidates) >= 2:
         return {
@@ -2320,23 +2582,47 @@ else:
     )
 
 
-available_challenges = ATHLETES[athlete_choice]["challenges"]
+# Generate a fresh set of five athlete-specific investigations when the athlete changes.
+if (
+    st.session_state.ai_topic_athlete != athlete_choice
+    or not st.session_state.ai_challenges
+):
+    with st.spinner(f"✨ Building 5 investigations for {athlete_choice}..."):
+        athlete_info_for_ai = ATHLETES[athlete_choice]
+        st.session_state.ai_challenges = generate_player_specific_challenges(
+            athlete_choice,
+            athlete_info_for_ai["sport"],
+            athlete_info_for_ai.get("league", athlete_info_for_ai["sport"])
+        )
+        st.session_state.ai_topic_athlete = athlete_choice
 
-if len(available_challenges) > 1:
-    challenge_labels = [
-        f"{c['type']} — {c['student_question']}"
-        for c in available_challenges
-    ]
-    selected_challenge_label = st.selectbox(
-        "Choose your investigation:",
-        challenge_labels,
-        key="challenge_picker"
-    )
-    selected_challenge = available_challenges[
-        challenge_labels.index(selected_challenge_label)
-    ]
-else:
-    selected_challenge = available_challenges[0]
+available_challenges = st.session_state.ai_challenges
+
+challenge_labels = [
+    f"{c['type']} — {c['student_question']}"
+    for c in available_challenges
+]
+
+selected_challenge_label = st.selectbox(
+    "Choose your investigation:",
+    challenge_labels,
+    key=f"challenge_picker_{athlete_choice}"
+)
+
+selected_challenge = available_challenges[
+    challenge_labels.index(selected_challenge_label)
+]
+
+if st.button("✨ Make 5 New Questions for This Athlete"):
+    generate_player_specific_challenges.clear()
+    with st.spinner(f"✨ Creating new investigations for {athlete_choice}..."):
+        athlete_info_for_ai = ATHLETES[athlete_choice]
+        st.session_state.ai_challenges = generate_player_specific_challenges(
+            athlete_choice,
+            athlete_info_for_ai["sport"],
+            athlete_info_for_ai.get("league", athlete_info_for_ai["sport"])
+        )
+    st.rerun()
 
 if st.button(
     "🚀 START MY INVESTIGATION",
@@ -2420,12 +2706,12 @@ if st.session_state.challenge:
 
         previous = challenge["id"]
 
-        st.session_state.challenge = (
-            get_challenge(
-                athlete,
-                previous
-            )
-        )
+        ai_pool = st.session_state.get("ai_challenges") or ATHLETES[athlete]["challenges"]
+        alternatives = [
+            c for c in ai_pool
+            if c["id"] != previous
+        ]
+        st.session_state.challenge = random.choice(alternatives) if alternatives else challenge
 
         clear_investigation()
 
