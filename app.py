@@ -1276,53 +1276,202 @@ def percent_change_engine(rec):
 
 def mad_engine(rec):
     labels, values = rec["labels"], [float(x) for x in rec["values"]]
+
     st.markdown('<div class="step">Investigation 2 · Consistency</div>', unsafe_allow_html=True)
     st.subheader(f"How consistent was {athlete}'s {rec['stat_label'].lower()} across these periods?")
-    st.caption("MAD = Mean Absolute Deviation. A smaller MAD means the values stayed closer to the mean.")
 
-    st.markdown("### 1. Start with the data")
-    st.dataframe([{"Period":l,rec["stat_label"]:v} for l,v in zip(labels,values)],
-                 use_container_width=True, hide_index=True)
+    st.info(
+        "MAD stands for Mean Absolute Deviation. It tells us the typical distance "
+        "between each value and the mean. A smaller MAD means the values are more consistent."
+    )
 
-    true_mean = sum(values)/len(values)
-    st.markdown("### 2. Find the mean")
-    mean_ans = st.number_input("Mean", key="mad_mean")
-    if st.button("Check Mean",use_container_width=True):
-        if math.isclose(mean_ans,true_mean,abs_tol=.05):
-            st.success("✅ Correct mean.")
+    # STEP 1
+    st.markdown("### Step 1 · Look at the data")
+    st.dataframe(
+        [{"Period": lab, rec["stat_label"]: val} for lab, val in zip(labels, values)],
+        use_container_width=True,
+        hide_index=True
+    )
+
+    # STEP 2
+    true_mean = sum(values) / len(values)
+
+    st.markdown("### Step 2 · Find the mean")
+    st.write(
+        f"Add all **{len(values)}** values together, then divide by **{len(values)}**."
+    )
+    st.markdown(
+        f'<div class="formula">Mean = Sum of all values ÷ {len(values)}</div>',
+        unsafe_allow_html=True
+    )
+
+    student_mean = st.number_input(
+        "Your mean",
+        key="mad_mean",
+        help="Your answer can be within 0.5 of the exact answer."
+    )
+
+    if st.button("Check My Mean", use_container_width=True):
+        if math.isclose(float(student_mean), true_mean, abs_tol=0.5):
+            st.success("✅ Correct — or close enough! Move on to Step 3.")
         else:
-            st.info(f"Add the {len(values)} values and divide by {len(values)}.")
+            st.info(
+                f"Not quite. Add the {len(values)} values, then divide by {len(values)}. "
+                "Answers within 0.5 are accepted."
+            )
 
-    st.markdown("### 3. Find each absolute deviation")
-    st.caption("Subtract the mean from each value. Then make the answer positive.")
-    true_abs = []
-    checks = []
-    for i,(lab,val) in enumerate(zip(labels,values)):
-        dev = val-true_mean
-        adev = abs(dev)
-        true_abs.append(adev)
-        c1,c2,c3,c4 = st.columns([1.6,1,1,1])
+    # STEP 3
+    st.markdown("### Step 3 · Find each deviation from the mean")
+    st.write(
+        "For each value, subtract the mean you found in Step 2. "
+        "A deviation can be positive or negative."
+    )
+    st.markdown(
+        '<div class="formula">Deviation = Value − Mean</div>',
+        unsafe_allow_html=True
+    )
+
+    # STEP 4
+    st.markdown("### Step 4 · Turn each deviation into an absolute deviation")
+    st.write(
+        "Absolute value means distance, so make every deviation positive. "
+        "For example, **−4 becomes 4**."
+    )
+    st.markdown(
+        '<div class="formula">Absolute Deviation = | Value − Mean |</div>',
+        unsafe_allow_html=True
+    )
+
+    true_deviations = []
+    true_abs_deviations = []
+    row_checks = []
+
+    header = st.columns([1.6, 1, 1.2, 1.2])
+    header[0].markdown("**Period**")
+    header[1].markdown("**Value**")
+    header[2].markdown("**Deviation**")
+    header[3].markdown("**Absolute Deviation**")
+
+    for i, (lab, val) in enumerate(zip(labels, values)):
+        true_dev = val - true_mean
+        true_abs = abs(true_dev)
+        true_deviations.append(true_dev)
+        true_abs_deviations.append(true_abs)
+
+        c1, c2, c3, c4 = st.columns([1.6, 1, 1.2, 1.2])
         c1.write(f"**{lab}**")
         c2.write(fmt(val))
-        d = c3.number_input("Value − Mean", key=f"mad_dev_{i}", label_visibility="collapsed")
-        a = c4.number_input("Absolute deviation", min_value=0.0, key=f"mad_abs_{i}", label_visibility="collapsed")
-        checks.append(math.isclose(d,dev,abs_tol=.05) and math.isclose(a,adev,abs_tol=.05))
 
-    true_mad = sum(true_abs)/len(true_abs)
-    st.markdown("### 4. Find the MAD")
-    mad_ans = st.number_input("MAD", min_value=0.0, key="mad_final")
-    if st.button("Check My MAD",use_container_width=True):
-        if all(checks) and math.isclose(mad_ans,true_mad,abs_tol=.05):
-            st.success(f"✅ Correct! MAD = {true_mad:.2f}")
-        elif math.isclose(mad_ans,true_mad,abs_tol=.05):
-            st.success(f"✅ Your final MAD is correct: {true_mad:.2f}. Check any unfinished rows above.")
+        student_dev = c3.number_input(
+            "Deviation",
+            key=f"mad_dev_{i}",
+            label_visibility="collapsed",
+            help="Value − Mean. Answers within 0.5 are accepted."
+        )
+
+        student_abs = c4.number_input(
+            "Absolute deviation",
+            min_value=0.0,
+            key=f"mad_abs_{i}",
+            label_visibility="collapsed",
+            help="Make the deviation positive. Answers within 0.5 are accepted."
+        )
+
+        dev_ok = math.isclose(float(student_dev), true_dev, abs_tol=0.5)
+        abs_ok = math.isclose(float(student_abs), true_abs, abs_tol=0.5)
+        row_checks.append(dev_ok and abs_ok)
+
+    if st.button("Check My Deviations", use_container_width=True):
+        correct_rows = sum(1 for x in row_checks if x)
+        if correct_rows == len(row_checks):
+            st.success("✅ All of your deviations and absolute deviations are close enough.")
         else:
-            st.info(f"Find the mean of the {len(true_abs)} absolute deviations.")
+            st.info(
+                f"You have {correct_rows} of {len(row_checks)} rows correct. "
+                "Remember: first subtract the mean, then make the answer positive."
+            )
 
-    st.markdown("### 5. Look at the spread")
-    st.scatter_chart([{"Value":v,"Row":1} for v in values],x="Value",y="Row",use_container_width=True)
-    obs = st.text_area("What does the MAD tell you about this athlete's consistency?", key="mad_observation")
+    # STEP 5 — explicitly sum the absolute deviations
+    st.markdown("### Step 5 · Add the absolute deviations")
+    st.write(
+        "Now add the numbers in the **Absolute Deviation** column. "
+        "This total is what you will divide to find the MAD."
+    )
+
+    true_abs_sum = sum(true_abs_deviations)
+
+    student_abs_sum = st.number_input(
+        "Sum of the absolute deviations",
+        min_value=0.0,
+        key="mad_abs_sum",
+        help="Add every number from the Absolute Deviation column. Answers within 0.5 are accepted."
+    )
+
+    if st.button("Check My Absolute-Deviation Total", use_container_width=True):
+        if math.isclose(float(student_abs_sum), true_abs_sum, abs_tol=0.5):
+            st.success("✅ Correct — or close enough! Now use that total to find the MAD.")
+        else:
+            st.info(
+                "Add all of the numbers in your Absolute Deviation column. "
+                "Answers within 0.5 of the exact total are accepted."
+            )
+
+    # STEP 6 — explicitly mean those numbers
+    st.markdown("### Step 6 · Find the mean of the absolute deviations")
+    st.write(
+        f"This is the final MAD step. Take the total from Step 5 and divide by "
+        f"the number of absolute deviations, which is **{len(true_abs_deviations)}**."
+    )
+
+    st.markdown(
+        f'<div class="formula">MAD = Sum of Absolute Deviations ÷ {len(true_abs_deviations)}</div>',
+        unsafe_allow_html=True
+    )
+
+    true_mad = true_abs_sum / len(true_abs_deviations)
+
+    student_mad = st.number_input(
+        "Your MAD",
+        min_value=0.0,
+        key="mad_final",
+        help="Your final MAD can be within 0.5 of the exact answer."
+    )
+
+    if st.button("Check My MAD", use_container_width=True):
+        if math.isclose(float(student_mad), true_mad, abs_tol=0.5):
+            st.success(
+                f"✅ Correct — or close enough! The exact MAD is {true_mad:.2f}."
+            )
+        else:
+            st.info(
+                f"Take your total absolute deviation from Step 5 and divide by "
+                f"{len(true_abs_deviations)}. Answers within 0.5 are accepted."
+            )
+
+    # STEP 7 — interpret
+    st.markdown("### Step 7 · Interpret the MAD")
+    st.caption(
+        "MAD tells you the typical distance from the mean. "
+        "Smaller MAD = more consistent. Larger MAD = less consistent."
+    )
+
+    st.scatter_chart(
+        [{"Value": v, "Row": 1} for v in values],
+        x="Value",
+        y="Row",
+        use_container_width=True
+    )
+
+    obs = st.text_area(
+        "What does the MAD tell you about this athlete's consistency?",
+        key="mad_observation",
+        placeholder=(
+            "Example: The MAD is about 4.2, so the values are usually about "
+            "4.2 units away from the mean..."
+        )
+    )
     st.session_state.observation = obs
+
     return f"How consistent was {athlete}'s {rec['stat_label'].lower()} across these periods?"
 
 def frequency_engine(rec):
