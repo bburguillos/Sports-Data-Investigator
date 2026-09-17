@@ -1536,51 +1536,71 @@ def normalize_ai_field(field):
 
 
 @st.cache_data(show_spinner=False, ttl=604800)
-def research_athlete_context(athlete, sport, league):
+def discover_athlete_story(athlete, sport, league):
     """
-    First pass: research THIS athlete's actual career story.
-    This is intentionally separate from question-writing so the questions
-    are built from athlete-specific facts rather than generic sport templates.
+    PASS 1 — Discover THIS athlete's story.
+    The model searches the web for concrete career events and statistical hooks.
+    It does NOT write investigations yet.
     """
     if not client:
         return ""
 
     prompt = f"""
-Research {athlete}, a {sport} athlete ({league}), specifically for creating
-interesting middle-school sports-data investigations.
+You are the research editor for a 7th-grade course called Sports by the Numbers.
 
-Find concrete, athlete-specific career context. Focus on:
-- teams/clubs/constructors they played or drove for
-- meaningful team/club changes
-- rookie/early-career vs later-career periods
-- position or role
-- notable career turning points
-- major injuries ONLY when clearly documented and statistically relevant
-- championship/playoff/tournament eras
-- teammate/role changes when genuinely useful
-- seasons or stretches that would create a natural before/after comparison
-- sport-specific statistics that fit THIS athlete and position
+ATHLETE: {athlete}
+SPORT: {sport}
+LEAGUE/SERIES: {league}
 
-Do NOT write generic investigation questions yet.
-Do NOT provide a giant stat table.
-Do NOT invent facts.
+Research THIS athlete's actual career and identify 8-12 DISTINCT "career hooks"
+that could become interesting statistical investigations.
 
-Return a concise factual CAREER BRIEF with 6-10 concrete facts or comparison hooks.
-The next model call will use this brief to write student investigations.
+A career hook is a concrete part of THIS PERSON'S story, such as:
+- a real team/club/constructor change
+- a rookie season versus a later season
+- before and after a documented role change
+- a specific championship/playoff/tournament era
+- a teammate or lineup context that genuinely affected the athlete's role
+- a documented injury return when appropriate
+- a position change
+- a breakout season
+- a move to a different league/club/team
+- a specific record chase or milestone
+- a qualifying-vs-race story for an F1 driver
+- a goals-vs-assists/scoring-vs-playmaking story for a hockey/soccer player
+- a regular-season-vs-postseason story when meaningful
+- another athlete-specific event that creates a natural data question
+
+DO NOT force generic categories.
+DO NOT write "how did performance change over time?" as a hook.
+DO NOT give a season-stat table.
+DO NOT answer any potential investigation.
+DO NOT invent facts.
+
+For EACH hook include:
+1. a short title,
+2. the concrete athlete-specific context,
+3. why it could create an interesting data comparison,
+4. 2-4 sport-appropriate statistics a student could research,
+5. the relevant teams/seasons/eras/events.
+
+Prioritize hooks that would NOT make sense if {athlete}'s name were replaced
+with a random athlete from the same sport.
+
+Return a concise research brief.
 """
 
     try:
         response = client.responses.create(
             model="gpt-5.6-luna",
-            tools=[{"type": "web_search_preview"}],
+            tools=[{"type": "web_search"}],
             tool_choice="auto",
             instructions=(
-                "Use web search to ground the athlete career brief in real, "
-                "athlete-specific facts. Prefer reliable sports/league/team sources. "
-                "Be concise and factual."
+                "Use web search. Ground the career hooks in reliable factual information. "
+                "Do not invent athlete history or statistics."
             ),
             input=prompt,
-            max_output_tokens=900
+            max_output_tokens=1800
         )
         return response.output_text.strip()
     except Exception:
@@ -1590,91 +1610,99 @@ The next model call will use this brief to write student investigations.
 @st.cache_data(show_spinner=False, ttl=86400)
 def generate_player_specific_challenges(athlete, sport, league):
     """
-    Two-pass system:
-    1) research the athlete's actual career context with web search
-    2) build five DIFFERENT investigations from those specific facts
+    PASS 2 — Turn the athlete's best career hooks into five custom investigations.
+    There is intentionally NO fixed menu of investigation structures.
     """
     if not client:
         return fallback_player_challenges(athlete)
 
-    career_brief = research_athlete_context(athlete, sport, league)
+    story = discover_athlete_story(athlete, sport, league)
 
-    # If web research is unavailable, the model can still use its knowledge,
-    # but the prompt explicitly requires named athlete-specific details.
-    context_text = career_brief if career_brief else (
-        "Web research was unavailable. Use only athlete-specific facts you are "
-        "confident are correct; otherwise use clearly named career eras rather "
-        "than inventing teams or events."
-    )
+    if not story:
+        # Better to remain usable than crash, but this fallback is clearly secondary.
+        return fallback_player_challenges(athlete)
 
     prompt = f"""
-You are creating five investigations for a 7th-grade course called
-Sports by the Numbers.
+You are the investigation editor for Sports by the Numbers, a 7th-grade
+sports statistics course.
 
 ATHLETE: {athlete}
 SPORT: {sport}
-LEAGUE: {league}
+LEAGUE/SERIES: {league}
 
-CAREER BRIEF:
-{context_text}
+Here is a researched career-story brief:
 
-Your previous style of producing five generic questions such as
-"How did this athlete change over time?", "How consistent were they?",
-and "Is one season enough?" is NOT acceptable.
+--- CAREER STORY ---
+{story}
+--- END CAREER STORY ---
 
-The five questions must feel unmistakably written for {athlete}.
-If I removed the athlete's name, a sports fan should STILL often be able
-to guess who the investigation is about from the named teams, clubs,
-constructors, eras, career transitions, roles, or events.
+Your job is to select the FIVE most interesting statistical investigations
+that naturally emerge from THIS athlete's story.
 
-For example, a GOOD Artemi Panarin set might include ideas such as:
-- comparing his Chicago Blackhawks production with his New York Rangers production
-- comparing an earlier Rangers period with a later Rangers period
-- investigating whether his scoring/assisting balance changed between teams
-Those are examples of SPECIFICITY, not templates to copy for everyone.
+CRITICAL DESIGN TEST:
+For every proposed question, mentally replace "{athlete}" with another athlete
+from the same sport. If the question still works almost unchanged, REJECT IT.
 
-Create exactly FIVE investigations and obey ALL of these rules:
+BAD:
+- How has Max Verstappen's performance changed over time?
+- How consistent has Max Verstappen been?
+- Is one season enough to judge Max Verstappen?
+- Which season was Max Verstappen's best?
 
-1. At least THREE questions must explicitly name a real team, club, constructor,
-   career transition, or specific career era from the career brief.
-2. No two questions may have the same basic structure with different wording.
-3. Use different statistical angles. Good possibilities include:
-   team-vs-team, before-vs-after, role/position-specific production,
-   regular-season vs postseason when appropriate, efficiency/rate vs total,
-   early-career vs prime/later career, or a claim tied to a real career event.
-4. At least ONE question should be a direct A-vs-B comparison grounded in this
-   athlete's real career.
-5. At least ONE question should ask the student to judge a concrete claim about
-   THIS athlete—not the generic claim "is one season enough?"
-6. Use ONLY statistics appropriate to {sport} and this athlete's position/role.
-7. Do not supply the actual statistical values or answer the investigation.
-   Students must research all numbers.
-8. Keep the math and language appropriate for grade 7.
-9. Avoid regression, correlation coefficients, standard deviation, and IQR.
-10. Do not invent a team, season, injury, teammate, championship, or transition.
-11. Evidence fields must match the question. If comparing teams, include a Team
-    or Club field. If comparing eras, include Period/Season. Do not ask for an
-    irrelevant generic field.
-12. Make the five questions genuinely DIFFERENT from one another.
+Those are generic templates.
 
-Return ONLY valid JSON in this exact shape:
+GOOD questions contain concrete career context:
+- named teams, clubs, constructors
+- named eras or specific seasons
+- a real before/after event
+- a specific teammate/role situation
+- a championship/playoff/tournament context
+- a concrete claim tied to this athlete's career
+
+The FIVE questions do NOT need to represent five predetermined statistics concepts.
+Let the athlete's story determine the structure.
+
+Requirements:
+1. All five must be meaningfully different.
+2. At least FOUR must contain a concrete named team, club, constructor, season,
+   event, career move, opponent/context, or career era from the research brief.
+3. At least TWO should be questions that would be unusual or impossible to assign
+   to a random athlete in this sport.
+4. At least ONE should be a compelling A-vs-B comparison when the career story
+   supports one.
+5. At least ONE should test a concrete claim about a real part of this athlete's story.
+6. Use only age-appropriate statistics and reasoning.
+7. Do not give the student the numbers or the answer.
+8. Evidence fields must be custom-built for THAT question.
+9. Never use a statistic from another sport.
+10. Do not invent facts beyond the supplied research brief.
+
+Before returning JSON, silently run a SELF-CRITIQUE:
+- Are these five basically the same questions I would give another athlete?
+- Are any two structurally redundant?
+- Does each question contain enough career context to feel personal?
+- Do the evidence fields actually match the investigation?
+If any answer is bad, replace that investigation before returning.
+
+Return ONLY valid JSON:
 {{
   "investigations": [
     {{
-      "type": "Specific short type",
-      "question": "Full athlete-specific research question",
-      "student_question": "Short athlete-specific student version",
+      "type": "Short descriptive label",
+      "question": "Full highly specific research question",
+      "student_question": "Short student-friendly version that retains the specific context",
+      "why_this_athlete": "One sentence explaining the athlete-specific career hook",
       "research": [
-        "Specific research direction 1",
-        "Specific research direction 2",
-        "Specific research direction 3"
+        "Exactly what the student should look up",
+        "Second research direction",
+        "Third research direction"
       ],
       "fields": [
-        {{"name":"period","label":"Team / Period","placeholder":"Example appropriate to the question"}},
+        {{"name":"period","label":"Specific evidence label","placeholder":"Example format only"}},
         {{"name":"value","label":"Specific sport statistic","placeholder":"Example format only"}}
       ],
       "sentence": "Evidence sentence using the exact field placeholders",
-      "pattern_question": "A simple question tied specifically to this investigation",
+      "pattern_question": "Question asking what THIS evidence seems to show",
       "pattern_options": ["Specific option 1","Specific option 2","Specific option 3","I'm not sure yet"]
     }}
   ]
@@ -1685,12 +1713,12 @@ Return ONLY valid JSON in this exact shape:
         response = client.responses.create(
             model="gpt-5.6-luna",
             instructions=(
-                "Return valid JSON only with exactly five genuinely distinct, "
-                "athlete-specific investigations. Do not use markdown fences. "
-                "Do not provide statistics or answers."
+                "Return JSON only. Create exactly five athlete-specific investigations. "
+                "Reject generic reusable questions. Never supply the researched statistics "
+                "or answer the investigations."
             ),
             input=prompt,
-            max_output_tokens=2400
+            max_output_tokens=3000
         )
 
         import json
@@ -1700,12 +1728,11 @@ Return ONLY valid JSON in this exact shape:
 
         data = json.loads(raw)
         items = data.get("investigations", [])
-
         if len(items) != 5:
             return fallback_player_challenges(athlete)
 
         challenges = []
-        normalized_questions = set()
+        fingerprints = set()
 
         for index, item in enumerate(items):
             fields = [
@@ -1713,43 +1740,46 @@ Return ONLY valid JSON in this exact shape:
                 for f in item.get("fields", [])
                 if isinstance(f, dict)
             ][:4]
-
             if len(fields) < 2:
                 return fallback_player_challenges(athlete)
 
-            seen = set()
-            for f in fields:
-                original = f["name"]
-                if original in seen:
-                    f["name"] = f"value{len(seen)+1}"
-                seen.add(f["name"])
+            # Ensure unique widget/data keys.
+            used = set()
+            for j, f in enumerate(fields):
+                if f["name"] in used:
+                    f["name"] = f"value{j+1}"
+                used.add(f["name"])
 
             question = str(item.get("question", "")).strip()
             student_question = str(item.get("student_question", "")).strip()
+            why = str(item.get("why_this_athlete", "")).strip()
 
-            # Reject obvious duplicates instead of quietly presenting five clones.
-            fingerprint = student_question.lower().replace(athlete.lower(), "").strip()
-            if not question or not student_question or fingerprint in normalized_questions:
+            # Reject empty or exact duplicate questions.
+            fp = re.sub(r"[^a-z0-9 ]", "", student_question.lower())
+            fp = fp.replace(athlete.lower(), "").strip()
+            if not question or not student_question or fp in fingerprints:
                 return fallback_player_challenges(athlete)
-            normalized_questions.add(fingerprint)
+            fingerprints.add(fp)
 
             challenges.append({
-                "id": f"ai_{''.join(ch.lower() if ch.isalnum() else '_' for ch in athlete)}_{index}",
-                "type": str(item.get("type", "Player Investigation"))[:50],
+                "id": f"story_{''.join(ch.lower() if ch.isalnum() else '_' for ch in athlete)}_{index}",
+                "type": str(item.get("type", "Career Story Investigation"))[:60],
                 "question": question,
                 "student_question": student_question,
+                "why_this_athlete": why,
                 "research": [str(x) for x in item.get("research", [])][:4],
                 "schema": {
                     "fields": fields,
                     "sentence": str(item.get("sentence", "")).strip()
                 },
                 "starter_pattern_question": str(
-                    item.get("pattern_question", "What does your evidence seem to show?")
+                    item.get("pattern_question", "What does this evidence seem to show?")
                 ),
                 "starter_pattern_options": [
                     str(x) for x in item.get(
                         "pattern_options",
-                        ["One side was stronger", "They were similar", "It was mixed", "I'm not sure yet"]
+                        ["The first side was stronger", "The second side was stronger",
+                         "They were similar", "The evidence was mixed", "I'm not sure yet"]
                     )
                 ][:5]
             })
@@ -2664,7 +2694,7 @@ if (
     st.session_state.ai_topic_athlete != athlete_choice
     or not st.session_state.ai_challenges
 ):
-    with st.spinner(f"🔎 Researching {athlete_choice} and building 5 personalized investigations..."):
+    with st.spinner(f"🔎 Discovering {athlete_choice}’s career story and building 5 unique investigations..."):
         athlete_info_for_ai = ATHLETES[athlete_choice]
         st.session_state.ai_challenges = generate_player_specific_challenges(
             athlete_choice,
@@ -2692,8 +2722,8 @@ selected_challenge = available_challenges[
 
 if st.button("✨ Make 5 New Questions for This Athlete"):
     generate_player_specific_challenges.clear()
-    research_athlete_context.clear()
-    with st.spinner(f"🔎 Re-researching {athlete_choice} and creating 5 new investigations..."):
+    discover_athlete_story.clear()
+    with st.spinner(f"🔎 Finding new career angles for {athlete_choice}..."):
         athlete_info_for_ai = ATHLETES[athlete_choice]
         st.session_state.ai_challenges = generate_player_specific_challenges(
             athlete_choice,
