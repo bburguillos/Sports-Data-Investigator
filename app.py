@@ -1,6 +1,9 @@
 import streamlit as st
 import json
 import random
+import re
+import nflreadpy as nfl
+import polars as pl
 
 st.set_page_config(
     page_title="Sports Data Investigator",
@@ -343,10 +346,163 @@ def built_in_score(rows, columns, observation, original, revised, coach_answers)
 
 
 # -----------------------------
+# NFL AUTOMATIC DATA
+# -----------------------------
+@st.cache_data(ttl=21600, show_spinner=False)
+def load_nfl_season_stats():
+    """
+    Load regular-season player summaries once and cache them for 6 hours.
+    nflreadpy/nflverse supplies official-style player season summaries.
+    """
+    return nfl.load_player_stats(seasons=True, summary_level="reg")
+
+def nfl_player_rows(player_name):
+    try:
+        df = load_nfl_season_stats()
+    except Exception as exc:
+        return None, f"NFL data could not be loaded right now: {exc}"
+
+    name_col = "player_display_name" if "player_display_name" in df.columns else "player_name"
+    if name_col not in df.columns:
+        return None, "NFL data loaded, but the player-name field was not found."
+
+    target = player_name.strip().lower()
+    player = df.filter(pl.col(name_col).str.to_lowercase() == target)
+
+    if player.height == 0:
+        # A forgiving contains match helps with punctuation/name formatting.
+        pieces = [p for p in target.replace(".", "").replace("'", "").split() if p]
+        if pieces:
+            last = pieces[-1]
+            player = df.filter(
+                pl.col(name_col).str.to_lowercase().str.contains(last, literal=True)
+            )
+            exactish = player.filter(
+                pl.col(name_col).str.to_lowercase().str.replace_all(r"[^a-z ]", "")
+                == re.sub(r"[^a-z ]", "", target)
+            )
+            if exactish.height:
+                player = exactish
+
+    if player.height == 0:
+        return None, f"No nflverse season data was found for {player_name}."
+
+    return player.sort("season"), None
+
+def nfl_stat_profile(player_df):
+    """Choose two simple, position-appropriate counting stats."""
+    pos = ""
+    if "position" in player_df.columns and player_df.height:
+        vals = player_df.select("position").drop_nulls()
+        if vals.height:
+            pos = str(vals[-1, "position"])
+
+    if pos == "QB":
+        return "Passing yards", "passing_yards", "Passing TDs", "passing_tds"
+    if pos == "RB":
+        return "Rushing yards", "rushing_yards", "Rushing TDs", "rushing_tds"
+    if pos in ("WR", "TE"):
+        return "Receiving yards", "receiving_yards", "Receiving TDs", "receiving_tds"
+
+    # Generic offensive fallback: pick the yardage category with the largest career total.
+    candidates = [
+        ("Passing yards", "passing_yards", "Passing TDs", "passing_tds"),
+        ("Rushing yards", "rushing_yards", "Rushing TDs", "rushing_tds"),
+        ("Receiving yards", "receiving_yards", "Receiving TDs", "receiving_tds"),
+    ]
+    best = candidates[0]
+    best_total = -1
+    for item in candidates:
+        col = item[1]
+        if col in player_df.columns:
+            total = player_df.select(pl.col(col).fill_null(0).sum()).item()
+            if total is not None and total > best_total:
+                best_total = total
+                best = item
+    return best
+
+def nfl_auto_investigations(player_name, player_df):
+    stat1_label, stat1_col, stat2_label, stat2_col = nfl_stat_profile(player_df)
+    seasons = player_df["season"].to_list()
+    if not seasons:
+        return []
+
+    available = sorted(set(int(s) for s in seasons))
+    last3 = available[-3:]
+    last5 = available[-5:]
+    early_recent = [available[0], available[-1]] if len(available) > 1 else available
+
+    return [
+        {
+            "id": f"nfl_auto_last3_{player_name}",
+            "type": "Automatic · Last 3 Seasons",
+            "student_question": f"What do {player_name}'s last three available regular seasons show about production?",
+            "why_this_athlete": f"The app will supply {stat1_label.lower()} and {stat2_label.lower()} from nflverse.",
+            "auto_seasons": last3,
+            "schema": {"fields": [
+                {"name":"period","label":"Season"},
+                {"name":"value1","label":stat1_label},
+                {"name":"value2","label":stat2_label},
+            ]},
+            "evidence_rows": len(last3),
+            "_source": "NFLVERSE_AUTO",
+            "_stat_cols": [stat1_col, stat2_col],
+        },
+        {
+            "id": f"nfl_auto_early_recent_{player_name}",
+            "type": "Automatic · Early vs Recent",
+            "student_question": f"How does an early available season compare with {player_name}'s most recent available regular season?",
+            "why_this_athlete": f"Compare the same two statistics: {stat1_label.lower()} and {stat2_label.lower()}.",
+            "auto_seasons": early_recent,
+            "schema": {"fields": [
+                {"name":"period","label":"Season"},
+                {"name":"value1","label":stat1_label},
+                {"name":"value2","label":stat2_label},
+            ]},
+            "evidence_rows": len(early_recent),
+            "_source": "NFLVERSE_AUTO",
+            "_stat_cols": [stat1_col, stat2_col],
+        },
+        {
+            "id": f"nfl_auto_last5_{player_name}",
+            "type": "Automatic · Five-Season Trend",
+            "student_question": f"What pattern appears across {player_name}'s last five available regular seasons?",
+            "why_this_athlete": "The app supplies the data; your job is to find and explain the pattern.",
+            "auto_seasons": last5,
+            "schema": {"fields": [
+                {"name":"period","label":"Season"},
+                {"name":"value1","label":stat1_label},
+                {"name":"value2","label":stat2_label},
+            ]},
+            "evidence_rows": len(last5),
+            "_source": "NFLVERSE_AUTO",
+            "_stat_cols": [stat1_col, stat2_col],
+        },
+    ]
+
+def nfl_prefill_evidence(challenge, player_df):
+    columns = universal_columns(challenge)
+    stat_cols = challenge.get("_stat_cols", [])
+    rows = []
+    for season in challenge.get("auto_seasons", []):
+        season_df = player_df.filter(pl.col("season") == int(season))
+        if season_df.height == 0:
+            continue
+        row = {columns[0]: str(season)}
+        for idx, stat_col in enumerate(stat_cols, start=1):
+            if stat_col in season_df.columns:
+                value = season_df.select(pl.col(stat_col).fill_null(0).sum()).item()
+                row[columns[idx]] = str(int(value)) if float(value).is_integer() else str(round(float(value), 2))
+            else:
+                row[columns[idx]] = "0"
+        rows.append(row)
+    return rows
+
+# -----------------------------
 # HEADER
 # -----------------------------
 st.title("🏟️ Sports Data Investigator")
-st.caption("Research the numbers yourself. Use the app to organize evidence, see the pattern, and defend a claim.")
+st.caption("Explore real sports data, see the pattern, and defend a claim. NFL investigations can load statistics automatically.")
 
 # -----------------------------
 # STEP 1 — PICK ATHLETE
@@ -370,10 +526,22 @@ st.caption(f"{len(athlete_names)} athletes available")
 # Use the exact bank key attached to the selected player.
 selected_index = athlete_names.index(athlete)
 bank_key = athlete_records[selected_index][1]
-challenges = QUESTION_BANK.get(bank_key, [])
+if sport_code == "nfl":
+    with st.spinner("Loading NFL season data..."):
+        nfl_rows, nfl_error = nfl_player_rows(athlete)
+    if nfl_error:
+        st.warning(nfl_error)
+        st.caption("Using the built-in investigation bank instead.")
+        challenges = QUESTION_BANK.get(bank_key, [])
+    else:
+        challenges = nfl_auto_investigations(athlete, nfl_rows)
+        st.success("🏈 NFL data mode is on — statistics will be filled in automatically from nflverse.")
+else:
+    nfl_rows = None
+    challenges = QUESTION_BANK.get(bank_key, [])
 
 if not challenges:
-    st.error("This athlete does not have a prebuilt investigation set yet.")
+    st.error("This athlete does not have an available investigation set.")
     st.stop()
 
 question_labels = [f"{c['type']} — {c['student_question']}" for c in challenges]
@@ -395,9 +563,12 @@ if st.button("🚀 Start This Investigation", use_container_width=True):
     st.session_state.active_question = selected_challenge
     rows_needed = int(selected_challenge.get("evidence_rows", 3))
     columns = universal_columns(selected_challenge)
-    st.session_state.evidence = [
-        {col: "" for col in columns} for _ in range(rows_needed)
-    ]
+    if selected_challenge.get("_source") == "NFLVERSE_AUTO" and nfl_rows is not None:
+        st.session_state.evidence = nfl_prefill_evidence(selected_challenge, nfl_rows)
+    else:
+        st.session_state.evidence = [
+            {col: "" for col in columns} for _ in range(rows_needed)
+        ]
     st.rerun()
 
 if "active_question" not in st.session_state:
@@ -415,24 +586,28 @@ if "evidence" not in st.session_state or len(st.session_state.evidence) != rows_
 # STEP 2 — EVIDENCE
 # -----------------------------
 st.markdown("---")
-st.markdown('<div class="step">Step 2 · Enter your evidence</div>', unsafe_allow_html=True)
+st.markdown('<div class="step">Step 2 · Evidence</div>', unsafe_allow_html=True)
 st.subheader(challenge["student_question"])
-st.caption("Use a trusted sports statistics site. The app does not look up the numbers for you.")
 
-for i in range(rows_needed):
-    st.markdown(f"**Evidence row {i+1} of {rows_needed}**")
-    cols = st.columns(len(columns))
-    for j, col_name in enumerate(columns):
-        with cols[j]:
-            key = f"ev_{challenge['id']}_{i}_{j}"
-            current = st.session_state.evidence[i].get(col_name, "")
-            if j == 0:
-                value = st.text_input(col_name, value=str(current), key=key)
-            else:
-                # Text input intentionally accepts 1,234 / 52.4 / 88% etc.;
-                # numeric parsing happens only when graphing.
-                value = st.text_input(col_name, value=str(current), key=key, placeholder="Number")
-            st.session_state.evidence[i][col_name] = value
+if challenge.get("_source") == "NFLVERSE_AUTO":
+    st.caption("The statistics below were loaded automatically from nflverse regular-season player summaries. Your job is to analyze them.")
+    if st.session_state.evidence:
+        st.dataframe(st.session_state.evidence, use_container_width=True, hide_index=True)
+    st.info("💡 You do not need to copy these numbers anywhere. Move directly to the graph and look for a pattern.")
+else:
+    st.caption("Use a trusted sports statistics site. Automatic data is being added sport-by-sport; NFL is available first.")
+    for i in range(rows_needed):
+        st.markdown(f"**Evidence row {i+1} of {rows_needed}**")
+        cols = st.columns(len(columns))
+        for j, col_name in enumerate(columns):
+            with cols[j]:
+                key = f"ev_{challenge['id']}_{i}_{j}"
+                current = st.session_state.evidence[i].get(col_name, "")
+                if j == 0:
+                    value = st.text_input(col_name, value=str(current), key=key)
+                else:
+                    value = st.text_input(col_name, value=str(current), key=key, placeholder="Number")
+                st.session_state.evidence[i][col_name] = value
 
 # -----------------------------
 # STEP 3 — GRAPH
