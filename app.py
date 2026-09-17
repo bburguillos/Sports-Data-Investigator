@@ -1753,6 +1753,12 @@ def get_or_create_personalized_set(athlete, sport, league, force_new=False):
         if isinstance(cached, list) and len(cached) == 5:
             return cached, None, True
 
+    if not force_new:
+        return [], (
+            "This athlete does not have a pre-generated question set in the class bank yet. "
+            "No API request was used."
+        ), False
+
     generated, error = generate_five_in_one_call(athlete, sport, league)
 
     if generated:
@@ -2691,7 +2697,7 @@ if (
     st.session_state.ai_topic_athlete != athlete_choice
     or st.session_state.ai_challenges is None
 ):
-    with st.spinner(f"✨ Loading personalized investigations for {athlete_choice}..."):
+    with st.spinner(f"⚡ Loading {athlete_choice} from the class question bank..."):
         athlete_info_for_ai = ATHLETES[athlete_choice]
         generated, diagnostic, was_cached = get_or_create_personalized_set(
             athlete_choice,
@@ -2732,7 +2738,7 @@ if not available_challenges:
 
 st.success(f"✨ 5 custom investigations ready for {athlete_choice}")
 if st.session_state.get("question_set_cached"):
-    st.caption("⚡ Loaded from the class question bank — no AI generation request used.")
+    st.caption("⚡ Loaded from the pre-generated class question bank — zero AI generation requests used.")
 
 challenge_labels = [
     f"{c['type']} — {c['student_question']}"
