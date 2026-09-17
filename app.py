@@ -76,21 +76,41 @@ def split_key(key):
     parts = key.split("|")
     return parts[0], parts[1], parts[2]
 
-def athletes_for_sport(sport_code):
-    names = []
-    for key in QUESTION_BANK:
-        s, league, athlete = split_key(key)
-        if s == sport_code:
-            names.append(athlete.title() if athlete.islower() else athlete)
-    return sorted(set(names))
+def athlete_records_for_sport(sport_code):
+    """
+    Return (display_name, exact_bank_key) pairs.
+    The exact key is carried forward from the bank, so selecting a player can
+    never fail because of capitalization, emoji, league labels, or name formatting.
+    """
+    records = []
+    for key, challenges in QUESTION_BANK.items():
+        s, league, athlete_from_key = split_key(key)
+        if s != sport_code:
+            continue
 
-def find_key(sport_code, athlete):
-    target = athlete.lower().strip()
-    for key in QUESTION_BANK:
-        s, league, a = split_key(key)
-        if s == sport_code and a.lower().strip() == target:
-            return key
-    return None
+        # Recover the properly-capitalized athlete name from the question text
+        # when possible; otherwise use a safe display version of the key name.
+        display_name = athlete_from_key
+        if athlete_from_key.islower():
+            display_name = athlete_from_key.title()
+
+        # Correct common surname casing that title() damages.
+        casing_fixes = {
+            "Mcdavid": "McDavid",
+            "Mccaffrey": "McCaffrey",
+            "Mclaurin": "McLaurin",
+            "Mckinnon": "McKinnon",
+            "Mcilroy": "McIlroy",
+            "O'neill": "O'Neill",
+            "D'angelo": "D'Angelo",
+        }
+        for bad, good in casing_fixes.items():
+            display_name = display_name.replace(bad, good)
+
+        records.append((display_name, key))
+
+    records.sort(key=lambda x: x[0].lower())
+    return records
 
 def clean_label(text):
     text = str(text or "").strip()
@@ -256,11 +276,19 @@ sport_display = [v[0] for v in SPORT_INFO.values()]
 selected_display = st.selectbox("Sport", sport_display)
 sport_code = next(k for k,v in SPORT_INFO.items() if v[0] == selected_display)
 
-athletes = athletes_for_sport(sport_code)
-athlete = st.selectbox("Athlete", athletes)
+athlete_records = athlete_records_for_sport(sport_code)
 
-bank_key = find_key(sport_code, athlete)
-challenges = QUESTION_BANK.get(bank_key, []) if bank_key else []
+if not athlete_records:
+    st.error(f"No athletes were found for {selected_display}.")
+    st.stop()
+
+athlete_names = [name for name, key in athlete_records]
+athlete = st.selectbox("Athlete", athlete_names)
+
+# Use the exact bank key attached to the selected player.
+selected_index = athlete_names.index(athlete)
+bank_key = athlete_records[selected_index][1]
+challenges = QUESTION_BANK.get(bank_key, [])
 
 if not challenges:
     st.error("This athlete does not have a prebuilt investigation set yet.")
