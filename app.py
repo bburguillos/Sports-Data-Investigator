@@ -1256,7 +1256,8 @@ def percent_change_engine(rec):
     )
 
     st.markdown("### 2. Calculate the changes")
-    correct_flags = []
+
+    results = []
 
     for i in range(1, len(values)):
         old, new = values[i-1], values[i]
@@ -1264,9 +1265,7 @@ def percent_change_engine(rec):
         true_pct = (true_change / old) * 100 if old != 0 else 0
 
         st.markdown(f"**{labels[i-1]} → {labels[i]}**")
-        st.caption(
-            f"Use: ({fmt(new)} − {fmt(old)}) ÷ {fmt(old)} × 100"
-        )
+        st.caption(f"Use: ({fmt(new)} − {fmt(old)}) ÷ {fmt(old)} × 100")
 
         a, b = st.columns(2)
 
@@ -1282,29 +1281,111 @@ def percent_change_engine(rec):
             help="You may round. Answers within 0.5 percentage points are accepted."
         )
 
-        change_ok = math.isclose(
-            float(student_change),
-            true_change,
-            abs_tol=0.5
-        )
+        change_ok = math.isclose(float(student_change), true_change, abs_tol=0.5)
+        pct_ok = math.isclose(float(student_pct), true_pct, abs_tol=0.5)
 
-        pct_ok = math.isclose(
-            float(student_pct),
-            true_pct,
-            abs_tol=0.5
-        )
+        results.append({
+            "i": i,
+            "old": old,
+            "new": new,
+            "true_change": true_change,
+            "true_pct": true_pct,
+            "student_change": float(student_change),
+            "student_pct": float(student_pct),
+            "change_ok": change_ok,
+            "pct_ok": pct_ok,
+            "label": f"{labels[i-1]} → {labels[i]}",
+        })
 
-        correct_flags.append(change_ok and pct_ok)
+    if "pc_check_attempts" not in st.session_state:
+        st.session_state.pc_check_attempts = 0
 
     if st.button("Check My Percent Changes", use_container_width=True):
-        if all(correct_flags):
+        all_correct = all(r["change_ok"] and r["pct_ok"] for r in results)
+
+        if all_correct:
             st.success("✅ Correct! Your answers are within the accepted rounding range.")
+            st.session_state.pc_check_attempts = 0
         else:
-            st.info(
-                "At least one answer is outside the accepted rounding range. "
-                "Remember: New − Old → divide by Old → multiply by 100. "
-                "Percent answers within ±0.5 percentage points are accepted."
-            )
+            st.session_state.pc_check_attempts += 1
+
+            if st.session_state.pc_check_attempts < 2:
+                st.info(
+                    "Not quite yet. Try one more time using this order: "
+                    "**New − Old → divide by Old → multiply by 100.** "
+                    "If it is still off on your next check, I’ll show you exactly where the mistake is."
+                )
+            else:
+                st.warning("You’ve missed it twice, so here’s a more specific hint for each row that needs work:")
+
+                for r in results:
+                    if r["change_ok"] and r["pct_ok"]:
+                        continue
+
+                    st.markdown(f"#### {r['label']}")
+
+                    if not r["change_ok"]:
+                        expected_change = r["true_change"]
+                        entered_change = r["student_change"]
+
+                        # Sign error
+                        if math.isclose(entered_change, -expected_change, abs_tol=0.5):
+                            st.write(
+                                f"**Your change has the sign reversed.** "
+                                f"Use New − Old: {fmt(r['new'])} − {fmt(r['old'])}."
+                            )
+                        else:
+                            st.write(
+                                f"**First fix the raw change.** "
+                                f"You entered {entered_change:g}. "
+                                f"Subtract the old value from the new value: "
+                                f"{fmt(r['new'])} − {fmt(r['old'])}."
+                            )
+
+                    if r["change_ok"] and not r["pct_ok"]:
+                        entered_pct = r["student_pct"]
+                        true_pct = r["true_pct"]
+
+                        decimal_form = true_pct / 100
+                        using_new_denominator = (
+                            (r["true_change"] / r["new"]) * 100 if r["new"] != 0 else None
+                        )
+                        no_times_100 = r["true_change"] / r["old"] if r["old"] != 0 else None
+
+                        if math.isclose(entered_pct, decimal_form, abs_tol=0.05):
+                            st.write(
+                                "**You stopped at the decimal.** "
+                                "After dividing by the old value, multiply by 100 to turn it into a percent."
+                            )
+                        elif no_times_100 is not None and math.isclose(entered_pct, no_times_100, abs_tol=0.05):
+                            st.write(
+                                "**You forgot the ×100 step.** "
+                                "Your division is on the right track; now multiply that result by 100."
+                            )
+                        elif using_new_denominator is not None and math.isclose(entered_pct, using_new_denominator, abs_tol=0.5):
+                            st.write(
+                                "**It looks like you divided by the new value.** "
+                                "Percent change always divides by the **old/original value**."
+                            )
+                        elif math.isclose(entered_pct, abs(true_pct), abs_tol=0.5) and true_pct < 0:
+                            st.write(
+                                "**Your size is right, but the sign is missing.** "
+                                "Because the value decreased, the percent change should be negative."
+                            )
+                        else:
+                            st.write(
+                                f"**Your raw change is correct, so focus on the percent step.** "
+                                f"Take your change, divide by the old value ({fmt(r['old'])}), then multiply by 100."
+                            )
+
+                    elif not r["change_ok"] and not r["pct_ok"]:
+                        st.write(
+                            "Fix the raw change first. Once that is correct, use that change in the percent formula."
+                        )
+
+                st.caption(
+                    "The app still accepts answers within ±0.5 for the raw change and ±0.5 percentage points for percent change."
+                )
 
     st.markdown("### 3. See the trend")
     st.line_chart(
