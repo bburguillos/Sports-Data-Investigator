@@ -1243,35 +1243,83 @@ def percent_change_engine(rec):
     st.subheader(f"How did {athlete}'s {rec['stat_label'].lower()} change across the selected periods?")
     st.markdown('<div class="formula">Percent Change = (New − Old) ÷ Old × 100</div>', unsafe_allow_html=True)
 
+    st.info(
+        "Rounding is allowed. For percent change, answers within **0.5 percentage points** "
+        "of the exact answer are accepted."
+    )
+
     st.markdown("### 1. Read the data")
-    st.dataframe([{"Period":l, rec["stat_label"]:v} for l,v in zip(labels,values)],
-                 use_container_width=True, hide_index=True)
+    st.dataframe(
+        [{"Period": l, rec["stat_label"]: v} for l, v in zip(labels, values)],
+        use_container_width=True,
+        hide_index=True
+    )
 
     st.markdown("### 2. Calculate the changes")
     correct_flags = []
-    for i in range(1,len(values)):
-        old,new = values[i-1],values[i]
-        true_change = new-old
-        true_pct = (true_change/old)*100 if old else 0
+
+    for i in range(1, len(values)):
+        old, new = values[i-1], values[i]
+        true_change = new - old
+        true_pct = (true_change / old) * 100 if old != 0 else 0
+
         st.markdown(f"**{labels[i-1]} → {labels[i]}**")
-        a,b = st.columns(2)
-        ch = a.number_input("Change", key=f"pc_change_{i}")
-        pct = b.number_input("Percent change", key=f"pc_pct_{i}")
-        correct_flags.append(
-            math.isclose(float(ch),true_change,abs_tol=.05)
-            and math.isclose(float(pct),true_pct,abs_tol=.2)
+        st.caption(
+            f"Use: ({fmt(new)} − {fmt(old)}) ÷ {fmt(old)} × 100"
         )
-    if st.button("Check My Percent Changes",use_container_width=True):
+
+        a, b = st.columns(2)
+
+        student_change = a.number_input(
+            "Change",
+            key=f"pc_change_{i}",
+            help="Answers within 0.5 of the exact change are accepted."
+        )
+
+        student_pct = b.number_input(
+            "Percent change",
+            key=f"pc_pct_{i}",
+            help="You may round. Answers within 0.5 percentage points are accepted."
+        )
+
+        change_ok = math.isclose(
+            float(student_change),
+            true_change,
+            abs_tol=0.5
+        )
+
+        pct_ok = math.isclose(
+            float(student_pct),
+            true_pct,
+            abs_tol=0.5
+        )
+
+        correct_flags.append(change_ok and pct_ok)
+
+    if st.button("Check My Percent Changes", use_container_width=True):
         if all(correct_flags):
-            st.success("✅ Correct! You calculated every percent change.")
+            st.success("✅ Correct! Your answers are within the accepted rounding range.")
         else:
-            st.info("Try again: New − Old → divide by Old → multiply by 100.")
+            st.info(
+                "At least one answer is outside the accepted rounding range. "
+                "Remember: New − Old → divide by Old → multiply by 100. "
+                "Percent answers within ±0.5 percentage points are accepted."
+            )
 
     st.markdown("### 3. See the trend")
-    st.line_chart([{"Period":l,"Value":v} for l,v in zip(labels,values)],
-                  x="Period",y="Value",use_container_width=True)
-    obs = st.text_area("What is the biggest change you notice?", key="pc_observation")
+    st.line_chart(
+        [{"Period": l, "Value": v} for l, v in zip(labels, values)],
+        x="Period",
+        y="Value",
+        use_container_width=True
+    )
+
+    obs = st.text_area(
+        "What is the biggest change you notice?",
+        key="pc_observation"
+    )
     st.session_state.observation = obs
+
     return f"How did {athlete}'s {rec['stat_label'].lower()} change across the selected periods?"
 
 def mad_engine(rec):
