@@ -1,5 +1,4 @@
 streamlit
 nflreadpy
 polars
-pybaseball
-pandas
+requests
