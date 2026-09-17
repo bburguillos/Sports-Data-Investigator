@@ -5,7 +5,7 @@ import math
 
 st.set_page_config(page_title="Sports by the Numbers", page_icon="📊", layout="wide")
 
-CURATED_DATA = {
+CURATED_DATA = json.loads(r'''{
   "version": "1.0",
   "frozen_for_classroom": true,
   "athlete_count": 50,
@@ -1141,7 +1141,7 @@ CURATED_DATA = {
       "note": "Season Drivers' Championship points under the scoring system used at the time."
     }
   }
-}
+}''')
 
 records = CURATED_DATA["records"]
 
