@@ -48,6 +48,24 @@ div[data-testid="stNumberInput"] label { color:#f8fafc !important; font-weight:7
 input, textarea { color:#111827 !important; background:#ffffff !important; }
 div[data-baseweb="select"] > div { background:#ffffff !important; color:#111827 !important; }
 div[data-baseweb="select"] * { color:#111827 !important; }
+
+/* IMPORTANT: Streamlit renders expanded selectbox options in a separate
+   BaseWeb popover/portal. Force those menu items to dark text on white. */
+div[data-baseweb="popover"] { background:#ffffff !important; }
+div[data-baseweb="popover"] * { color:#111827 !important; }
+ul[role="listbox"] { background:#ffffff !important; }
+ul[role="listbox"] li,
+li[role="option"],
+div[role="option"] {
+    color:#111827 !important;
+    background:#ffffff !important;
+}
+ul[role="listbox"] li:hover,
+li[role="option"]:hover,
+div[role="option"]:hover {
+    color:#111827 !important;
+    background:#e5e7eb !important;
+}
 .card {
   background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
   border-radius:18px; padding:18px; margin:10px 0;
@@ -284,6 +302,7 @@ if not athlete_records:
 
 athlete_names = [name for name, key in athlete_records]
 athlete = st.selectbox("Athlete", athlete_names)
+st.caption(f"Player pool loaded: {len(athlete_names)} athletes")
 
 # Use the exact bank key attached to the selected player.
 selected_index = athlete_names.index(athlete)
