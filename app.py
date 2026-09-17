@@ -2,6 +2,9 @@ import streamlit as st
 import random
 import json
 import re
+import os
+import time
+from pathlib import Path
 from openai import OpenAI
 
 # =========================================================
@@ -1536,276 +1539,228 @@ def normalize_ai_field(field):
     }
 
 
-@st.cache_data(show_spinner=False, ttl=604800)
-def discover_athlete_story(athlete, sport, league):
+# =========================================================
+# CLASSROOM-SAFE PERSONALIZED QUESTION BANK
+# =========================================================
+
+QUESTION_BANK_PATH = Path(__file__).with_name("athlete_question_bank.json")
+
+
+def load_question_bank():
+    """Load personalized athlete sets generated on prior visits."""
+    if not QUESTION_BANK_PATH.exists():
+        return {}
+    try:
+        return json.loads(QUESTION_BANK_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def save_question_bank(bank):
     """
-    Research the athlete's real career context. No session-state writes occur
-    inside cached functions.
+    Best-effort persistent cache. On Streamlit Community Cloud this survives
+    reruns within the running app instance. The app still works if disk writes
+    are unavailable.
+    """
+    try:
+        temp = QUESTION_BANK_PATH.with_suffix(".tmp")
+        temp.write_text(json.dumps(bank, indent=2), encoding="utf-8")
+        temp.replace(QUESTION_BANK_PATH)
+        return True
+    except Exception:
+        return False
+
+
+def athlete_cache_key(athlete, sport, league):
+    return f"{sport}|{league}|{athlete}".lower()
+
+
+def normalize_generated_investigation(athlete, item, index):
+    fields = []
+    used = set()
+
+    for j, raw in enumerate(item.get("fields", [])[:4]):
+        field = normalize_ai_field(raw)
+        if field["name"] in used:
+            field["name"] = f"value{j+2}"
+        used.add(field["name"])
+        fields.append(field)
+
+    if len(fields) < 2:
+        raise ValueError("An investigation returned fewer than 2 evidence fields.")
+
+    evidence_rows = int(item.get("evidence_rows", 3))
+    evidence_rows = max(2, min(5, evidence_rows))
+
+    return {
+        "id": f"bank_{''.join(ch.lower() if ch.isalnum() else '_' for ch in athlete)}_{index}",
+        "type": str(item.get("type", "Custom Investigation"))[:60],
+        "question": str(item.get("question", "")).strip(),
+        "student_question": str(item.get("student_question", "")).strip(),
+        "why_this_athlete": str(item.get("why_this_athlete", "")).strip(),
+        "research": [str(x) for x in item.get("research", [])][:4],
+        "schema": {
+            "fields": fields,
+            "sentence": str(item.get("sentence", "")).strip()
+        },
+        "starter_pattern_question": str(
+            item.get("pattern_question", "What does your evidence seem to show?")
+        ),
+        "starter_pattern_options": [
+            str(x) for x in item.get(
+                "pattern_options",
+                ["The first side was stronger", "The second side was stronger",
+                 "They were similar", "The evidence was mixed", "I'm not sure yet"]
+            )
+        ][:5],
+        "evidence_rows": evidence_rows,
+        "_source": "QUESTION_BANK"
+    }
+
+
+def parse_investigation_json(raw):
+    raw = (raw or "").strip()
+    raw = raw.replace("```json", "").replace("```JSON", "").replace("```", "").strip()
+    try:
+        return json.loads(raw)
+    except Exception:
+        match = re.search(r"\{.*\}", raw, flags=re.S)
+        if match:
+            return json.loads(match.group(0))
+        raise ValueError("The model did not return usable JSON.")
+
+
+def generate_five_in_one_call(athlete, sport, league):
+    """
+    ONE request total for athlete personalization.
+    No research call + generation call. The model uses its knowledge to build
+    the five questions. This protects classroom API limits.
     """
     if not client:
-        return "", "OpenAI client unavailable"
+        return [], "OpenAI client unavailable."
 
     prompt = f"""
-Research {athlete} ({sport}, {league}) for a 7th-grade sports-data project.
-
-Return a concise career brief with 10-15 concrete, distinctive hooks:
-named teams/clubs/constructors, specific seasons/eras, teammates when relevant,
-career moves, championships/playoff contexts, role changes, breakout periods,
-or other real before/after situations.
-
-Do NOT write the five student questions yet.
-Do NOT provide a giant stat table.
-Do NOT invent facts.
-"""
-
-    # Official Responses API supports web_search_preview. If the deployed model/key
-    # cannot use it, fall back to model knowledge rather than failing the whole app.
-    try:
-        response = client.responses.create(
-            model="gpt-5.6-luna",
-            tools=[{"type": "web_search_preview"}],
-            input=prompt,
-            max_output_tokens=1400
-        )
-        text = (response.output_text or "").strip()
-        if text:
-            return text, None
-    except Exception as exc:
-        web_error = f"{type(exc).__name__}: {exc}"
-    else:
-        web_error = "Web research returned no text"
-
-    try:
-        response = client.responses.create(
-            model="gpt-5.6-luna",
-            instructions=(
-                "Use only athlete-specific career facts you are confident are correct. "
-                "Do not invent details."
-            ),
-            input=prompt,
-            max_output_tokens=1400
-        )
-        text = (response.output_text or "").strip()
-        if text:
-            return text, f"Web search unavailable; used model knowledge. ({web_error})"
-        return "", f"No athlete brief returned. ({web_error})"
-    except Exception as exc:
-        return "", f"Career research failed: {type(exc).__name__}: {exc}; web: {web_error}"
-
-
-INVESTIGATION_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "investigations": {
-            "type": "array",
-            "minItems": 5,
-            "maxItems": 5,
-            "items": {
-                "type": "object",
-                "properties": {
-                    "type": {"type": "string"},
-                    "question": {"type": "string"},
-                    "student_question": {"type": "string"},
-                    "why_this_athlete": {"type": "string"},
-                    "research": {
-                        "type": "array",
-                        "minItems": 3,
-                        "maxItems": 4,
-                        "items": {"type": "string"}
-                    },
-                    "fields": {
-                        "type": "array",
-                        "minItems": 2,
-                        "maxItems": 4,
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "name": {"type": "string"},
-                                "label": {"type": "string"},
-                                "placeholder": {"type": "string"}
-                            },
-                            "required": ["name", "label", "placeholder"],
-                            "additionalProperties": False
-                        }
-                    },
-                    "sentence": {"type": "string"},
-                    "pattern_question": {"type": "string"},
-                    "pattern_options": {
-                        "type": "array",
-                        "minItems": 4,
-                        "maxItems": 5,
-                        "items": {"type": "string"}
-                    },
-                    "evidence_rows": {
-                        "type": "integer",
-                        "minimum": 2,
-                        "maximum": 5
-                    }
-                },
-                "required": [
-                    "type", "question", "student_question", "why_this_athlete",
-                    "research", "fields", "sentence", "pattern_question",
-                    "pattern_options", "evidence_rows"
-                ],
-                "additionalProperties": False
-            }
-        }
-    },
-    "required": ["investigations"],
-    "additionalProperties": False
-}
-
-
-def _convert_investigations(athlete, items):
-    """Convert guaranteed structured output into the app's challenge format."""
-    challenges = []
-
-    for index, item in enumerate(items):
-        fields = []
-        used_names = set()
-
-        for j, raw_field in enumerate(item["fields"][:4]):
-            field = normalize_ai_field(raw_field)
-            if field["name"] in used_names:
-                field["name"] = f"value{j+2}"
-            used_names.add(field["name"])
-            fields.append(field)
-
-        challenges.append({
-            "id": f"custom_{''.join(ch.lower() if ch.isalnum() else '_' for ch in athlete)}_{index}",
-            "type": item["type"][:60],
-            "question": item["question"].strip(),
-            "student_question": item["student_question"].strip(),
-            "why_this_athlete": item["why_this_athlete"].strip(),
-            "research": item["research"][:4],
-            "schema": {
-                "fields": fields,
-                "sentence": item["sentence"].strip()
-            },
-            "starter_pattern_question": item["pattern_question"].strip(),
-            "starter_pattern_options": item["pattern_options"][:5],
-            "evidence_rows": max(2, min(5, int(item.get("evidence_rows", 3)))),
-            "_source": "AI_CUSTOM"
-        })
-
-    return challenges
-
-
-def generate_player_specific_challenges(athlete, sport, league):
-    """
-    Reliable generator:
-    - career research first
-    - Structured Outputs for the five investigations
-    - no hand-parsing of free-form JSON
-    - no silent generic fallback
-    Returns (challenges, diagnostic)
-    """
-    if not client:
-        return [], "OpenAI client unavailable"
-
-    story, research_note = discover_athlete_story(athlete, sport, league)
-    if not story:
-        return [], research_note or "Could not create athlete career brief"
-
-    prompt = f"""
-Create exactly five genuinely different statistical investigations for a
-7th-grade Sports by the Numbers student.
-
+Create exactly FIVE highly personalized statistical investigations for:
 ATHLETE: {athlete}
 SPORT: {sport}
 LEAGUE/SERIES: {league}
 
-RESEARCHED CAREER BRIEF:
-{story}
+This is for a 7th-grade class called Sports by the Numbers.
 
-The questions must emerge from THIS athlete's career story.
+IMPORTANT: You have ONE job in this request: use your knowledge of THIS athlete's
+real career to create five investigations that feel written specifically for them.
 
-STRICT PERSONALIZATION TEST:
-If another athlete from the same sport could receive a question by changing only
-the athlete's name, reject that question.
+PERSONALIZATION TEST:
+If another athlete from the same sport could receive the question by changing
+only the name, reject it.
 
-Do NOT use generic prompts such as:
-- How did this athlete change over time?
-- How consistent was this athlete?
-- Which season was best?
-- Is one season enough?
-- Rate versus total in general.
+Use concrete career context you are confident is correct:
+named teams/clubs/constructors, specific seasons or eras, career moves,
+championship/playoff/tournament contexts, teammates when especially relevant,
+specific role changes, breakout periods, or other distinctive career events.
 
-Instead use named teams/clubs/constructors, specific seasons or eras, real career
-moves, teammates when relevant, championship/playoff/tournament contexts,
-specific before/after moments, or another concrete hook in the career brief.
+Do NOT use five generic categories like:
+change over time / consistency / best season / rate vs total / fair claim.
 
-Requirements:
-- all five use DIFFERENT career hooks
-- at least four explicitly contain concrete athlete-specific context
-- at least two would make little sense for a random athlete in the sport
-- at least one is a compelling A-vs-B comparison if the career supports it
-- at least one tests a concrete claim about this athlete
-- use only sport-appropriate statistics
-- keep math appropriate for grade 7
-- students research all numbers themselves
-- never give the answer
-- evidence fields must directly match each custom question
-- choose evidence_rows based on the LOGIC of the question, not a fixed classroom rule
-- evidence_rows means the number of comparison rows/cards the student must complete
-- if the question compares TWO people/teams/eras, evidence_rows MUST be 2
-- if the question compares THREE seasons/teams/eras, evidence_rows MUST be 3
-- use 4 or 5 only when the actual investigation genuinely requires that many comparisons
-- never invent a third comparison just to create three evidence rows
-- multiple statistics about ONE comparison belong in that comparison's SAME evidence row
+The five should arise from five DIFFERENT parts of this athlete's story.
 
-Example: "Did Mark Duper or Mark Clayton contribute more to Dan Marino's success?"
-should use exactly 2 evidence rows:
-  Row 1 = Mark Duper, with the relevant statistics
-  Row 2 = Mark Clayton, with the same relevant statistics
-It should NOT ask for a third person.
+EVIDENCE DESIGN:
+Choose evidence_rows from 2 to 5 based on the actual comparison.
+- A vs B = exactly 2 rows.
+- Three teams/seasons/eras = exactly 3 rows.
+- Never invent a third comparison just because a worksheet normally has 3 rows.
+- Multiple statistics for the same person/team/era belong in that SAME row.
+- Use only statistics appropriate to {sport} and this athlete's role.
 
-Examples of the desired LEVEL of specificity:
-Artemi Panarin: Chicago vs Columbus vs New York contexts.
-Max Verstappen: questions anchored to actual Red Bull/Toro Rosso seasons,
-championship eras, teammates, qualifying/race contexts, or specific turning points.
-Dan Marino: questions anchored to actual Dolphins seasons, his early-career peak,
-playoff/Super Bowl context, or other real Marino-specific career hooks.
+Example of evidence logic:
+"Did Mark Duper or Mark Clayton contribute more to Dan Marino's success?"
+=> evidence_rows = 2, one row for Duper and one for Clayton.
 
-Do not copy those examples unless supported by the supplied career brief.
+STUDENT RULES:
+- Do not provide the actual statistics.
+- Do not answer the question.
+- Students must research all numerical evidence themselves.
+- Keep the math appropriate for grade 7.
+- Evidence fields must directly match the question.
+- Use 2-4 fields per evidence row.
+
+Return ONLY valid JSON:
+{{
+  "investigations": [
+    {{
+      "type": "short descriptive label",
+      "question": "full athlete-specific question",
+      "student_question": "short athlete-specific question",
+      "why_this_athlete": "one sentence naming the career hook",
+      "research": ["direction 1", "direction 2", "direction 3"],
+      "evidence_rows": 2,
+      "fields": [
+        {{"name":"period","label":"question-specific label","placeholder":"format example"}},
+        {{"name":"value","label":"sport-specific statistic","placeholder":"format example"}}
+      ],
+      "sentence": "evidence sentence using the exact field placeholders",
+      "pattern_question": "question tied to this evidence",
+      "pattern_options": ["choice 1","choice 2","choice 3","I'm not sure yet"]
+    }}
+  ]
+}}
+
+Return exactly five investigations.
 """
 
     try:
         response = client.responses.create(
             model="gpt-5.6-luna",
             instructions=(
-                "Create highly athlete-specific student investigations. "
-                "Never supply the researched statistics or conclusions."
+                "Return JSON only. Exactly five highly athlete-specific investigations. "
+                "Never supply the statistics or conclusions."
             ),
             input=prompt,
-            text={
-                "format": {
-                    "type": "json_schema",
-                    "name": "athlete_investigations",
-                    "strict": True,
-                    "schema": INVESTIGATION_SCHEMA
-                }
-            },
             max_output_tokens=3000
         )
 
-        import json
-        data = json.loads(response.output_text)
-        challenges = _convert_investigations(athlete, data["investigations"])
+        data = parse_investigation_json(response.output_text)
+        items = data.get("investigations", [])
 
-        if len(challenges) != 5:
-            return [], "Structured generator returned the wrong number of investigations"
+        if len(items) != 5:
+            return [], "The generator did not return exactly five investigations."
 
-        return challenges, research_note
+        challenges = [
+            normalize_generated_investigation(athlete, item, i)
+            for i, item in enumerate(items)
+        ]
+
+        if any(not c["question"] or not c["student_question"] for c in challenges):
+            return [], "One or more generated questions were blank."
+
+        return challenges, None
 
     except Exception as exc:
         return [], f"{type(exc).__name__}: {exc}"
 
 
-def build_personalized_set(athlete, sport, league):
-    """Non-cached wrapper so diagnostics and retries behave predictably in Streamlit."""
-    challenges, diagnostic = generate_player_specific_challenges(athlete, sport, league)
-    return challenges, diagnostic
+def get_or_create_personalized_set(athlete, sport, league, force_new=False):
+    """
+    CACHE FIRST.
+    If an athlete already exists in the question bank, ZERO API calls are made.
+    Otherwise exactly ONE generation request is attempted.
+    """
+    bank = load_question_bank()
+    key = athlete_cache_key(athlete, sport, league)
+
+    if not force_new and key in bank:
+        cached = bank[key]
+        if isinstance(cached, list) and len(cached) == 5:
+            return cached, None, True
+
+    generated, error = generate_five_in_one_call(athlete, sport, league)
+
+    if generated:
+        bank[key] = generated
+        save_question_bank(bank)
+        return generated, None, False
+
+    return [], error, False
 
 
 # =========================================================
@@ -1831,7 +1786,8 @@ DEFAULTS = {
     "ai_topic_athlete": None,
     "ai_challenges": None,
     "ai_generation_error": None,
-    "ai_research_note": None
+    "ai_research_note": None,
+    "question_set_cached": False
 }
 
 for key, value in DEFAULTS.items():
@@ -2730,33 +2686,23 @@ else:
     )
 
 
-# Generate a fresh set of five athlete-specific investigations when the athlete changes.
+# Load a saved athlete set first. If none exists, make ONE API request.
 if (
     st.session_state.ai_topic_athlete != athlete_choice
-    or not st.session_state.ai_challenges
+    or st.session_state.ai_challenges is None
 ):
-    with st.spinner(f"🔎 Discovering {athlete_choice}’s career story and building 5 unique investigations..."):
+    with st.spinner(f"✨ Loading personalized investigations for {athlete_choice}..."):
         athlete_info_for_ai = ATHLETES[athlete_choice]
-        generated, diagnostic = build_personalized_set(
+        generated, diagnostic, was_cached = get_or_create_personalized_set(
             athlete_choice,
             athlete_info_for_ai["sport"],
-            athlete_info_for_ai.get("league", athlete_info_for_ai["sport"])
+            athlete_info_for_ai.get("league", athlete_info_for_ai["sport"]),
+            force_new=False
         )
-
-        # Automatic second attempt on first-load failure. Students should not
-        # have to click Try Again just because the first API response hiccupped.
-        if not generated:
-            discover_athlete_story.clear()
-            generated, diagnostic = build_personalized_set(
-                athlete_choice,
-                athlete_info_for_ai["sport"],
-                athlete_info_for_ai.get("league", athlete_info_for_ai["sport"])
-            )
-
         st.session_state.ai_challenges = generated
-        st.session_state.ai_generation_error = diagnostic if not generated else None
-        st.session_state.ai_research_note = diagnostic if generated else None
+        st.session_state.ai_generation_error = diagnostic
         st.session_state.ai_topic_athlete = athlete_choice
+        st.session_state.question_set_cached = was_cached
 
 available_challenges = st.session_state.ai_challenges or []
 
@@ -2769,14 +2715,24 @@ if not available_challenges:
     if st.session_state.get("ai_generation_error"):
         with st.expander("Teacher diagnostic"):
             st.code(st.session_state.ai_generation_error)
-    if st.button("🔄 Try Again — Build 5 Personalized Questions"):
-        discover_athlete_story.clear()
-        st.session_state.ai_challenges = None
-        st.session_state.ai_topic_athlete = None
+    if st.button("🔄 Try Again — One Generation Attempt"):
+        athlete_info_for_ai = ATHLETES[athlete_choice]
+        with st.spinner(f"✨ Trying once more for {athlete_choice}..."):
+            generated, diagnostic, was_cached = get_or_create_personalized_set(
+                athlete_choice,
+                athlete_info_for_ai["sport"],
+                athlete_info_for_ai.get("league", athlete_info_for_ai["sport"]),
+                force_new=True
+            )
+            st.session_state.ai_challenges = generated
+            st.session_state.ai_generation_error = diagnostic
+            st.session_state.question_set_cached = was_cached
         st.rerun()
     st.stop()
 
-st.success(f"✨ 5 custom investigations built specifically for {athlete_choice}")
+st.success(f"✨ 5 custom investigations ready for {athlete_choice}")
+if st.session_state.get("question_set_cached"):
+    st.caption("⚡ Loaded from the class question bank — no AI generation request used.")
 
 challenge_labels = [
     f"{c['type']} — {c['student_question']}"
@@ -2793,19 +2749,23 @@ selected_challenge = available_challenges[
     challenge_labels.index(selected_challenge_label)
 ]
 
-if st.button("✨ Research a Different 5 Questions for This Athlete"):
-    discover_athlete_story.clear()
-    with st.spinner(f"🔎 Finding new career angles for {athlete_choice}..."):
-        athlete_info_for_ai = ATHLETES[athlete_choice]
-        generated, diagnostic = build_personalized_set(
+if st.button("✨ Generate a Different 5 for This Athlete"):
+    athlete_info_for_ai = ATHLETES[athlete_choice]
+    with st.spinner(f"✨ Creating one new set for {athlete_choice}..."):
+        generated, diagnostic, was_cached = get_or_create_personalized_set(
             athlete_choice,
             athlete_info_for_ai["sport"],
-            athlete_info_for_ai.get("league", athlete_info_for_ai["sport"])
+            athlete_info_for_ai.get("league", athlete_info_for_ai["sport"]),
+            force_new=True
         )
-        st.session_state.ai_challenges = generated
-        st.session_state.ai_generation_error = diagnostic if not generated else None
-        st.session_state.ai_research_note = diagnostic if generated else None
+        if generated:
+            st.session_state.ai_challenges = generated
+            st.session_state.ai_generation_error = None
+            st.session_state.question_set_cached = False
+        else:
+            st.session_state.ai_generation_error = diagnostic
     st.rerun()
+
 
 if st.button(
     "🚀 START MY INVESTIGATION",
