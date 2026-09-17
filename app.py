@@ -38,33 +38,65 @@ SPORT_INFO = {
 st.markdown("""
 <style>
 .stApp { background: linear-gradient(180deg,#08111f 0%,#111827 100%); }
-html, body, [class*="css"], .stMarkdown, p, label, div { color:#f8fafc; }
+/* Page text: target Streamlit content, NOT every div on the page. */
+.stMarkdown, .stMarkdown p, .stMarkdown li,
+[data-testid="stText"],
+[data-testid="stCaptionContainer"] p {
+    color:#f8fafc !important;
+}
 h1,h2,h3 { color:#ffffff !important; }
 [data-testid="stCaptionContainer"] p { color:#cbd5e1 !important; }
-div[data-testid="stSelectbox"] label,
-div[data-testid="stTextInput"] label,
-div[data-testid="stTextArea"] label,
-div[data-testid="stNumberInput"] label { color:#f8fafc !important; font-weight:700; }
-input, textarea { color:#111827 !important; background:#ffffff !important; }
-div[data-baseweb="select"] > div { background:#ffffff !important; color:#111827 !important; }
-div[data-baseweb="select"] * { color:#111827 !important; }
 
-/* IMPORTANT: Streamlit renders expanded selectbox options in a separate
-   BaseWeb popover/portal. Force those menu items to dark text on white. */
-div[data-baseweb="popover"] { background:#ffffff !important; }
-div[data-baseweb="popover"] * { color:#111827 !important; }
-ul[role="listbox"] { background:#ffffff !important; }
-ul[role="listbox"] li,
-li[role="option"],
-div[role="option"] {
+div[data-testid="stSelectbox"] > label,
+div[data-testid="stTextInput"] > label,
+div[data-testid="stTextArea"] > label,
+div[data-testid="stNumberInput"] > label {
+    color:#f8fafc !important;
+    font-weight:700;
+}
+
+/* Closed dropdown box: white background + black text. */
+div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+    background-color:#ffffff !important;
+    color:#000000 !important;
+}
+div[data-testid="stSelectbox"] div[data-baseweb="select"] span,
+div[data-testid="stSelectbox"] div[data-baseweb="select"] input,
+div[data-testid="stSelectbox"] div[data-baseweb="select"] svg {
+    color:#000000 !important;
+    fill:#000000 !important;
+}
+
+/* OPEN dropdown menu.
+   BaseWeb mounts this outside the selectbox, so target role=listbox/option directly. */
+[role="listbox"] {
+    background-color:#ffffff !important;
+}
+[role="listbox"] [role="option"],
+[role="option"] {
+    background-color:#ffffff !important;
+    color:#000000 !important;
+}
+[role="listbox"] [role="option"] *,
+[role="option"] * {
+    color:#000000 !important;
+}
+[role="listbox"] [role="option"]:hover,
+[role="option"]:hover,
+[role="option"][aria-selected="true"] {
+    background-color:#e5e7eb !important;
+    color:#000000 !important;
+}
+[role="listbox"] [role="option"]:hover *,
+[role="option"]:hover *,
+[role="option"][aria-selected="true"] * {
+    color:#000000 !important;
+}
+
+/* Text-entry controls */
+input, textarea {
     color:#111827 !important;
     background:#ffffff !important;
-}
-ul[role="listbox"] li:hover,
-li[role="option"]:hover,
-div[role="option"]:hover {
-    color:#111827 !important;
-    background:#e5e7eb !important;
 }
 .card {
   background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
@@ -80,11 +112,6 @@ div[role="option"]:hover {
 }
 div.stButton > button {
   border-radius:12px; font-weight:800; min-height:46px;
-}
-div[data-testid="stRadio"] label,
-div[data-testid="stRadio"] label p,
-div[data-testid="stRadio"] span {
-  color:#f8fafc !important;
 }
 .score {
   font-size:3rem; font-weight:950; text-align:center;
@@ -306,20 +333,8 @@ if not athlete_records:
     st.stop()
 
 athlete_names = [name for name, key in athlete_records]
-
-st.markdown("**Athlete**")
-st.caption(f"Player pool loaded: {len(athlete_names)} athletes")
-
-# Native inline radio control instead of Streamlit/BaseWeb selectbox.
-# This deliberately avoids the detached dropdown popover that was rendering
-# the athlete names invisibly under the custom theme.
-athlete = st.radio(
-    "Choose an athlete",
-    athlete_names,
-    horizontal=True,
-    label_visibility="collapsed",
-    key=f"athlete_radio_{sport_code}"
-)
+athlete = st.selectbox("Athlete", athlete_names)
+st.caption(f"{len(athlete_names)} athletes available")
 
 # Use the exact bank key attached to the selected player.
 selected_index = athlete_names.index(athlete)
