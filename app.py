@@ -1,6 +1,7 @@
 import streamlit as st
 import random
 import json
+import re
 from openai import OpenAI
 
 # =========================================================
@@ -1685,8 +1686,10 @@ def generate_player_specific_challenges(athlete, sport, league):
     It retries generation, then returns an empty list so the UI can show the failure.
     """
     if not client:
+        st.session_state.ai_generation_error = "OpenAI client is unavailable."
         return []
 
+    st.session_state.ai_generation_error = None
     story = discover_athlete_story(athlete, sport, league)
 
     if not story:
@@ -1758,6 +1761,7 @@ Return ONLY JSON:
 """
 
     # Two attempts. The second explicitly tells the model why the first failed.
+    last_error = None
     for attempt in range(2):
         prompt = base_prompt
         if attempt == 1:
@@ -1780,9 +1784,14 @@ Do not return five generic categories with customized wording.
             )
             data = _parse_json_object(response.output_text)
             items = data.get("investigations", [])
-            return _build_challenges_from_items(athlete, items)
-        except Exception:
+            challenges = _build_challenges_from_items(athlete, items)
+            st.session_state.ai_generation_error = None
+            return challenges
+        except Exception as exc:
+            last_error = f"{type(exc).__name__}: {exc}"
             continue
+
+    st.session_state.ai_generation_error = last_error
 
     # DO NOT fall back to the static five: that was the bug that made every
     # athlete appear to receive the same questions.
@@ -1810,7 +1819,8 @@ DEFAULTS = {
     "argument_grade": None,
     "graded_claim": "",
     "ai_topic_athlete": None,
-    "ai_challenges": None
+    "ai_challenges": None,
+    "ai_generation_error": None
 }
 
 for key, value in DEFAULTS.items():
@@ -2710,6 +2720,9 @@ if not available_challenges:
         "Click **Try Again — Build 5 Personalized Questions** below. "
         "The app will not substitute generic questions."
     )
+    if st.session_state.get("ai_generation_error"):
+        with st.expander("Teacher diagnostic"):
+            st.code(st.session_state.ai_generation_error)
     if st.button("🔄 Try Again — Build 5 Personalized Questions"):
         generate_player_specific_challenges.clear()
         discover_athlete_story.clear()
