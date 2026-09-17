@@ -81,6 +81,11 @@ div[role="option"]:hover {
 div.stButton > button {
   border-radius:12px; font-weight:800; min-height:46px;
 }
+div[data-testid="stRadio"] label,
+div[data-testid="stRadio"] label p,
+div[data-testid="stRadio"] span {
+  color:#f8fafc !important;
+}
 .score {
   font-size:3rem; font-weight:950; text-align:center;
 }
@@ -301,8 +306,20 @@ if not athlete_records:
     st.stop()
 
 athlete_names = [name for name, key in athlete_records]
-athlete = st.selectbox("Athlete", athlete_names)
+
+st.markdown("**Athlete**")
 st.caption(f"Player pool loaded: {len(athlete_names)} athletes")
+
+# Native inline radio control instead of Streamlit/BaseWeb selectbox.
+# This deliberately avoids the detached dropdown popover that was rendering
+# the athlete names invisibly under the custom theme.
+athlete = st.radio(
+    "Choose an athlete",
+    athlete_names,
+    horizontal=True,
+    label_visibility="collapsed",
+    key=f"athlete_radio_{sport_code}"
+)
 
 # Use the exact bank key attached to the selected player.
 selected_index = athlete_names.index(athlete)
