@@ -1198,6 +1198,7 @@ h1,h2,h3 {color:#fff!important; letter-spacing:-.02em;}
 
 div[data-testid="stSelectbox"] > label,
 div[data-testid="stTextArea"] > label,
+div[data-testid="stTextInput"] > label,
 div[data-testid="stNumberInput"] > label,
 div[data-testid="stRadio"] > label {
     color:#f8fafc!important;
@@ -1332,6 +1333,18 @@ def reset_work():
             or key in {"claim","observation","revised","score_result","ready_to_revise","coach_stage","coach_answers","completion_id"}
         ):
             del st.session_state[key]
+
+def parse_student_number(value):
+    """Allow blank answer boxes while safely parsing student-entered numbers."""
+    if value is None:
+        return None
+    text = str(value).strip().replace(",", "").replace("%", "")
+    if text == "":
+        return None
+    try:
+        return float(text)
+    except ValueError:
+        return None
 
 def fmt(v):
     if isinstance(v, float) and not v.is_integer():
@@ -1705,17 +1718,21 @@ def percent_change_engine(rec):
 
         a, b = st.columns(2)
 
-        student_change = a.number_input(
+        student_change_raw = a.text_input(
             "Change",
             key=f"pc_change_{i}",
+            placeholder="Type your answer",
             help="Answers within 0.5 of the exact change are accepted."
         )
+        student_change = parse_student_number(student_change_raw)
 
-        student_pct = b.number_input(
+        student_pct_raw = b.text_input(
             "Percent change",
             key=f"pc_pct_{i}",
+            placeholder="Type your answer",
             help="You may round. Answers within 0.5 percentage points are accepted."
         )
+        student_pct = parse_student_number(student_pct_raw)
 
         direction = st.radio(
             "Was this an increase or decrease?",
@@ -1726,8 +1743,8 @@ def percent_change_engine(rec):
 
         true_direction = "Increase" if true_change > 0 else "Decrease" if true_change < 0 else "No Change"
 
-        change_ok = math.isclose(float(student_change), true_change, abs_tol=0.5)
-        pct_ok = math.isclose(float(student_pct), true_pct, abs_tol=0.5)
+        change_ok = student_change is not None and math.isclose(student_change, true_change, abs_tol=0.5)
+        pct_ok = student_pct is not None and math.isclose(student_pct, true_pct, abs_tol=0.5)
         direction_ok = direction == true_direction
 
         results.append({
@@ -1736,8 +1753,8 @@ def percent_change_engine(rec):
             "new": new,
             "true_change": true_change,
             "true_pct": true_pct,
-            "student_change": float(student_change),
-            "student_pct": float(student_pct),
+            "student_change": student_change,
+            "student_pct": student_pct,
             "student_direction": direction,
             "true_direction": true_direction,
             "change_ok": change_ok,
@@ -1784,8 +1801,10 @@ def percent_change_engine(rec):
                         expected_change = r["true_change"]
                         entered_change = r["student_change"]
 
+                        if entered_change is None:
+                            st.write("**Enter a numerical change first.** Use New − Old.")
                         # Sign error
-                        if math.isclose(entered_change, -expected_change, abs_tol=0.5):
+                        elif math.isclose(entered_change, -expected_change, abs_tol=0.5):
                             st.write(
                                 f"**Your change has the sign reversed.** "
                                 f"Use New − Old: {fmt(r['new'])} − {fmt(r['old'])}."
@@ -1801,6 +1820,10 @@ def percent_change_engine(rec):
                     if r["change_ok"] and not r["pct_ok"]:
                         entered_pct = r["student_pct"]
                         true_pct = r["true_pct"]
+
+                        if entered_pct is None:
+                            st.write("**Enter a numerical percent change first.**")
+                            continue
 
                         decimal_form = true_pct / 100
                         using_new_denominator = (
@@ -1890,14 +1913,16 @@ def mad_engine(rec):
         unsafe_allow_html=True
     )
 
-    student_mean = st.number_input(
+    student_mean_raw = st.text_input(
         "Your mean",
         key="mad_mean",
+        placeholder="Type your answer",
         help="Your answer can be within 0.5 of the exact answer."
     )
+    student_mean = parse_student_number(student_mean_raw)
 
     if st.button("Check My Mean", use_container_width=True):
-        if math.isclose(float(student_mean), true_mean, abs_tol=0.5):
+        if student_mean is not None and math.isclose(student_mean, true_mean, abs_tol=0.5):
             st.success("✅ Correct — or close enough! Move on to Step 3.")
         else:
             st.info(
@@ -1947,23 +1972,26 @@ def mad_engine(rec):
         c1.write(f"**{lab}**")
         c2.write(fmt(val))
 
-        student_dev = c3.number_input(
+        student_dev_raw = c3.text_input(
             "Deviation",
             key=f"mad_dev_{i}",
             label_visibility="collapsed",
+            placeholder="Type answer",
             help="Value − Mean. Answers within 0.5 are accepted."
         )
+        student_dev = parse_student_number(student_dev_raw)
 
-        student_abs = c4.number_input(
+        student_abs_raw = c4.text_input(
             "Absolute deviation",
-            min_value=0.0,
             key=f"mad_abs_{i}",
             label_visibility="collapsed",
+            placeholder="Type answer",
             help="Make the deviation positive. Answers within 0.5 are accepted."
         )
+        student_abs = parse_student_number(student_abs_raw)
 
-        dev_ok = math.isclose(float(student_dev), true_dev, abs_tol=0.5)
-        abs_ok = math.isclose(float(student_abs), true_abs, abs_tol=0.5)
+        dev_ok = student_dev is not None and math.isclose(student_dev, true_dev, abs_tol=0.5)
+        abs_ok = student_abs is not None and math.isclose(student_abs, true_abs, abs_tol=0.5)
         row_checks.append(dev_ok and abs_ok)
 
     if st.button("Check My Deviations", use_container_width=True):
@@ -1985,15 +2013,16 @@ def mad_engine(rec):
 
     true_abs_sum = sum(true_abs_deviations)
 
-    student_abs_sum = st.number_input(
+    student_abs_sum_raw = st.text_input(
         "Sum of the absolute deviations",
-        min_value=0.0,
         key="mad_abs_sum",
+        placeholder="Type your answer",
         help="Add every number from the Absolute Deviation column. Answers within 0.5 are accepted."
     )
+    student_abs_sum = parse_student_number(student_abs_sum_raw)
 
     if st.button("Check My Absolute-Deviation Total", use_container_width=True):
-        if math.isclose(float(student_abs_sum), true_abs_sum, abs_tol=0.5):
+        if student_abs_sum is not None and math.isclose(student_abs_sum, true_abs_sum, abs_tol=0.5):
             st.success("✅ Correct — or close enough! Now use that total to find the MAD.")
         else:
             st.info(
@@ -2015,15 +2044,16 @@ def mad_engine(rec):
 
     true_mad = true_abs_sum / len(true_abs_deviations)
 
-    student_mad = st.number_input(
+    student_mad_raw = st.text_input(
         "Your MAD",
-        min_value=0.0,
         key="mad_final",
+        placeholder="Type your answer",
         help="Your final MAD can be within 0.5 of the exact answer."
     )
+    student_mad = parse_student_number(student_mad_raw)
 
     if st.button("Check My MAD", use_container_width=True):
-        if math.isclose(float(student_mad), true_mad, abs_tol=0.5):
+        if student_mad is not None and math.isclose(student_mad, true_mad, abs_tol=0.5):
             st.success(
                 f"✅ Correct — or close enough! The exact MAD is {true_mad:.2f}."
             )
@@ -2085,11 +2115,21 @@ def frequency_engine(rec):
         expected = count/len(values)*100
         c1,c2,c3 = st.columns([2,1,1])
         c1.write(f"**{label}**")
-        f = c2.number_input("Frequency", min_value=0, max_value=len(values), step=1,
-                            key=f"freq_{label}",label_visibility="collapsed")
-        r = c3.number_input("Relative frequency %",min_value=0.0,max_value=100.0,
-                            key=f"freq_rel_{label}",label_visibility="collapsed")
-        if int(f)!=count or not math.isclose(float(r),expected,abs_tol=.2):
+        f_raw = c2.text_input(
+            "Frequency",
+            key=f"freq_{label}",
+            label_visibility="collapsed",
+            placeholder="Type answer"
+        )
+        r_raw = c3.text_input(
+            "Relative frequency %",
+            key=f"freq_rel_{label}",
+            label_visibility="collapsed",
+            placeholder="Type answer"
+        )
+        f = parse_student_number(f_raw)
+        r = parse_student_number(r_raw)
+        if f is None or r is None or int(round(f)) != count or not math.isclose(r, expected, abs_tol=.2):
             all_ok=False
         graph_rows.append({"Range":label,"Frequency":count})
 
