@@ -1161,6 +1161,159 @@ MODE_ICONS = {
     "Frequency Table": "📊",
 }
 
+
+st.markdown("""
+<style>
+:root {
+    --bg:#07111f;
+    --panel:#0f1b2d;
+    --text:#f8fafc;
+    --muted:#a8b3c7;
+    --line:rgba(255,255,255,.11);
+}
+
+.stApp {
+    background:
+        radial-gradient(circle at 12% 8%, rgba(59,130,246,.15), transparent 27%),
+        radial-gradient(circle at 88% 12%, rgba(14,165,233,.08), transparent 24%),
+        linear-gradient(180deg,#07111f 0%,#0b1524 100%);
+    color:var(--text);
+}
+.main .block-container {
+    max-width:1180px;
+    padding-top:1.05rem;
+    padding-bottom:4rem;
+}
+h1,h2,h3 {color:#fff!important; letter-spacing:-.02em;}
+.stMarkdown p,.stMarkdown li,[data-testid="stCaptionContainer"] p {color:#d8e0ec!important;}
+
+div[data-testid="stSelectbox"] > label,
+div[data-testid="stTextArea"] > label,
+div[data-testid="stNumberInput"] > label,
+div[data-testid="stRadio"] > label {
+    color:#f8fafc!important;
+    font-weight:800;
+}
+div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+    background:#fff!important;
+    color:#0f172a!important;
+    border-radius:12px!important;
+    border:1px solid #cbd5e1!important;
+}
+div[data-testid="stSelectbox"] div[data-baseweb="select"] span,
+div[data-testid="stSelectbox"] div[data-baseweb="select"] input,
+div[data-testid="stSelectbox"] div[data-baseweb="select"] svg {
+    color:#0f172a!important;
+    fill:#0f172a!important;
+}
+[role="listbox"],[role="option"] {background:#fff!important;color:#0f172a!important;}
+[role="option"] * {color:#0f172a!important;}
+[role="option"]:hover,[role="option"][aria-selected="true"] {
+    background:#e8eef7!important;
+    color:#0f172a!important;
+}
+input,textarea {
+    background:#fff!important;
+    color:#111827!important;
+    border-radius:12px!important;
+}
+
+.hero {
+    background:
+        linear-gradient(135deg,rgba(59,130,246,.22),rgba(14,165,233,.07)),
+        rgba(255,255,255,.04);
+    border:1px solid rgba(96,165,250,.28);
+    border-radius:22px;
+    padding:1.35rem 1.5rem;
+    margin-bottom:.8rem;
+    box-shadow:0 18px 45px rgba(0,0,0,.18);
+}
+.hero h1 {margin-bottom:.15rem;font-size:2.3rem;}
+.hero p {margin:0;color:#cbd5e1!important;font-size:1rem;}
+
+.card {
+    background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.035));
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:1rem 1.2rem;
+    margin:.8rem 0 1rem;
+    box-shadow:0 12px 30px rgba(0,0,0,.12);
+}
+.step {
+    color:#7dd3fc;
+    font-weight:900;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    font-size:.82rem;
+    margin-bottom:.25rem;
+}
+.formula {
+    background:linear-gradient(180deg,#fff,#f1f5f9);
+    color:#0f172a;
+    border-radius:14px;
+    padding:.9rem 1rem;
+    font-weight:900;
+    margin:.65rem 0 1rem;
+    border-left:5px solid #3b82f6;
+    box-shadow:0 8px 24px rgba(0,0,0,.10);
+}
+.score {
+    font-size:3.2rem;
+    font-weight:950;
+    text-align:center;
+    color:#fff;
+    margin:.35rem 0 1rem;
+}
+div.stButton > button {
+    border-radius:12px!important;
+    min-height:46px;
+    font-weight:850!important;
+    box-shadow:0 7px 18px rgba(0,0,0,.10);
+}
+[data-testid="stAlert"] {border-radius:14px!important;}
+[data-testid="stDataFrame"] {
+    border-radius:14px;
+    overflow:hidden;
+    border:1px solid var(--line);
+}
+[data-testid="stVegaLiteChart"],
+[data-testid="stArrowVegaLiteChart"] {
+    background:rgba(255,255,255,.03);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:.55rem;
+}
+[data-testid="stMetricValue"] {color:#fff!important;font-weight:900;}
+[data-testid="stMetricLabel"] {color:#a8b3c7!important;}
+
+.progress-ribbon {
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:.5rem;
+    margin:.65rem 0 1.15rem;
+}
+.progress-chip {
+    background:rgba(255,255,255,.055);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:12px;
+    padding:.62rem .55rem;
+    text-align:center;
+    color:#cbd5e1;
+    font-weight:800;
+    font-size:.82rem;
+}
+.progress-chip strong {
+    color:#fff;
+    margin-right:.25rem;
+}
+hr {
+    border:none!important;
+    border-top:1px solid rgba(255,255,255,.10)!important;
+    margin:1.6rem 0!important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 def reset_work():
     keep = {"sport_select","athlete_select","mode_select"}
     for key in list(st.session_state.keys()):
@@ -1674,7 +1827,14 @@ def frequency_engine(rec):
 st.markdown("""
 <div class="hero">
 <h1>📊 Sports by the Numbers</h1>
-<p>50 curated athletes. Three focused math investigations. No live API, no AI, and no separate data file required.</p>
+<p>Choose an athlete, work the math, read the graph, and defend your claim.</p>
+</div>
+<div class="progress-ribbon">
+    <div class="progress-chip"><strong>1</strong> Data</div>
+    <div class="progress-chip"><strong>2</strong> Calculate</div>
+    <div class="progress-chip"><strong>3</strong> Graph</div>
+    <div class="progress-chip"><strong>4</strong> Claim</div>
+    <div class="progress-chip"><strong>5</strong> Coach</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1694,10 +1854,10 @@ rec = records[athlete]
 
 st.markdown(f"""
 <div class="card">
-<div class="step">{SPORT_ICONS[sport]} {sport}</div>
-<h2>{athlete}</h2>
-<p><b>Math focus:</b> {mode}</p>
-<p><b>Data:</b> {rec["stat_label"]}</p>
+<div class="step">{SPORT_ICONS[sport]} {sport} · {MODE_ICONS[mode]} {mode}</div>
+<h2 style="margin-bottom:.35rem;">{athlete}</h2>
+<p style="margin:.15rem 0;"><b>Stat focus:</b> {rec["stat_label"]}</p>
+<p style="margin:.15rem 0;color:#a8b3c7;"><b>Classroom mode:</b> Curated frozen dataset</p>
 </div>
 """,unsafe_allow_html=True)
 
