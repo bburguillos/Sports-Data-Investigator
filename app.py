@@ -4704,52 +4704,52 @@ def statistics_engine(sport_filter="Any Sport", difficulty="Guided", generated_s
 # =========================================================
 EXPRESSION_CASES = {
     "NFL": [
-        {"title":"Touchdown Scoring Expression","kind":"Translate Expression","mode":"translate","story":"A team already has 10 points and then scores x touchdowns worth 7 points each.","correct":"10 + 7x","question":"Which expression represents the team's total points?"},
-        {"title":"Evaluate Fantasy Score","kind":"Evaluate Expression","mode":"evaluate","expression":"6x + 8","x":3,"question":"Evaluate 6x + 8 when x = 3.","answer":26},
-        {"title":"Combine Yardage Terms","kind":"Combine Like Terms","mode":"combine","expression":"4x + 3x + 12","correct":"7x + 12","question":"Simplify the expression."},
-        {"title":"Distribute Practice Reps","kind":"Distributive Property","mode":"distribute","expression":"3(x + 5)","correct":"3x + 15","question":"Use the distributive property to rewrite the expression."},
-        {"title":"Equivalent Play Calls","kind":"Equivalent Expressions","mode":"equivalent","expression":"5(x + 2)","correct":"5x + 10","question":"Which expression is equivalent?"},
-        {"title":"Write an Expression","kind":"Write Expression","mode":"write","story":"A player has 22 fantasy points and earns 4 more points for each bonus play x.","correct":"22 + 4x","question":"Write an expression for the total fantasy points."}
+        {"title":"Fantasy Scoring Formula","kind":"Translate Expression","mode":"translate"},
+        {"title":"Quarterback Scoring","kind":"Evaluate Expression","mode":"evaluate"},
+        {"title":"Receiving Yard Groups","kind":"Combine Like Terms","mode":"combine"},
+        {"title":"Practice Rep Groups","kind":"Distributive Property","mode":"distribute"},
+        {"title":"Touchdown Scoring Forms","kind":"Equivalent Expressions","mode":"equivalent"},
+        {"title":"Write a Football Expression","kind":"Write Expression","mode":"write"},
     ],
     "NBA": [
-        {"title":"Three-Point Scoring Expression","kind":"Translate Expression","mode":"translate","story":"A player already has 12 points and then makes x three-pointers worth 3 points each.","correct":"12 + 3x","question":"Which expression represents the total points?"},
-        {"title":"Evaluate Scoring Expression","kind":"Evaluate Expression","mode":"evaluate","expression":"4x + 6","x":5,"question":"Evaluate 4x + 6 when x = 5.","answer":26},
-        {"title":"Combine Shot Terms","kind":"Combine Like Terms","mode":"combine","expression":"5x + 2x + 9","correct":"7x + 9","question":"Simplify the expression."},
-        {"title":"Distribute Drill Sets","kind":"Distributive Property","mode":"distribute","expression":"4(x + 3)","correct":"4x + 12","question":"Use the distributive property to rewrite the expression."},
-        {"title":"Equivalent Scoring Forms","kind":"Equivalent Expressions","mode":"equivalent","expression":"2(x + 7)","correct":"2x + 14","question":"Which expression is equivalent?"},
-        {"title":"Write an Assist Expression","kind":"Write Expression","mode":"write","story":"A player starts with 8 assists and adds 2 assists for each game x.","correct":"8 + 2x","question":"Write an expression for the total assists."}
+        {"title":"Basketball Scoring Formula","kind":"Translate Expression","mode":"translate"},
+        {"title":"Evaluate a Scoring Line","kind":"Evaluate Expression","mode":"evaluate"},
+        {"title":"Shot Groups","kind":"Combine Like Terms","mode":"combine"},
+        {"title":"Quarter Scoring Groups","kind":"Distributive Property","mode":"distribute"},
+        {"title":"Equivalent Scoring Forms","kind":"Equivalent Expressions","mode":"equivalent"},
+        {"title":"Write a Basketball Expression","kind":"Write Expression","mode":"write"},
     ],
     "MLB": [
-        {"title":"Run Scoring Expression","kind":"Translate Expression","mode":"translate","story":"A team starts with 3 runs and scores x home runs worth 1 run each in this simplified model.","correct":"3 + x","question":"Which expression represents the total runs?"},
-        {"title":"Evaluate Hit Expression","kind":"Evaluate Expression","mode":"evaluate","expression":"3x + 4","x":6,"question":"Evaluate 3x + 4 when x = 6.","answer":22},
-        {"title":"Combine Hit Terms","kind":"Combine Like Terms","mode":"combine","expression":"2x + 5x + 6","correct":"7x + 6","question":"Simplify the expression."},
-        {"title":"Distribute Batting Groups","kind":"Distributive Property","mode":"distribute","expression":"5(x + 2)","correct":"5x + 10","question":"Use the distributive property to rewrite the expression."},
-        {"title":"Equivalent Run Forms","kind":"Equivalent Expressions","mode":"equivalent","expression":"3(x + 4)","correct":"3x + 12","question":"Which expression is equivalent?"},
-        {"title":"Write a Pitch Expression","kind":"Write Expression","mode":"write","story":"A pitcher has thrown 40 pitches and throws 8 more pitches each inning x.","correct":"40 + 8x","question":"Write an expression for the total pitches."}
+        {"title":"Total Bases Formula","kind":"Translate Expression","mode":"translate"},
+        {"title":"Evaluate a Hitting Line","kind":"Evaluate Expression","mode":"evaluate"},
+        {"title":"Hit Groups","kind":"Combine Like Terms","mode":"combine"},
+        {"title":"Batting Practice Groups","kind":"Distributive Property","mode":"distribute"},
+        {"title":"Equivalent Total-Base Forms","kind":"Equivalent Expressions","mode":"equivalent"},
+        {"title":"Write a Baseball Expression","kind":"Write Expression","mode":"write"},
     ],
     "NHL": [
-        {"title":"Goal Scoring Expression","kind":"Translate Expression","mode":"translate","story":"A team starts with 2 goals and adds x more goals.","correct":"2 + x","question":"Which expression represents the total goals?"},
-        {"title":"Evaluate Point Expression","kind":"Evaluate Expression","mode":"evaluate","expression":"5x + 3","x":4,"question":"Evaluate 5x + 3 when x = 4.","answer":23},
-        {"title":"Combine Shot Terms","kind":"Combine Like Terms","mode":"combine","expression":"6x + x + 5","correct":"7x + 5","question":"Simplify the expression."},
-        {"title":"Distribute Shift Groups","kind":"Distributive Property","mode":"distribute","expression":"2(x + 6)","correct":"2x + 12","question":"Use the distributive property to rewrite the expression."},
-        {"title":"Equivalent Shot Forms","kind":"Equivalent Expressions","mode":"equivalent","expression":"4(x + 3)","correct":"4x + 12","question":"Which expression is equivalent?"},
-        {"title":"Write a Save Expression","kind":"Write Expression","mode":"write","story":"A goalie starts with 15 saves and adds 5 saves each period x.","correct":"15 + 5x","question":"Write an expression for the total saves."}
+        {"title":"Hockey Points Formula","kind":"Translate Expression","mode":"translate"},
+        {"title":"Evaluate a Points Line","kind":"Evaluate Expression","mode":"evaluate"},
+        {"title":"Shot Groups","kind":"Combine Like Terms","mode":"combine"},
+        {"title":"Shift Groups","kind":"Distributive Property","mode":"distribute"},
+        {"title":"Equivalent Goal Forms","kind":"Equivalent Expressions","mode":"equivalent"},
+        {"title":"Write a Hockey Expression","kind":"Write Expression","mode":"write"},
     ],
     "Soccer": [
-        {"title":"Goal Expression","kind":"Translate Expression","mode":"translate","story":"A club starts with 1 goal and scores x additional goals.","correct":"1 + x","question":"Which expression represents the total goals?"},
-        {"title":"Evaluate Point Expression","kind":"Evaluate Expression","mode":"evaluate","expression":"3x + 2","x":5,"question":"Evaluate 3x + 2 when x = 5.","answer":17},
-        {"title":"Combine Pass Terms","kind":"Combine Like Terms","mode":"combine","expression":"4x + 2x + 10","correct":"6x + 10","question":"Simplify the expression."},
-        {"title":"Distribute Training Sets","kind":"Distributive Property","mode":"distribute","expression":"3(x + 4)","correct":"3x + 12","question":"Use the distributive property to rewrite the expression."},
-        {"title":"Equivalent Goal Forms","kind":"Equivalent Expressions","mode":"equivalent","expression":"6(x + 2)","correct":"6x + 12","question":"Which expression is equivalent?"},
-        {"title":"Write a Pass Expression","kind":"Write Expression","mode":"write","story":"A midfielder begins with 20 completed passes and adds 6 passes each segment x.","correct":"20 + 6x","question":"Write an expression for the total completed passes."}
+        {"title":"Table Points Formula","kind":"Translate Expression","mode":"translate"},
+        {"title":"Evaluate League Points","kind":"Evaluate Expression","mode":"evaluate"},
+        {"title":"Passing Groups","kind":"Combine Like Terms","mode":"combine"},
+        {"title":"Training Drill Groups","kind":"Distributive Property","mode":"distribute"},
+        {"title":"Equivalent Points Forms","kind":"Equivalent Expressions","mode":"equivalent"},
+        {"title":"Write a Soccer Expression","kind":"Write Expression","mode":"write"},
     ],
     "Formula 1": [
-        {"title":"Race Point Expression","kind":"Translate Expression","mode":"translate","story":"A driver starts with 18 points and earns x additional race bonuses worth 5 points each.","correct":"18 + 5x","question":"Which expression represents the total points?"},
-        {"title":"Evaluate Race Expression","kind":"Evaluate Expression","mode":"evaluate","expression":"7x + 4","x":3,"question":"Evaluate 7x + 4 when x = 3.","answer":25},
-        {"title":"Combine Lap Terms","kind":"Combine Like Terms","mode":"combine","expression":"3x + 4x + 2","correct":"7x + 2","question":"Simplify the expression."},
-        {"title":"Distribute Pit Sets","kind":"Distributive Property","mode":"distribute","expression":"4(x + 2)","correct":"4x + 8","question":"Use the distributive property to rewrite the expression."},
-        {"title":"Equivalent Point Forms","kind":"Equivalent Expressions","mode":"equivalent","expression":"5(x + 3)","correct":"5x + 15","question":"Which expression is equivalent?"},
-        {"title":"Write a Lap Expression","kind":"Write Expression","mode":"write","story":"A driver has completed 12 laps and adds 4 laps each segment x.","correct":"12 + 4x","question":"Write an expression for the total laps."}
+        {"title":"Race Points Formula","kind":"Translate Expression","mode":"translate"},
+        {"title":"Evaluate Championship Points","kind":"Evaluate Expression","mode":"evaluate"},
+        {"title":"Lap Groups","kind":"Combine Like Terms","mode":"combine"},
+        {"title":"Tire Set Groups","kind":"Distributive Property","mode":"distribute"},
+        {"title":"Equivalent Lap Forms","kind":"Equivalent Expressions","mode":"equivalent"},
+        {"title":"Write a Racing Expression","kind":"Write Expression","mode":"write"},
     ],
 }
 
@@ -4761,46 +4761,340 @@ def normalize_expression_text(text):
     )
 
 def make_dynamic_expression_case(sport, template, previous=None):
+    """Create algebra problems where the expression actually represents a sports quantity."""
     case = copy.deepcopy(template)
     mode = case["mode"]
 
-    if mode in ("translate","write"):
-        start = random.randint(5,40)
-        rate = random.randint(2,9)
-        case["story"] = f"In this {sport} situation, the starting amount is {start}, and each group x adds {rate} more."
-        case["correct"] = f"{start} + {rate}x"
-        case["question"] = "Write or choose an expression for the total amount."
-        case["dynamic_id"] = f"{mode}|{start}|{rate}"
-    elif mode == "evaluate":
-        coeff = random.randint(2,9)
-        constant = random.randint(1,15)
-        xval = random.randint(2,10)
-        case["expression"] = f"{coeff}x + {constant}"
-        case["x"] = xval
-        case["answer"] = coeff*xval + constant
-        case["question"] = f"Evaluate {case['expression']} when x = {xval}."
-        case["dynamic_id"] = f"{mode}|{coeff}|{constant}|{xval}"
-    elif mode == "combine":
-        a = random.randint(2,8)
-        b = random.randint(2,8)
-        constant = random.randint(1,15)
-        case["expression"] = f"{a}x + {b}x + {constant}"
-        case["correct"] = f"{a+b}x + {constant}"
-        case["question"] = "Simplify the expression."
-        case["dynamic_id"] = f"{mode}|{a}|{b}|{constant}"
-    elif mode in ("distribute","equivalent"):
-        outer = random.randint(2,8)
-        inner = random.randint(2,10)
-        case["expression"] = f"{outer}(x + {inner})"
-        case["correct"] = f"{outer}x + {outer*inner}"
-        case["question"] = "Which expression is equivalent?"
-        case["dynamic_id"] = f"{mode}|{outer}|{inner}"
+    if sport == "NFL":
+        if mode == "translate":
+            td = random.randint(1,5)
+            fg = random.randint(1,4)
+            case.update({
+                "story": f"A football team scores **x touchdowns** worth 6 points each and also makes **{fg} field goals** worth 3 points each.",
+                "question": "Which expression represents the team's total points?",
+                "correct": f"6x + {3*fg}",
+                "variable_meaning": "x = number of touchdowns",
+            })
+        elif mode == "evaluate":
+            x = random.randint(2,5)
+            fixed = random.choice([3,6,9,12])
+            case.update({
+                "story": f"A quarterback earns 4 fantasy points for each passing touchdown, plus {fixed} other fantasy points.",
+                "expression": f"4x + {fixed}", "x": x, "answer": 4*x+fixed,
+                "question": f"If the quarterback throws {x} passing touchdowns, how many fantasy points does the expression give?",
+                "variable_meaning": "x = passing touchdowns",
+            })
+        elif mode == "combine":
+            a,b = random.randint(2,6), random.randint(2,6)
+            case.update({
+                "story": f"A receiver gains **{a}x yards** in one group of plays and **{b}x yards** in another group, plus 10 yards on one extra play.",
+                "expression": f"{a}x + {b}x + 10",
+                "correct": f"{a+b}x + 10",
+                "question": "Simplify the expression for total receiving yards.",
+                "variable_meaning": "x = a repeated yardage amount",
+            })
+        elif mode == "distribute":
+            groups = random.randint(2,5); extra = random.randint(2,8)
+            case.update({
+                "story": f"A football drill has **{groups} identical stations**. At each station, a player completes **x regular reps and {extra} bonus reps**.",
+                "expression": f"{groups}(x + {extra})",
+                "correct": f"{groups}x + {groups*extra}",
+                "question": "Rewrite the total number of reps using the distributive property.",
+                "variable_meaning": "x = regular reps at each station",
+            })
+        elif mode == "equivalent":
+            groups = random.randint(2,5); extra = random.randint(2,7)
+            case.update({
+                "story": f"A team runs **{groups} identical practice blocks**. Each block contains **x normal plays and {extra} red-zone plays**.",
+                "expression": f"{groups}(x + {extra})",
+                "correct": f"{groups}x + {groups*extra}",
+                "question": "Which expression gives the same total number of plays?",
+                "variable_meaning": "x = normal plays in each block",
+            })
+        else:
+            start = random.randint(20,60); per = random.randint(3,8)
+            case.update({
+                "story": f"A running back already has **{start} rushing yards** and then gains **{per} yards on each of x carries**.",
+                "correct": f"{start} + {per}x",
+                "question": "Write an expression for the running back's total rushing yards.",
+                "variable_meaning": "x = number of additional carries",
+            })
+
+    elif sport == "NBA":
+        if mode == "translate":
+            twos = random.randint(2,6)
+            case.update({
+                "story": f"A player makes **x three-pointers** worth 3 points each and also makes **{twos} two-point baskets**.",
+                "question": "Which expression represents the player's total points from those shots?",
+                "correct": f"3x + {2*twos}",
+                "variable_meaning": "x = made three-pointers",
+            })
+        elif mode == "evaluate":
+            x = random.randint(2,7); fixed = random.choice([4,6,8,10,12])
+            case.update({
+                "story": f"A player scores 3 points for each made three-pointer and already has {fixed} points from other shots.",
+                "expression": f"3x + {fixed}", "x": x, "answer": 3*x+fixed,
+                "question": f"If the player makes {x} three-pointers, what is the total score represented by the expression?",
+                "variable_meaning": "x = made three-pointers",
+            })
+        elif mode == "combine":
+            a,b = random.randint(2,5), random.randint(2,5)
+            case.update({
+                "story": f"A player scores **{a}x points** in one stretch and **{b}x points** in another, plus 6 free-throw points.",
+                "expression": f"{a}x + {b}x + 6",
+                "correct": f"{a+b}x + 6",
+                "question": "Simplify the expression for total points.",
+                "variable_meaning": "x = the same repeated scoring amount",
+            })
+        elif mode == "distribute":
+            q = random.choice([2,3,4]); bonus = random.randint(2,6)
+            case.update({
+                "story": f"A team scores **x regular points plus {bonus} bonus points** in each of {q} equal scoring periods.",
+                "expression": f"{q}(x + {bonus})",
+                "correct": f"{q}x + {q*bonus}",
+                "question": "Rewrite the total points using the distributive property.",
+                "variable_meaning": "x = regular points per period",
+            })
+        elif mode == "equivalent":
+            groups = random.randint(2,5); extra = random.randint(2,8)
+            case.update({
+                "story": f"A player repeats the same scoring drill {groups} times. Each drill gives **x regular points plus {extra} bonus points**.",
+                "expression": f"{groups}(x + {extra})",
+                "correct": f"{groups}x + {groups*extra}",
+                "question": "Which expression is equivalent to the total scoring expression?",
+                "variable_meaning": "x = regular points in each drill",
+            })
+        else:
+            start = random.randint(8,30); per = random.choice([2,3])
+            shot_name = "two-point baskets" if per==2 else "three-pointers"
+            case.update({
+                "story": f"A player already has **{start} points** and then makes **x {shot_name}**, each worth {per} points.",
+                "correct": f"{start} + {per}x",
+                "question": "Write an expression for the player's final point total.",
+                "variable_meaning": f"x = number of additional {shot_name}",
+            })
+
+    elif sport == "MLB":
+        if mode == "translate":
+            doubles = random.randint(1,5)
+            case.update({
+                "story": f"A hitter records **x singles** worth 1 total base each and **{doubles} doubles** worth 2 total bases each.",
+                "question": "Which expression represents the hitter's total bases from these hits?",
+                "correct": f"x + {2*doubles}",
+                "variable_meaning": "x = number of singles",
+            })
+        elif mode == "evaluate":
+            x = random.randint(2,6); fixed = random.choice([2,4,6,8])
+            case.update({
+                "story": f"A hitter's simplified total-base model is 2x + {fixed}, where x is the number of doubles.",
+                "expression": f"2x + {fixed}", "x": x, "answer": 2*x+fixed,
+                "question": f"If the hitter has {x} doubles, how many total bases does the model give?",
+                "variable_meaning": "x = doubles",
+            })
+        elif mode == "combine":
+            a,b = random.randint(2,6), random.randint(2,6)
+            case.update({
+                "story": f"A hitter gets **{a}x hits** in one stretch and **{b}x hits** in another, plus 2 extra hits.",
+                "expression": f"{a}x + {b}x + 2",
+                "correct": f"{a+b}x + 2",
+                "question": "Simplify the expression for total hits.",
+                "variable_meaning": "x = the same repeated hit amount",
+            })
+        elif mode == "distribute":
+            groups = random.randint(2,5); extra = random.randint(1,5)
+            case.update({
+                "story": f"A batting practice has {groups} rounds. In each round, a hitter takes **x normal swings and {extra} bonus swings**.",
+                "expression": f"{groups}(x + {extra})",
+                "correct": f"{groups}x + {groups*extra}",
+                "question": "Rewrite the total swings using the distributive property.",
+                "variable_meaning": "x = normal swings per round",
+            })
+        elif mode == "equivalent":
+            groups = random.randint(2,5); extra = random.randint(1,6)
+            case.update({
+                "story": f"A pitcher completes {groups} bullpen sets. Each set contains **x regular pitches and {extra} warm-up pitches**.",
+                "expression": f"{groups}(x + {extra})",
+                "correct": f"{groups}x + {groups*extra}",
+                "question": "Which expression is equivalent to the total pitches?",
+                "variable_meaning": "x = regular pitches per set",
+            })
+        else:
+            start = random.randint(20,60); per = random.randint(3,10)
+            case.update({
+                "story": f"A pitcher has already thrown **{start} pitches** and then throws **{per} pitches in each of x additional innings**.",
+                "correct": f"{start} + {per}x",
+                "question": "Write an expression for the total pitches thrown.",
+                "variable_meaning": "x = additional innings",
+            })
+
+    elif sport == "NHL":
+        if mode == "translate":
+            assists = random.randint(2,8)
+            case.update({
+                "story": f"A hockey player has **x goals** and **{assists} assists**. A player's points equal goals plus assists.",
+                "question": "Which expression represents the player's total points?",
+                "correct": f"x + {assists}",
+                "variable_meaning": "x = goals",
+            })
+        elif mode == "evaluate":
+            x = random.randint(2,8); assists = random.randint(2,8)
+            case.update({
+                "story": f"A hockey player's point total is modeled by x + {assists}, where x is goals.",
+                "expression": f"x + {assists}", "x": x, "answer": x+assists,
+                "question": f"If the player scores {x} goals, how many total points does the model give?",
+                "variable_meaning": "x = goals",
+            })
+        elif mode == "combine":
+            a,b = random.randint(2,5), random.randint(2,5)
+            case.update({
+                "story": f"A player takes **{a}x shots** in one stretch and **{b}x shots** in another, plus 4 extra shots.",
+                "expression": f"{a}x + {b}x + 4",
+                "correct": f"{a+b}x + 4",
+                "question": "Simplify the expression for total shots.",
+                "variable_meaning": "x = repeated shot amount",
+            })
+        elif mode == "distribute":
+            shifts = random.randint(2,5); extra = random.randint(1,5)
+            case.update({
+                "story": f"A player has {shifts} identical practice shifts. Each shift has **x normal reps and {extra} bonus reps**.",
+                "expression": f"{shifts}(x + {extra})",
+                "correct": f"{shifts}x + {shifts*extra}",
+                "question": "Rewrite the total reps using the distributive property.",
+                "variable_meaning": "x = normal reps per shift",
+            })
+        elif mode == "equivalent":
+            groups = random.randint(2,5); extra = random.randint(1,5)
+            case.update({
+                "story": f"A team completes {groups} shooting stations. Each station has **x regular shots and {extra} bonus shots**.",
+                "expression": f"{groups}(x + {extra})",
+                "correct": f"{groups}x + {groups*extra}",
+                "question": "Which expression is equivalent to the total shots?",
+                "variable_meaning": "x = regular shots per station",
+            })
+        else:
+            start = random.randint(10,35); per = random.randint(2,6)
+            case.update({
+                "story": f"A goalie already has **{start} saves** and then makes **{per} saves in each of x later periods or drill segments**.",
+                "correct": f"{start} + {per}x",
+                "question": "Write an expression for the goalie's total saves.",
+                "variable_meaning": "x = later periods or drill segments",
+            })
+
+    elif sport == "Soccer":
+        if mode == "translate":
+            draws = random.randint(1,5)
+            case.update({
+                "story": f"A soccer club earns **3 points for each win** and 1 point for each draw. The club has **x wins** and **{draws} draws**.",
+                "question": "Which expression represents the club's table points?",
+                "correct": f"3x + {draws}",
+                "variable_meaning": "x = wins",
+            })
+        elif mode == "evaluate":
+            x = random.randint(2,8); draws = random.randint(1,5)
+            case.update({
+                "story": f"A club's table points are modeled by 3x + {draws}, where x is wins.",
+                "expression": f"3x + {draws}", "x": x, "answer": 3*x+draws,
+                "question": f"If the club has {x} wins, how many table points does the model give?",
+                "variable_meaning": "x = wins",
+            })
+        elif mode == "combine":
+            a,b = random.randint(2,6), random.randint(2,6)
+            case.update({
+                "story": f"A midfielder completes **{a}x passes** in one phase and **{b}x passes** in another, plus 5 extra passes.",
+                "expression": f"{a}x + {b}x + 5",
+                "correct": f"{a+b}x + 5",
+                "question": "Simplify the expression for total completed passes.",
+                "variable_meaning": "x = repeated pass amount",
+            })
+        elif mode == "distribute":
+            groups = random.randint(2,5); extra = random.randint(2,6)
+            case.update({
+                "story": f"A player completes {groups} identical drills. Each drill has **x normal touches and {extra} bonus touches**.",
+                "expression": f"{groups}(x + {extra})",
+                "correct": f"{groups}x + {groups*extra}",
+                "question": "Rewrite the total touches using the distributive property.",
+                "variable_meaning": "x = normal touches per drill",
+            })
+        elif mode == "equivalent":
+            groups = random.randint(2,5); extra = random.randint(2,6)
+            case.update({
+                "story": f"A club runs {groups} training blocks. Each block contains **x regular shots and {extra} penalty kicks**.",
+                "expression": f"{groups}(x + {extra})",
+                "correct": f"{groups}x + {groups*extra}",
+                "question": "Which expression is equivalent to the total number of shots?",
+                "variable_meaning": "x = regular shots per block",
+            })
+        else:
+            start = random.randint(10,40); per = random.randint(3,8)
+            case.update({
+                "story": f"A midfielder already has **{start} completed passes** and then completes **{per} passes in each of x later possessions**.",
+                "correct": f"{start} + {per}x",
+                "question": "Write an expression for the total completed passes.",
+                "variable_meaning": "x = later possessions",
+            })
+
+    else:  # Formula 1
+        if mode == "translate":
+            bonus = random.randint(2,8)
+            case.update({
+                "story": f"A driver earns **x points in each of 4 race segments** in a classroom simulation, plus **{bonus} bonus points**.",
+                "question": "Which expression represents the driver's total points?",
+                "correct": f"4x + {bonus}",
+                "variable_meaning": "x = points per race segment",
+            })
+        elif mode == "evaluate":
+            x = random.randint(5,20); bonus = random.randint(2,10)
+            case.update({
+                "story": f"A classroom racing score is modeled by 4x + {bonus}.",
+                "expression": f"4x + {bonus}", "x": x, "answer": 4*x+bonus,
+                "question": f"If x = {x} points per segment, what total score does the model give?",
+                "variable_meaning": "x = points per segment",
+            })
+        elif mode == "combine":
+            a,b = random.randint(2,6), random.randint(2,6)
+            case.update({
+                "story": f"A driver completes **{a}x laps** in one stint and **{b}x laps** in another, plus 3 formation laps.",
+                "expression": f"{a}x + {b}x + 3",
+                "correct": f"{a+b}x + 3",
+                "question": "Simplify the expression for total laps.",
+                "variable_meaning": "x = repeated lap amount",
+            })
+        elif mode == "distribute":
+            sets = random.randint(2,5); extra = random.randint(1,4)
+            case.update({
+                "story": f"A team prepares {sets} identical tire sets. Each set includes **x standard checks and {extra} extra checks**.",
+                "expression": f"{sets}(x + {extra})",
+                "correct": f"{sets}x + {sets*extra}",
+                "question": "Rewrite the total checks using the distributive property.",
+                "variable_meaning": "x = standard checks per tire set",
+            })
+        elif mode == "equivalent":
+            groups = random.randint(2,5); extra = random.randint(1,5)
+            case.update({
+                "story": f"A driver runs {groups} equal practice stints. Each stint includes **x timed laps and {extra} warm-up laps**.",
+                "expression": f"{groups}(x + {extra})",
+                "correct": f"{groups}x + {groups*extra}",
+                "question": "Which expression is equivalent to the total laps?",
+                "variable_meaning": "x = timed laps per stint",
+            })
+        else:
+            start = random.randint(10,30); per = random.randint(3,8)
+            case.update({
+                "story": f"A driver has completed **{start} laps** and then completes **{per} laps in each of x additional stints**.",
+                "correct": f"{start} + {per}x",
+                "question": "Write an expression for the total laps.",
+                "variable_meaning": "x = additional stints",
+            })
+
+    case["dynamic_id"] = f"{sport}|{mode}|{case.get('correct')}|{case.get('expression')}|{case.get('x')}"
     return case
 
 def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None, generated_case=None):
     st.markdown('<div class="step">7th Grade Math Lab · Expressions & Algebraic Reasoning</div>', unsafe_allow_html=True)
     st.subheader("🧠 Sports Expressions Lab")
-    st.write("Translate, simplify, evaluate, and recognize equivalent algebraic expressions in sports situations.")
+    st.write(
+        "Use algebra to represent real sports quantities — scoring, yards, total bases, points, passes, laps, and practice totals."
+    )
 
     if generated_case is not None and generated_sport:
         sport = generated_sport
@@ -4812,7 +5106,7 @@ def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_
         sport = st.selectbox("Sport", sports, key="expr_sport")
         labels = {f"{c['kind']} · {c['title']}": c for c in EXPRESSION_CASES[sport]}
         selected = st.selectbox("Scenario", list(labels), key="expr_case")
-        case = labels[selected]
+        case = make_dynamic_expression_case(sport, labels[selected])
 
     cid = clean_filename(f"{sport}_{case['title']}")
     mode = case["mode"]
@@ -4822,23 +5116,27 @@ def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_
       <div class="step">{SPORT_ICONS.get(sport,'')} {sport} · {case['kind']}</div>
       <h2>{case['title']}</h2>
       <p><b>Situation:</b> {case.get('story','')}</p>
+      <p><b>What x means:</b> {case.get('variable_meaning','')}</p>
       <p><b>Question:</b> {case['question']}</p>
     </div>
     """, unsafe_allow_html=True)
 
     if mode in ("translate","equivalent","distribute"):
+        correct = case["correct"]
+
         if mode == "translate":
-            correct = case["correct"]
-            start, rest = correct.split(" + ",1)
-            rate = rest.replace("x","")
-            options = [
-                correct,
-                f"{rate} + {start}x",
-                f"{start}x + {rate}",
-                f"{start} - {rate}x",
-            ]
+            compact = normalize_expression_text(correct)
+            if "+" in compact:
+                left,right = compact.split("+",1)
+                options = [
+                    correct,
+                    f"{right} + {left.replace('x','')}x" if "x" in left else f"{right}x + {left}",
+                    correct.replace("+","-",1),
+                    f"{left}{right}"
+                ]
+            else:
+                options = [correct, f"2{correct}", f"{correct} + x", f"{correct} - x"]
         else:
-            correct = case["correct"]
             outer = int(case["expression"].split("(")[0])
             inner = int(case["expression"].split("+")[1].replace(")","").strip())
             options = [
@@ -4848,26 +5146,29 @@ def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_
                 f"{outer}x + {inner+outer}",
             ]
 
+        options = list(dict.fromkeys(options))
         order_key=f"expr_order_{cid}"
         if order_key not in st.session_state:
-            vals=list(dict.fromkeys(options)); random.shuffle(vals); st.session_state[order_key]=vals
+            vals=list(options); random.shuffle(vals); st.session_state[order_key]=vals
 
-        choice=st.radio("Choose the correct expression.",st.session_state[order_key],key=f"expr_choice_{cid}")
+        choice=st.radio("Choose the expression that matches the sports situation.",st.session_state[order_key],key=f"expr_choice_{cid}")
         if st.button("Check My Expression",key=f"expr_choice_check_{cid}",use_container_width=True):
             if normalize_expression_text(choice)==normalize_expression_text(correct):
                 st.success("✅ Correct.")
             else:
                 if difficulty=="Guided":
-                    st.info("Look at the starting amount, the amount multiplied by x, and whether the operation should be addition or subtraction.")
+                    st.info(
+                        f"Use the meaning of x: **{case.get('variable_meaning','')}**. "
+                        "Match each part of the expression to the quantities in the sports situation."
+                    )
                 else:
-                    st.info("Try again.")
+                    st.info("Match each term to the sports quantities and try again.")
 
     elif mode == "write":
-        raw=st.text_input("Your expression",key=f"expr_written_{cid}",placeholder="Example: 12 + 4x")
+        raw=st.text_input("Your expression",key=f"expr_written_{cid}",placeholder="Write an algebraic expression")
         if st.button("Check My Expression",key=f"expr_written_check_{cid}",use_container_width=True):
             student=normalize_expression_text(raw)
             correct=normalize_expression_text(case["correct"])
-            # accept reversed addition order
             alt=""
             if "+" in correct:
                 parts=correct.split("+")
@@ -4876,41 +5177,50 @@ def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_
                 st.success("✅ Correct.")
             else:
                 if difficulty=="Guided":
-                    st.info("Your expression should include the starting amount and the repeated amount multiplied by x.")
+                    st.info(
+                        f"Remember: **{case.get('variable_meaning','')}**. "
+                        "The fixed amount and the repeated amount should both appear."
+                    )
                 else:
-                    st.info("Check your expression and try again.")
+                    st.info("Check how the variable connects to the sports quantity.")
 
     elif mode == "evaluate":
-        st.markdown(f"### Expression: **{case['expression']}**")
-        st.write(f"Use **x = {case['x']}**.")
-        raw=st.text_input("Value of the expression",key=f"expr_answer_{cid}",placeholder="Type your answer")
+        st.markdown(f"### Sports formula: **{case['expression']}**")
+        st.write(f"Here, **{case.get('variable_meaning','x is the variable')}**.")
+        raw=st.text_input("Calculated sports total",key=f"expr_answer_{cid}",placeholder="Type your answer")
         ans=parse_student_number(raw)
         if st.button("Check My Value",key=f"expr_answer_check_{cid}",use_container_width=True):
             if ans is not None and math.isclose(ans,float(case["answer"]),abs_tol=.05):
-                st.success(f"✅ Correct — {fmt(float(case['answer']))}.")
+                st.success(f"✅ Correct — the sports total is **{fmt(float(case['answer']))}**.")
             else:
                 if difficulty=="Guided":
-                    st.info("Substitute the value for x first, then follow the order of operations.")
+                    st.info(
+                        f"Substitute **x = {case['x']}** into the sports formula first, "
+                        "then calculate the total."
+                    )
                 else:
                     st.info("Check your substitution and arithmetic.")
 
     elif mode == "combine":
-        raw=st.text_input("Simplified expression",key=f"expr_written_{cid}",placeholder="Example: 7x + 4")
+        st.markdown(f"### Sports expression: **{case['expression']}**")
+        st.write(f"Here, **{case.get('variable_meaning','x is the repeated sports amount')}**.")
+        raw=st.text_input("Simplified sports expression",key=f"expr_written_{cid}",placeholder="Simplify the expression")
         if st.button("Check My Simplified Expression",key=f"expr_written_check_{cid}",use_container_width=True):
             if normalize_expression_text(raw)==normalize_expression_text(case["correct"]):
                 st.success("✅ Correct.")
             else:
                 if difficulty=="Guided":
-                    st.info("Only combine terms that have the same variable part.")
+                    st.info("The x-terms represent the same type of sports quantity, so those coefficients can be combined.")
                 else:
-                    st.info("Check which terms are alike.")
+                    st.info("Check which terms describe the same quantity.")
 
-    st.markdown("### Final · Explain your reasoning")
+    st.markdown("### Final · Explain the sports meaning")
     st.text_area(
-        "Explain what the variable x represents or why your simplified/evaluated expression makes sense.",
+        "Explain what each part of your expression represents in this sports situation.",
         key=f"expr_reasoning_{cid}",
-        placeholder="Explain your algebra thinking in your own words."
+        placeholder="Example: 3x represents three points for each made three-pointer..."
     )
+
 # =========================================================
 # SPORTS MATH CHALLENGE — MULTI-SKILL HIGHER-LEVEL THINKING
 # =========================================================
