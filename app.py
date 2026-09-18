@@ -7828,10 +7828,15 @@ def make_dynamic_ratio_case(sport, template, previous=None):
         ("catches", "targets"): [(6,10), (8,10), (12,15), (15,20), (18,24)],
         ("made field goals", "attempts"): [(6,8), (8,10), (9,12), (12,15), (16,20)],
         ("made free throws", "attempts"): [(6,8), (8,10), (9,12), (15,20), (18,24)],
+        ("made shots", "attempts"): [(6,10), (8,12), (9,15), (12,20), (15,24)],
+        ("completions", "pass attempts"): [(12,20), (15,24), (18,30), (21,30), (24,32)],
         ("hits", "at-bats"): [(4,10), (6,15), (8,20), (9,24), (12,30)],
         ("saves", "shots"): [(8,10), (9,10), (18,20), (21,24), (27,30)],
+        ("goals", "shots"): [(2,10), (3,12), (4,16), (5,20), (6,24)],
         ("power-play goals", "power-play chances"): [(2,10), (3,12), (4,16), (5,20), (6,24)],
         ("penalty goals", "penalty attempts"): [(3,5), (4,5), (6,10), (8,10), (9,12)],
+        ("successful tackles", "attempts"): [(5,10), (6,10), (8,12), (9,15), (12,20)],
+        ("successful pit stops", "attempts"): [(6,8), (8,10), (9,12), (12,15), (16,20)],
     }
 
     bounded_key = (str(total_label).lower(), str(denominator_label).lower())
@@ -7857,6 +7862,17 @@ def make_dynamic_ratio_case(sport, template, previous=None):
         den = random.choice([8, 10, 12, 15, 18, 20])
         rate = random.choice([8, 10, 12, 15, 18, 20, 22])
         total = den * rate
+
+    # Countable sports statistics must be whole numbers.
+    # A player can have 32 goals or 33 goals, but never 32.4 goals.
+    # Fuel is continuous, so liters may reasonably be decimal.
+    continuous_total_labels = {"liters of fuel"}
+    if str(total_label).lower() not in continuous_total_labels:
+        total = int(round(total))
+        # Keep at least one event when rounding a small generated value.
+        if total < 1:
+            total = 1
+        rate = total / den
 
     target = random.choice([x for x in [10, 12, 15, 20, 24, 25, 30, 40, 50, 60, 75, 100, 120, 150, 200] if x != den])
 
