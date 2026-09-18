@@ -3049,6 +3049,561 @@ def probability_engine(sport_filter="Any Sport", difficulty="Guided", generated_
         key=f"prob_reasoning_{case_id}",
         placeholder="Explain in your own words."
     )
+
+# =========================================================
+# 7TH GRADE MATH LAB — PERCENT & PERCENT CHANGE
+# =========================================================
+PERCENT_CASES = {
+    "NFL": [
+        {
+            "title": "Completion Percentage",
+            "kind": "Percent",
+            "story": "A quarterback completed 24 of 32 passes.",
+            "part": 24, "whole": 32,
+            "question": "What percent of passes were completed?",
+            "answer": 75.0,
+            "unit": "%",
+            "hint1": "Think: part ÷ whole × 100.",
+            "hint2": "24 ÷ 32 = 0.75, then 0.75 × 100 = 75%."
+        },
+        {
+            "title": "Red-Zone Success",
+            "kind": "Percent",
+            "story": "A team scored touchdowns on 21 of 30 red-zone trips.",
+            "part": 21, "whole": 30,
+            "question": "What percent of red-zone trips ended in touchdowns?",
+            "answer": 70.0,
+            "unit": "%",
+            "hint1": "Use successful trips as the part and total trips as the whole.",
+            "hint2": "21 ÷ 30 = 0.70, so the answer is 70%."
+        },
+        {
+            "title": "Receiving Yards Increase",
+            "kind": "Percent Change",
+            "story": "A receiver increased from 900 receiving yards to 1,080 receiving yards.",
+            "old": 900, "new": 1080,
+            "question": "What was the percent change?",
+            "answer": 20.0,
+            "direction": "increase",
+            "hint1": "Find the change first, then compare it to the original amount.",
+            "hint2": "1,080 − 900 = 180; 180 ÷ 900 × 100 = 20%."
+        },
+        {
+            "title": "Sack Total Decrease",
+            "kind": "Percent Change",
+            "story": "A quarterback's sack total dropped from 40 to 30.",
+            "old": 40, "new": 30,
+            "question": "What was the percent change?",
+            "answer": -25.0,
+            "direction": "decrease",
+            "hint1": "Use new − old, then divide by the old amount.",
+            "hint2": "30 − 40 = −10; −10 ÷ 40 × 100 = −25%."
+        },
+        {
+            "title": "Fantasy Bonus",
+            "kind": "Percent Of",
+            "story": "A fantasy team scored 120 points. A bonus is worth 15% of that score.",
+            "percent": 15, "base": 120,
+            "question": "How many bonus points is that?",
+            "answer": 18.0,
+            "unit": "points",
+            "hint1": "Find 15% of 120.",
+            "hint2": "0.15 × 120 = 18."
+        },
+        {
+            "title": "Ticket Discount",
+            "kind": "Discount",
+            "story": "A football ticket costs $80 and is discounted by 25%.",
+            "percent": 25, "base": 80,
+            "question": "What is the sale price?",
+            "answer": 60.0,
+            "unit": "dollars",
+            "hint1": "First find 25% of $80, then subtract the discount.",
+            "hint2": "0.25 × 80 = 20; 80 − 20 = 60."
+        },
+    ],
+    "NBA": [
+        {
+            "title": "Free Throw Percentage",
+            "kind": "Percent",
+            "story": "A player made 18 of 24 free throws.",
+            "part": 18, "whole": 24,
+            "question": "What percent of free throws were made?",
+            "answer": 75.0,
+            "unit": "%",
+            "hint1": "Made shots are the part; attempts are the whole.",
+            "hint2": "18 ÷ 24 = 0.75 = 75%."
+        },
+        {
+            "title": "Three-Point Percentage",
+            "kind": "Percent",
+            "story": "A player made 14 of 40 three-point attempts.",
+            "part": 14, "whole": 40,
+            "question": "What percent of three-point attempts were made?",
+            "answer": 35.0,
+            "unit": "%",
+            "hint1": "Use makes ÷ attempts × 100.",
+            "hint2": "14 ÷ 40 = 0.35 = 35%."
+        },
+        {
+            "title": "Scoring Increase",
+            "kind": "Percent Change",
+            "story": "A player's scoring average rose from 20 points per game to 25.",
+            "old": 20, "new": 25,
+            "question": "What was the percent change?",
+            "answer": 25.0,
+            "direction": "increase",
+            "hint1": "Compare the 5-point increase to the original 20.",
+            "hint2": "5 ÷ 20 × 100 = 25%."
+        },
+        {
+            "title": "Turnover Reduction",
+            "kind": "Percent Change",
+            "story": "A team reduced its turnovers from 16 per game to 12.",
+            "old": 16, "new": 12,
+            "question": "What was the percent change?",
+            "answer": -25.0,
+            "direction": "decrease",
+            "hint1": "Use new − old and divide by the old amount.",
+            "hint2": "12 − 16 = −4; −4 ÷ 16 × 100 = −25%."
+        },
+        {
+            "title": "Charity Shot Donation",
+            "kind": "Percent Of",
+            "story": "A fundraiser collected $240. Twenty percent will be donated to a youth basketball program.",
+            "percent": 20, "base": 240,
+            "question": "How much money will be donated?",
+            "answer": 48.0,
+            "unit": "dollars",
+            "hint1": "Find 20% of 240.",
+            "hint2": "0.20 × 240 = 48."
+        },
+        {
+            "title": "Jersey Sale",
+            "kind": "Discount",
+            "story": "A basketball jersey costs $90 and is discounted by 30%.",
+            "percent": 30, "base": 90,
+            "question": "What is the sale price?",
+            "answer": 63.0,
+            "unit": "dollars",
+            "hint1": "Find the discount amount first, then subtract it.",
+            "hint2": "0.30 × 90 = 27; 90 − 27 = 63."
+        },
+    ],
+    "MLB": [
+        {
+            "title": "Hit Percentage",
+            "kind": "Percent",
+            "story": "A hitter got 36 hits in 120 at-bats.",
+            "part": 36, "whole": 120,
+            "question": "What percent of at-bats resulted in hits?",
+            "answer": 30.0,
+            "unit": "%",
+            "hint1": "Hits are the part; at-bats are the whole.",
+            "hint2": "36 ÷ 120 = 0.30 = 30%."
+        },
+        {
+            "title": "Stolen Base Success",
+            "kind": "Percent",
+            "story": "A runner was successful on 18 of 24 stolen-base attempts.",
+            "part": 18, "whole": 24,
+            "question": "What was the stolen-base success percentage?",
+            "answer": 75.0,
+            "unit": "%",
+            "hint1": "Use successes ÷ attempts × 100.",
+            "hint2": "18 ÷ 24 = 75%."
+        },
+        {
+            "title": "Home Run Increase",
+            "kind": "Percent Change",
+            "story": "A hitter increased from 24 home runs to 30.",
+            "old": 24, "new": 30,
+            "question": "What was the percent change?",
+            "answer": 25.0,
+            "direction": "increase",
+            "hint1": "Find the increase and compare it with the original 24.",
+            "hint2": "30 − 24 = 6; 6 ÷ 24 × 100 = 25%."
+        },
+        {
+            "title": "ERA Drop",
+            "kind": "Percent Change",
+            "story": "A pitcher's ERA dropped from 4.00 to 3.20.",
+            "old": 4.0, "new": 3.2,
+            "question": "What was the percent change?",
+            "answer": -20.0,
+            "direction": "decrease",
+            "hint1": "The change is negative because the value went down.",
+            "hint2": "3.2 − 4.0 = −0.8; −0.8 ÷ 4.0 × 100 = −20%."
+        },
+        {
+            "title": "Concession Donation",
+            "kind": "Percent Of",
+            "story": "A concession stand made $350. Twelve percent goes to the baseball program.",
+            "percent": 12, "base": 350,
+            "question": "How much goes to the baseball program?",
+            "answer": 42.0,
+            "unit": "dollars",
+            "hint1": "Find 12% of 350.",
+            "hint2": "0.12 × 350 = 42."
+        },
+        {
+            "title": "Cap Sale",
+            "kind": "Discount",
+            "story": "A baseball cap costs $32 and is discounted by 25%.",
+            "percent": 25, "base": 32,
+            "question": "What is the sale price?",
+            "answer": 24.0,
+            "unit": "dollars",
+            "hint1": "Find 25% of 32 and subtract.",
+            "hint2": "0.25 × 32 = 8; 32 − 8 = 24."
+        },
+    ],
+    "NHL": [
+        {
+            "title": "Save Percentage",
+            "kind": "Percent",
+            "story": "A goalie saved 45 of 50 shots.",
+            "part": 45, "whole": 50,
+            "question": "What percent of shots were saved?",
+            "answer": 90.0,
+            "unit": "%",
+            "hint1": "Saves are the part; shots faced are the whole.",
+            "hint2": "45 ÷ 50 = 0.90 = 90%."
+        },
+        {
+            "title": "Faceoff Win Percentage",
+            "kind": "Percent",
+            "story": "A center won 28 of 40 faceoffs.",
+            "part": 28, "whole": 40,
+            "question": "What percent of faceoffs were won?",
+            "answer": 70.0,
+            "unit": "%",
+            "hint1": "Use wins ÷ total faceoffs × 100.",
+            "hint2": "28 ÷ 40 = 70%."
+        },
+        {
+            "title": "Goal Increase",
+            "kind": "Percent Change",
+            "story": "A player's goal total increased from 32 to 40.",
+            "old": 32, "new": 40,
+            "question": "What was the percent change?",
+            "answer": 25.0,
+            "direction": "increase",
+            "hint1": "Compare the 8-goal increase to the original 32.",
+            "hint2": "8 ÷ 32 × 100 = 25%."
+        },
+        {
+            "title": "Penalty Minutes Decrease",
+            "kind": "Percent Change",
+            "story": "A player's penalty minutes fell from 50 to 35.",
+            "old": 50, "new": 35,
+            "question": "What was the percent change?",
+            "answer": -30.0,
+            "direction": "decrease",
+            "hint1": "Use new − old, then divide by old.",
+            "hint2": "35 − 50 = −15; −15 ÷ 50 × 100 = −30%."
+        },
+        {
+            "title": "Equipment Fund",
+            "kind": "Percent Of",
+            "story": "A team raises $500. Eighteen percent is used for new pucks.",
+            "percent": 18, "base": 500,
+            "question": "How much money is used for pucks?",
+            "answer": 90.0,
+            "unit": "dollars",
+            "hint1": "Find 18% of 500.",
+            "hint2": "0.18 × 500 = 90."
+        },
+        {
+            "title": "Stick Discount",
+            "kind": "Discount",
+            "story": "A hockey stick costs $120 and is discounted by 20%.",
+            "percent": 20, "base": 120,
+            "question": "What is the sale price?",
+            "answer": 96.0,
+            "unit": "dollars",
+            "hint1": "Find the 20% discount, then subtract it.",
+            "hint2": "0.20 × 120 = 24; 120 − 24 = 96."
+        },
+    ],
+    "Soccer": [
+        {
+            "title": "Pass Completion Percentage",
+            "kind": "Percent",
+            "story": "A midfielder completed 72 of 90 passes.",
+            "part": 72, "whole": 90,
+            "question": "What percent of passes were completed?",
+            "answer": 80.0,
+            "unit": "%",
+            "hint1": "Completed passes are the part.",
+            "hint2": "72 ÷ 90 = 0.80 = 80%."
+        },
+        {
+            "title": "Penalty Kick Percentage",
+            "kind": "Percent",
+            "story": "A player scored on 8 of 10 penalty kicks.",
+            "part": 8, "whole": 10,
+            "question": "What percent of penalty kicks were scored?",
+            "answer": 80.0,
+            "unit": "%",
+            "hint1": "Use goals ÷ attempts × 100.",
+            "hint2": "8 ÷ 10 = 80%."
+        },
+        {
+            "title": "Goal Increase",
+            "kind": "Percent Change",
+            "story": "A player's goal total increased from 15 to 18.",
+            "old": 15, "new": 18,
+            "question": "What was the percent change?",
+            "answer": 20.0,
+            "direction": "increase",
+            "hint1": "Compare the 3-goal increase to the original 15.",
+            "hint2": "3 ÷ 15 × 100 = 20%."
+        },
+        {
+            "title": "Shots Decrease",
+            "kind": "Percent Change",
+            "story": "A team reduced its shots allowed from 20 per match to 15.",
+            "old": 20, "new": 15,
+            "question": "What was the percent change?",
+            "answer": -25.0,
+            "direction": "decrease",
+            "hint1": "Use new − old and divide by the original amount.",
+            "hint2": "15 − 20 = −5; −5 ÷ 20 × 100 = −25%."
+        },
+        {
+            "title": "Club Fundraiser",
+            "kind": "Percent Of",
+            "story": "A club raises $420. Fifteen percent will be used for equipment.",
+            "percent": 15, "base": 420,
+            "question": "How much money will be used for equipment?",
+            "answer": 63.0,
+            "unit": "dollars",
+            "hint1": "Find 15% of 420.",
+            "hint2": "0.15 × 420 = 63."
+        },
+        {
+            "title": "Scarf Sale",
+            "kind": "Discount",
+            "story": "A team scarf costs $40 and is discounted by 35%.",
+            "percent": 35, "base": 40,
+            "question": "What is the sale price?",
+            "answer": 26.0,
+            "unit": "dollars",
+            "hint1": "Find the discount amount and subtract it.",
+            "hint2": "0.35 × 40 = 14; 40 − 14 = 26."
+        },
+    ],
+    "Formula 1": [
+        {
+            "title": "Race Finish Percentage",
+            "kind": "Percent",
+            "story": "A driver finished 18 of 20 races.",
+            "part": 18, "whole": 20,
+            "question": "What percent of races were finished?",
+            "answer": 90.0,
+            "unit": "%",
+            "hint1": "Finished races are the part; starts are the whole.",
+            "hint2": "18 ÷ 20 = 90%."
+        },
+        {
+            "title": "Top-10 Percentage",
+            "kind": "Percent",
+            "story": "A driver finished in the top 10 in 14 of 20 races.",
+            "part": 14, "whole": 20,
+            "question": "What percent of races were top-10 finishes?",
+            "answer": 70.0,
+            "unit": "%",
+            "hint1": "Use top-10 finishes ÷ races × 100.",
+            "hint2": "14 ÷ 20 = 70%."
+        },
+        {
+            "title": "Points Increase",
+            "kind": "Percent Change",
+            "story": "A driver's championship points increased from 200 to 250.",
+            "old": 200, "new": 250,
+            "question": "What was the percent change?",
+            "answer": 25.0,
+            "direction": "increase",
+            "hint1": "Compare the increase of 50 to the original 200.",
+            "hint2": "50 ÷ 200 × 100 = 25%."
+        },
+        {
+            "title": "Pit Time Reduction",
+            "kind": "Percent Change",
+            "story": "A pit stop time improved from 4.0 seconds to 3.2 seconds.",
+            "old": 4.0, "new": 3.2,
+            "question": "What was the percent change?",
+            "answer": -20.0,
+            "direction": "decrease",
+            "hint1": "A faster pit stop means the time decreased.",
+            "hint2": "3.2 − 4.0 = −0.8; −0.8 ÷ 4.0 × 100 = −20%."
+        },
+        {
+            "title": "Merchandise Share",
+            "kind": "Percent Of",
+            "story": "A race-day shop makes $600. Twelve percent goes to a youth racing program.",
+            "percent": 12, "base": 600,
+            "question": "How much money goes to the youth program?",
+            "answer": 72.0,
+            "unit": "dollars",
+            "hint1": "Find 12% of 600.",
+            "hint2": "0.12 × 600 = 72."
+        },
+        {
+            "title": "Team Shirt Discount",
+            "kind": "Discount",
+            "story": "A team shirt costs $50 and is discounted by 30%.",
+            "percent": 30, "base": 50,
+            "question": "What is the sale price?",
+            "answer": 35.0,
+            "unit": "dollars",
+            "hint1": "Find 30% of 50 and subtract it.",
+            "hint2": "0.30 × 50 = 15; 50 − 15 = 35."
+        },
+    ],
+}
+
+def percent_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None):
+    st.markdown('<div class="step">7th Grade Math Lab · Percent & Percent Change</div>', unsafe_allow_html=True)
+    st.subheader("📈 Sports Percent Lab")
+    st.write(
+        "Work with percent, percent of a number, discounts, and percent change in sports situations."
+    )
+
+    if generated_sport and generated_title:
+        sport = generated_sport
+        matches = [c for c in PERCENT_CASES[sport] if c["title"] == generated_title]
+        if not matches:
+            st.error("The generated percent problem could not be found.")
+            return
+        case = matches[0]
+    else:
+        sports = list(PERCENT_CASES)
+        if sport_filter != "Any Sport":
+            sports = [sport_filter]
+        sport = st.selectbox("Sport", sports, key="pct_sport")
+        labels = {f"{c['kind']} · {c['title']}": c for c in PERCENT_CASES[sport]}
+        chosen = st.selectbox("Scenario", list(labels), key="pct_case")
+        case = labels[chosen]
+
+    case_id = clean_filename(f"{sport}_{case['title']}")
+    answer = float(case["answer"])
+
+    st.markdown(f"""
+    <div class="card">
+      <div class="step">{SPORT_ICONS.get(sport,'')} {sport} · {case['kind']}</div>
+      <h2>{case['title']}</h2>
+      <p><b>Situation:</b> {case['story']}</p>
+      <p><b>Question:</b> {case['question']}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("### Step 1 · Decide what matters")
+    if case["kind"] == "Percent":
+        prompt = "Which relationship should you use?"
+        options = [
+            "part ÷ whole × 100",
+            "whole ÷ part × 100",
+            "part + whole",
+            "whole − part"
+        ]
+        correct_option = "part ÷ whole × 100"
+    elif case["kind"] == "Percent Change":
+        prompt = "Which relationship should you use?"
+        options = [
+            "(new − old) ÷ old × 100",
+            "(old − new) ÷ new × 100",
+            "new ÷ old",
+            "old + new"
+        ]
+        correct_option = "(new − old) ÷ old × 100"
+    elif case["kind"] == "Percent Of":
+        prompt = "Which relationship should you use?"
+        options = [
+            "percent as a decimal × whole",
+            "whole ÷ percent",
+            "whole + percent",
+            "percent ÷ whole"
+        ]
+        correct_option = "percent as a decimal × whole"
+    else:
+        prompt = "Which plan makes sense?"
+        options = [
+            "find the discount, then subtract it from the original price",
+            "add the discount to the original price",
+            "divide the original price by the discount percent",
+            "use only the discount as the sale price"
+        ]
+        correct_option = "find the discount, then subtract it from the original price"
+
+    order_key = f"pct_model_order_{case_id}"
+    if order_key not in st.session_state:
+        shuffled = list(options)
+        random.shuffle(shuffled)
+        st.session_state[order_key] = shuffled
+
+    model = st.radio(prompt, st.session_state[order_key], key=f"pct_model_{case_id}")
+
+    if st.button("Check My Plan", key=f"pct_model_check_{case_id}", use_container_width=True):
+        if model == correct_option:
+            st.success("✅ Good plan.")
+        else:
+            st.info("Look at what the question is asking you to find and try again.")
+
+    st.markdown("### Step 2 · Calculate")
+    raw = st.text_input(
+        "Your answer",
+        key=f"pct_answer_{case_id}",
+        placeholder="Type your answer"
+    )
+    student = parse_student_number(raw)
+
+    attempts_key = f"pct_attempts_{case_id}"
+    if attempts_key not in st.session_state:
+        st.session_state[attempts_key] = 0
+
+    if st.button("Check My Answer", key=f"pct_answer_check_{case_id}", use_container_width=True):
+        tolerance = max(0.1, abs(answer) * 0.01)
+        if student is not None and math.isclose(student, answer, abs_tol=tolerance):
+            if case["kind"] == "Percent Change":
+                direction = "increase" if answer > 0 else "decrease" if answer < 0 else "no change"
+                st.success(f"✅ Correct — {abs(answer):.1f}% {direction}.")
+            elif case.get("unit") == "%":
+                st.success(f"✅ Correct — {answer:.1f}%.")
+            elif case.get("unit") == "dollars":
+                st.success(f"✅ Correct — ${answer:.2f}.")
+            else:
+                st.success(f"✅ Correct — {answer:.1f} {case.get('unit','')}.")
+            st.session_state[attempts_key] = 0
+        else:
+            st.session_state[attempts_key] += 1
+            if st.session_state[attempts_key] == 1:
+                st.info(case["hint1"])
+            else:
+                st.warning(case["hint2"])
+
+    if case["kind"] == "Percent Change":
+        st.markdown("### Step 3 · Increase or decrease?")
+        direction_choice = st.radio(
+            "How did the value change?",
+            ["Increase", "Decrease", "No Change"],
+            horizontal=True,
+            key=f"pct_direction_{case_id}"
+        )
+        if st.button("Check Direction", key=f"pct_direction_check_{case_id}", use_container_width=True):
+            expected = "Increase" if answer > 0 else "Decrease" if answer < 0 else "No Change"
+            if direction_choice == expected:
+                st.success("✅ Correct.")
+            else:
+                st.info("Look at whether the new value is larger or smaller than the old value.")
+
+    st.markdown("### Final · Explain what your answer means")
+    st.text_area(
+        "Explain the result in the context of the sports situation.",
+        key=f"pct_reasoning_{case_id}",
+        placeholder="Use the numbers and the situation in your explanation."
+    )
 # =========================================================
 # SPORTS MATH CHALLENGE — MULTI-SKILL HIGHER-LEVEL THINKING
 # =========================================================
@@ -4366,13 +4921,13 @@ if branch == "Teacher Assignment Builder":
 
     assignment_type = st.selectbox(
         "Assignment type",
-        ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Sports Math Challenge"],
+        ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Sports Math Challenge"],
         key="teacher_topic"
     )
     count = st.selectbox("Activities required", [1,2,3], key="teacher_count")
     sport_limit = st.selectbox("Allowed sport", ["Any Sport"] + list(RATE_CASES), key="teacher_sport")
 
-    if assignment_type in ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability"]:
+    if assignment_type in ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change"]:
         difficulty = st.selectbox("Difficulty", ["Guided","Independent"], key="teacher_difficulty")
         challenge_level = "Any Level"
     else:
@@ -4516,7 +5071,7 @@ if branch == "7th Grade Math Lab":
         with s1:
             config["topic"] = st.selectbox(
                 "Math topic",
-                ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability"],
+                ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change"],
                 key="math_topic_select"
             )
         with s2:
@@ -4576,6 +5131,17 @@ if branch == "7th Grade Math Lab":
                 "difficulty": config.get("difficulty", "Guided"),
                 "title": selected["title"],
             }
+        elif topic == "Percent & Percent Change":
+            options = PERCENT_CASES[actual_sport]
+            if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
+                options = [c for c in options if c["title"] != previous.get("title")] or options
+            selected = random.choice(options)
+            generated = {
+                "topic": topic,
+                "sport": actual_sport,
+                "difficulty": config.get("difficulty", "Guided"),
+                "title": selected["title"],
+            }
         else:
             athletes = list(RATE_CASES[actual_sport])
             if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
@@ -4595,7 +5161,9 @@ if branch == "7th Grade Math Lab":
             "eq_reasoning_", "eq_model_attempts_", "eq_answer_attempts_",
             "eq_model_order_", "eq_interpret_order_",
             "prob_ratio_", "prob_decimal_", "prob_percent_", "prob_prediction_",
-            "prob_reasoning_", "prob_ratio_attempts_"
+            "prob_reasoning_", "prob_ratio_attempts_",
+            "pct_model_", "pct_model_order_", "pct_answer_", "pct_attempts_",
+            "pct_direction_", "pct_reasoning_"
         )
         for key in list(st.session_state.keys()):
             if key.startswith(clear_prefixes):
@@ -4654,6 +5222,13 @@ if branch == "7th Grade Math Lab":
                 generated_sport=generated["sport"],
                 generated_title=generated["title"]
             )
+        elif generated["topic"] == "Percent & Percent Change":
+            percent_engine(
+                generated["sport"],
+                generated["difficulty"],
+                generated_sport=generated["sport"],
+                generated_title=generated["title"]
+            )
         else:
             ratios_rates_engine(
                 generated["sport"],
@@ -4665,7 +5240,7 @@ if branch == "7th Grade Math Lab":
         st.caption("No practice question has been generated yet.")
 
     st.markdown("---")
-    st.caption("7th Grade Math Lab · Ratios & Proportions · Equations & Inequalities · Probability")
+    st.caption("7th Grade Math Lab · Ratios & Proportions · Equations & Inequalities · Probability · Percent & Percent Change")
     st.stop()
 
 st.markdown("""
