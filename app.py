@@ -4,6 +4,7 @@ import json
 import math
 import random
 import copy
+import html
 from fractions import Fraction
 import uuid
 import base64
@@ -6291,6 +6292,315 @@ def make_dynamic_math_case(topic, sport, template, previous_case=None):
         return make_dynamic_geometry_case(sport, template, previous_case)
     return copy.deepcopy(template)
 
+
+def math_lab_case_id(generated):
+    title = generated.get("title") or generated.get("athlete") or "Math_Lab"
+    return clean_filename(f"{generated.get('sport','Sport')}_{title}")
+
+def math_lab_final_reasoning(generated):
+    """Read the final written response for the active Math Lab strand."""
+    topic = generated.get("topic")
+    cid = math_lab_case_id(generated)
+
+    if topic == "Ratios, Rates & Proportions":
+        return st.session_state.get("rate_explanation", "").strip()
+    if topic == "Equations & Inequalities":
+        return st.session_state.get(f"eq_reasoning_{cid}", "").strip()
+    if topic == "Probability":
+        return st.session_state.get(f"prob_reasoning_{cid}", "").strip()
+    if topic == "Percent & Percent Change":
+        return st.session_state.get(f"pct_reasoning_{cid}", "").strip()
+    if topic == "Rational Numbers":
+        return st.session_state.get(f"ratnum_reasoning_{cid}", "").strip()
+    if topic == "Geometry":
+        return st.session_state.get(f"geo_reasoning_{cid}", "").strip()
+    return ""
+
+def math_lab_answer_summary(generated):
+    """Collect visible student work for the receipt."""
+    topic = generated.get("topic")
+    case = generated.get("case", {})
+    cid = math_lab_case_id(generated)
+    rows = []
+
+    if topic == "Ratios, Rates & Proportions":
+        rows = [
+            ("Ratio", st.session_state.get("rate_ratio", "")),
+            ("Unit rate", st.session_state.get("rate_unit_answer", "")),
+            ("Proportion setup", st.session_state.get("rate_proportion_setup", "")),
+            ("Prediction", st.session_state.get("rate_projection", "")),
+            ("Proportional?", st.session_state.get("rate_proportional", "")),
+            ("Explanation", st.session_state.get("rate_explanation", "")),
+        ]
+    elif topic == "Equations & Inequalities":
+        rows = [
+            ("Meaning of x", st.session_state.get(f"eq_unknown_{cid}", "")),
+            ("Model", st.session_state.get(f"eq_model_{cid}", "")),
+            ("Solution", st.session_state.get(f"eq_answer_{cid}", "")),
+            ("Interpretation", st.session_state.get(f"eq_interpret_{cid}", "")),
+            ("Reasoning", st.session_state.get(f"eq_reasoning_{cid}", "")),
+        ]
+    elif topic == "Probability":
+        rows = [
+            ("Probability ratio/fraction", st.session_state.get(f"prob_ratio_{cid}", "")),
+            ("Decimal", st.session_state.get(f"prob_decimal_{cid}", "")),
+            ("Percent", st.session_state.get(f"prob_percent_{cid}", "")),
+            ("Prediction", st.session_state.get(f"prob_prediction_{cid}", "")),
+            ("Reasoning", st.session_state.get(f"prob_reasoning_{cid}", "")),
+        ]
+    elif topic == "Percent & Percent Change":
+        rows = [
+            ("Plan", st.session_state.get(f"pct_model_{cid}", "")),
+            ("Answer", st.session_state.get(f"pct_answer_{cid}", "")),
+            ("Direction", st.session_state.get(f"pct_direction_{cid}", "")),
+            ("Reasoning", st.session_state.get(f"pct_reasoning_{cid}", "")),
+        ]
+    elif topic == "Rational Numbers":
+        rows = [
+            ("Predicted sign", st.session_state.get(f"ratnum_sign_{cid}", "")),
+            ("Expression", st.session_state.get(f"ratnum_expr_{cid}", "")),
+            ("Answer", st.session_state.get(f"ratnum_answer_{cid}", "")),
+            ("Interpretation", st.session_state.get(f"ratnum_context_{cid}", "")),
+            ("Reasoning", st.session_state.get(f"ratnum_reasoning_{cid}", "")),
+        ]
+    elif topic == "Geometry":
+        rows = [
+            ("Plan", st.session_state.get(f"geo_plan_{cid}", "")),
+            ("Answer", st.session_state.get(f"geo_answer_{cid}", "")),
+            ("Unit", st.session_state.get(f"geo_unit_{cid}", "")),
+            ("Reasoning", st.session_state.get(f"geo_reasoning_{cid}", "")),
+        ]
+
+    return [(label, str(value)) for label, value in rows if str(value).strip()]
+
+def math_lab_core_answer_correct(generated):
+    """Check the main numerical work before allowing a completion receipt."""
+    topic = generated.get("topic")
+    case = generated.get("case", {})
+    cid = math_lab_case_id(generated)
+
+    try:
+        if topic == "Ratios, Rates & Proportions":
+            total = float(case["total"])
+            games = float(case["games"])
+            target = float(case["projection_games"])
+            rate = parse_student_number(st.session_state.get("rate_unit_answer", ""))
+            pred = parse_student_number(st.session_state.get("rate_projection", ""))
+            true_rate = total / games
+            true_pred = true_rate * target
+            return (
+                rate is not None
+                and math.isclose(rate, true_rate, abs_tol=rate_tolerance(true_rate))
+                and pred is not None
+                and math.isclose(pred, true_pred, abs_tol=max(0.5, abs(true_pred) * 0.02))
+            )
+
+        if topic == "Equations & Inequalities":
+            ans = parse_student_number(st.session_state.get(f"eq_answer_{cid}", ""))
+            return ans is not None and math.isclose(ans, float(case["answer"]), abs_tol=0.1)
+
+        if topic == "Probability":
+            dec = parse_student_number(st.session_state.get(f"prob_decimal_{cid}", ""))
+            pct = parse_student_number(st.session_state.get(f"prob_percent_{cid}", ""))
+            pred = parse_student_number(st.session_state.get(f"prob_prediction_{cid}", ""))
+            successes = float(case["successes"])
+            trials = float(case["trials"])
+            future = float(case["future"])
+            true_dec = successes / trials
+            true_pct = true_dec * 100
+            true_pred = true_dec * future
+            return (
+                dec is not None and math.isclose(dec, true_dec, abs_tol=0.01)
+                and pct is not None and math.isclose(pct, true_pct, abs_tol=0.5)
+                and pred is not None and math.isclose(pred, true_pred, abs_tol=max(0.5, abs(true_pred) * 0.02))
+            )
+
+        if topic == "Percent & Percent Change":
+            ans = parse_student_number(st.session_state.get(f"pct_answer_{cid}", ""))
+            correct = float(case["answer"])
+            return ans is not None and math.isclose(ans, correct, abs_tol=max(0.1, abs(correct) * 0.01))
+
+        if topic == "Rational Numbers":
+            ans = parse_student_number(st.session_state.get(f"ratnum_answer_{cid}", ""))
+            correct = float(case["answer"])
+            tol = 0.001 if abs(correct) < 1 else 0.05
+            return ans is not None and math.isclose(ans, correct, abs_tol=tol)
+
+        if topic == "Geometry":
+            ans = parse_student_number(st.session_state.get(f"geo_answer_{cid}", ""))
+            return ans is not None and math.isclose(
+                ans,
+                float(case["answer"]),
+                abs_tol=geometry_tolerance(case)
+            )
+    except Exception:
+        return False
+
+    return False
+
+def build_math_lab_receipt_pdf(student_name, class_period, generated, completion_id):
+    """Create a compact PDF completion receipt for any Math Lab strand."""
+    buffer = BytesIO()
+    generated_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        rightMargin=0.55*inch,
+        leftMargin=0.55*inch,
+        topMargin=0.55*inch,
+        bottomMargin=0.55*inch,
+    )
+
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        "MathLabReceiptTitle",
+        parent=styles["Title"],
+        alignment=TA_CENTER,
+        fontSize=18,
+        leading=21,
+        spaceAfter=8,
+        textColor=colors.HexColor("#0F2747"),
+    )
+    heading = ParagraphStyle(
+        "MathLabReceiptHeading",
+        parent=styles["Heading2"],
+        fontSize=12,
+        leading=14,
+        spaceBefore=8,
+        spaceAfter=4,
+        textColor=colors.HexColor("#173F73"),
+    )
+    body = ParagraphStyle(
+        "MathLabReceiptBody",
+        parent=styles["BodyText"],
+        fontSize=9.5,
+        leading=13,
+        spaceAfter=4,
+    )
+
+    topic = generated.get("topic", "")
+    sport = generated.get("sport", "")
+    title = generated.get("title") or generated.get("athlete") or "Generated Practice"
+    case = generated.get("case", {})
+    story = case.get("story", "")
+    question = case.get("question", "")
+
+    def p(text):
+        return Paragraph(html.escape(str(text)).replace("\n", "<br/>"), body)
+
+    elements = [
+        Paragraph("Sports by the Numbers · Math Lab Completion Receipt", title_style),
+        p(f"Student: {student_name}"),
+        p(f"Class Period: {class_period}"),
+        p(f"Topic: {topic}"),
+        p(f"Sport: {sport}"),
+        p(f"Scenario: {title}"),
+        p(f"Generated: {generated_time}"),
+        p(f"Completion ID: {completion_id}"),
+        Spacer(1, 8),
+        Paragraph("Problem", heading),
+        p(story),
+    ]
+
+    if question:
+        elements.append(p(question))
+
+    elements.append(Paragraph("Student Work", heading))
+    for label, value in math_lab_answer_summary(generated):
+        elements.append(p(f"{label}: {value}"))
+
+    elements.extend([
+        Paragraph("Completion Check", heading),
+        p("The main numerical answer(s) were checked by the app before this receipt was unlocked."),
+        p("Written reasoning was required for completion but was not automatically graded for quality."),
+    ])
+
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer.getvalue()
+
+def render_math_lab_submission(generated):
+    """Unified finish/submit flow for every Math Lab strand."""
+    if not generated:
+        return
+
+    st.markdown("---")
+    st.markdown("## 🏁 Finish & Submit")
+    st.write(
+        "When your work is complete, submit it here to unlock your completion receipt."
+    )
+
+    cid = math_lab_case_id(generated)
+    receipt_key = f"mathlab_submitted_{cid}_{generated.get('case',{}).get('dynamic_id','')}"
+    completion_key = f"mathlab_completion_{cid}_{generated.get('case',{}).get('dynamic_id','')}"
+
+    if st.button(
+        "✅ Submit My Math Lab Work",
+        key=f"mathlab_submit_button_{cid}_{generated.get('case',{}).get('dynamic_id','')}",
+        use_container_width=True,
+    ):
+        missing = []
+
+        student_name = st.session_state.get("math_student_name", "").strip()
+        class_period = st.session_state.get("math_class_period", "").strip()
+        reasoning = math_lab_final_reasoning(generated)
+
+        if not student_name:
+            missing.append("student name")
+        if not class_period:
+            missing.append("class period")
+        if not math_lab_core_answer_correct(generated):
+            missing.append("correct main calculation(s)")
+        if len(reasoning) < 15:
+            missing.append("final explanation/reasoning")
+
+        if missing:
+            st.session_state[receipt_key] = False
+            st.warning("Before submitting, complete: " + ", ".join(missing) + ".")
+        else:
+            if completion_key not in st.session_state:
+                st.session_state[completion_key] = uuid.uuid4().hex[:8].upper()
+            st.session_state[receipt_key] = True
+
+    if st.session_state.get(receipt_key, False):
+        completion_id = st.session_state.get(completion_key, "")
+        student_name = st.session_state.get("math_student_name", "").strip()
+        class_period = st.session_state.get("math_class_period", "").strip()
+
+        st.success(f"✅ Math Lab Complete · Completion ID: **{completion_id}**")
+        st.write("Download your PDF receipt and submit it using your teacher's normal class submission method.")
+
+        pdf_bytes = build_math_lab_receipt_pdf(
+            student_name,
+            class_period,
+            generated,
+            completion_id
+        )
+
+        title = generated.get("title") or generated.get("athlete") or "Math_Lab"
+        filename = (
+            f"Math_Lab_"
+            f"{clean_filename(student_name)}_"
+            f"{clean_filename(generated.get('topic','Topic'))}_"
+            f"{clean_filename(title)}_"
+            f"{completion_id}.pdf"
+        )
+
+        st.download_button(
+            "📄 Download My Math Lab Completion Receipt",
+            data=pdf_bytes,
+            file_name=filename,
+            mime="application/pdf",
+            key=f"mathlab_download_{completion_id}",
+            use_container_width=True,
+        )
+
+        st.caption(
+            "The receipt includes the generated problem, the student's entered work, "
+            "final reasoning, and a unique completion ID."
+        )
+
 if branch == "7th Grade Math Lab":
     st.markdown("""
     <div class="card">
@@ -6561,6 +6871,8 @@ if branch == "7th Grade Math Lab":
                 generated_athlete=generated["athlete"],
                 generated_case=generated.get("case")
             )
+
+        render_math_lab_submission(generated)
     else:
         st.caption("No practice question has been generated yet.")
 
