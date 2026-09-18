@@ -8803,27 +8803,255 @@ def diagnose_fraction_mistake(stage, case, value=None, choice=""):
     return "Fraction reasoning needs attention"
 
 
-def render_math_game_status(generated):
-    s = math_perf_summary(generated)
-    pts = s["game_points"]
-    if pts == 0:
-        label, msg = "🏟️ Pregame", "Make your first check to start building momentum."
-    elif pts <= 3:
-        label, msg = "🔥 Building Momentum", "You are on the board. Keep building the drive."
-    elif pts <= 6:
-        label, msg = "⚡ In the Zone", "Strong work — your math is creating scoring chances."
+def math_game_state(generated):
+    """Translate performance points into a sport-specific game progression."""
+    summary = math_perf_summary(generated)
+    pts = summary["game_points"]
+    sport = generated.get("sport", "NFL")
+
+    paths = {
+        "NFL": [
+            ("🏈", "Kickoff"),
+            ("➡️", "Drive Moving"),
+            ("🔴", "Red Zone"),
+            ("📍", "Goal Line"),
+            ("🏆", "Touchdown"),
+        ],
+        "NBA": [
+            ("🏀", "Tip-Off"),
+            ("➡️", "Half Court"),
+            ("💨", "Attack the Paint"),
+            ("🎯", "Open Look"),
+            ("🔥", "Bucket"),
+        ],
+        "MLB": [
+            ("⚾", "At Bat"),
+            ("1️⃣", "On Base"),
+            ("2️⃣", "Scoring Position"),
+            ("3️⃣", "Around Third"),
+            ("🏠", "Run Scored"),
+        ],
+        "NHL": [
+            ("🏒", "Faceoff"),
+            ("➡️", "Offensive Zone"),
+            ("🥅", "Shot Chance"),
+            ("⚡", "Breakaway"),
+            ("🚨", "Goal"),
+        ],
+        "Soccer": [
+            ("⚽", "Kickoff"),
+            ("➡️", "Build-Up"),
+            ("🎯", "Final Third"),
+            ("🥅", "Shot on Goal"),
+            ("🙌", "GOAL"),
+        ],
+        "Formula 1": [
+            ("🏎️", "Starting Grid"),
+            ("💨", "Clean Start"),
+            ("⬆️", "Points Position"),
+            ("🏁", "Podium Chase"),
+            ("🏆", "Checkered Flag"),
+        ],
+    }
+
+    stages = paths.get(sport, paths["NFL"])
+
+    # First-try success moves a student faster, but wrong answers never move backward.
+    if pts <= 0:
+        level = 0
+    elif pts <= 2:
+        level = 1
+    elif pts <= 5:
+        level = 2
+    elif pts <= 8:
+        level = 3
     else:
-        label, msg = "🏆 All-Star Run", "Excellent run. You are stacking strong decisions."
+        level = 4
+
+    events = summary.get("events", [])
+    if not events:
+        last_play = "Your next checked answer starts the game."
+    elif events[-1].get("correct"):
+        last_play = "✅ Positive play — your last checked step was correct."
+    else:
+        last_play = "🧠 Coach's timeout — use the feedback and try again. No points were lost."
+
+    return {
+        "sport": sport,
+        "stages": stages,
+        "level": level,
+        "points": pts,
+        "summary": summary,
+        "last_play": last_play,
+    }
+
+
+def render_math_game_status(generated, compact=False):
+    """Live sport-specific game board. It never changes the underlying math task."""
+    game = math_game_state(generated)
+    stages = game["stages"]
+    level = game["level"]
+    s = game["summary"]
+
+    stage_html = []
+    for i, (icon, label) in enumerate(stages):
+        if i < level:
+            state_class = "game-stage-complete"
+            marker = "✓"
+        elif i == level:
+            state_class = "game-stage-current"
+            marker = "●"
+        else:
+            state_class = "game-stage-future"
+            marker = "○"
+        stage_html.append(
+            f"""<div class="game-stage {state_class}">
+                <div class="game-icon">{icon}</div>
+                <div class="game-label">{html.escape(label)}</div>
+                <div class="game-marker">{marker}</div>
+            </div>"""
+        )
+
+    progress_pct = min(100, level * 25)
+    current_label = stages[level][1]
 
     st.markdown(
-        f"""<div class="card">
-        <div class="step">GAME DAY PERFORMANCE</div>
-        <h3>{label} · {pts} Performance Points</h3>
-        <p>{msg}</p>
-        <p><b>First-try solves:</b> {s['first_try']} &nbsp; · &nbsp; <b>Hints used:</b> {s['hints']}</p>
-        </div>""",
+        f"""
+        <style>
+        .game-board {{
+            background: linear-gradient(180deg, rgba(15,39,71,.98) 0%, rgba(11,29,54,.98) 100%);
+            border: 1px solid rgba(96,165,250,.45);
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin: 8px 0 18px 0;
+            box-shadow: 0 10px 24px rgba(0,0,0,.20);
+        }}
+        .game-head {{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:12px;
+            flex-wrap:wrap;
+            margin-bottom:12px;
+        }}
+        .game-title {{
+            font-weight:900;
+            font-size:1.05rem;
+            color:#ffffff;
+        }}
+        .game-score {{
+            font-weight:900;
+            color:#ffffff;
+            background:rgba(37,99,235,.85);
+            border:1px solid rgba(147,197,253,.75);
+            border-radius:999px;
+            padding:6px 11px;
+        }}
+        .game-stages {{
+            display:grid;
+            grid-template-columns:repeat(5, minmax(0,1fr));
+            gap:7px;
+            margin:8px 0 10px;
+        }}
+        .game-stage {{
+            text-align:center;
+            border-radius:12px;
+            padding:9px 5px 7px;
+            min-height:76px;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            align-items:center;
+        }}
+        .game-stage-complete {{
+            background:rgba(22,163,74,.18);
+            border:1px solid rgba(74,222,128,.55);
+        }}
+        .game-stage-current {{
+            background:rgba(37,99,235,.28);
+            border:2px solid rgba(96,165,250,.95);
+            transform:translateY(-2px);
+        }}
+        .game-stage-future {{
+            background:rgba(255,255,255,.045);
+            border:1px solid rgba(148,163,184,.22);
+            opacity:.72;
+        }}
+        .game-icon {{ font-size:1.35rem; line-height:1.2; }}
+        .game-label {{
+            color:#ffffff;
+            font-size:.78rem;
+            font-weight:800;
+            line-height:1.1;
+            margin-top:4px;
+        }}
+        .game-marker {{
+            color:#dbeafe;
+            font-size:.75rem;
+            margin-top:3px;
+        }}
+        .game-bar {{
+            height:9px;
+            background:rgba(255,255,255,.10);
+            border-radius:999px;
+            overflow:hidden;
+            margin:7px 0 10px;
+        }}
+        .game-bar-fill {{
+            height:100%;
+            width:{progress_pct}%;
+            background:linear-gradient(90deg,#2563eb,#22c55e);
+            border-radius:999px;
+        }}
+        .game-note {{
+            color:#dbeafe;
+            font-size:.9rem;
+            margin:.2rem 0;
+        }}
+        .game-small {{
+            color:#a8b3c7;
+            font-size:.8rem;
+            margin-top:5px;
+        }}
+        @media (max-width: 720px) {{
+            .game-stages {{
+                grid-template-columns:repeat(5, 1fr);
+                gap:4px;
+            }}
+            .game-stage {{
+                min-height:68px;
+                padding:7px 2px;
+            }}
+            .game-label {{
+                font-size:.64rem;
+            }}
+        }}
+        </style>
+
+        <div class="game-board">
+            <div class="game-head">
+                <div class="game-title">🎮 GAME MODE · {html.escape(game['sport'])}</div>
+                <div class="game-score">{game['points']} Performance Points</div>
+            </div>
+
+            <div class="game-stages">
+                {''.join(stage_html)}
+            </div>
+
+            <div class="game-bar"><div class="game-bar-fill"></div></div>
+
+            <div class="game-note"><b>Current position:</b> {html.escape(current_label)}</div>
+            <div class="game-note">{html.escape(game['last_play'])}</div>
+            <div class="game-small">
+                First-try solves: {s['first_try']} &nbsp; · &nbsp;
+                Hints used: {s['hints']} &nbsp; · &nbsp;
+                Wrong answers never subtract points.
+            </div>
+        </div>
+        """,
         unsafe_allow_html=True
     )
+
 
 def scouting_report_data(generated):
     s = math_perf_summary(generated)
@@ -8853,6 +9081,8 @@ def build_teacher_quick_report_pdf(player_name, student_name, class_period, gene
     body = ParagraphStyle("TeacherQuickBody", parent=styles["BodyText"], fontSize=9.5, leading=12.5, spaceAfter=3)
     report = scouting_report_data(generated)
     s = report["summary"]
+    game = math_game_state(generated)
+    game_stage = game["stages"][game["level"]][1]
 
     def p(v):
         return Paragraph(html.escape(str(v)).replace("\n","<br/>"), body)
@@ -8875,6 +9105,7 @@ def build_teacher_quick_report_pdf(player_name, student_name, class_period, gene
         p(f"First-try solves: {s['first_try']}"),
         p(f"Hints used: {s['hints']}"),
         p(f"Performance points: {s['game_points']}"),
+        p(f"Game finish: {game['sport']} · {game_stage}"),
         p(f"Most common mistake: {report['common']}"),
         Paragraph("Strengths", heading),
         p(", ".join(report["strengths"])),
@@ -9232,8 +9463,6 @@ def render_math_lab_submission(generated):
     if not generated:
         return
 
-    render_math_game_status(generated)
-
     st.markdown("---")
     st.markdown("## 🏁 Finish & Submit")
     st.write(
@@ -9308,6 +9537,8 @@ def render_math_lab_submission(generated):
 
         report = scouting_report_data(generated)
         perf_summary = report["summary"]
+        final_game = math_game_state(generated)
+        final_stage = final_game["stages"][final_game["level"]][1]
 
         st.markdown("## 🧢 Postgame Scouting Report")
         c1, c2, c3 = st.columns(3)
@@ -9322,6 +9553,7 @@ def render_math_lab_submission(generated):
             f"""<div class="card">
             <div class="step">PLAYER DEVELOPMENT{(" · " + html.escape(player_name)) if player_name else ""}</div>
             <p><b>Student:</b> {html.escape(student_name)} · <b>Period:</b> {html.escape(class_period)}</p>
+            <p><b>Game Finish:</b> {html.escape(final_game["sport"])} · {html.escape(final_stage)} · {final_game["points"]} Performance Points</p>
             <p><b>Strengths:</b> {html.escape(", ".join(report["strengths"]))}</p>
             <p><b>Work On:</b> {html.escape(", ".join(report["work_on"]))}</p>
             <p><b>Most Common Mistake:</b> {html.escape(report["common"])}</p>
@@ -9667,6 +9899,7 @@ if branch == "7th Grade Math Lab":
     if generated:
         st.markdown("---")
         st.markdown("### 3 · Work the generated question")
+        render_math_game_status(generated)
         if generated["topic"] == "Equations & Inequalities":
             equations_inequalities_engine(
                 generated["sport"],
