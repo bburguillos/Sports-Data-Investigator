@@ -4462,6 +4462,242 @@ def geometry_engine(sport_filter="Any Sport", difficulty="Guided", generated_spo
         key=f"geo_reasoning_{case_id}",
         placeholder="Explain your geometry thinking in your own words."
     )
+
+# =========================================================
+# 7TH GRADE MATH LAB — STATISTICS & SAMPLING
+# =========================================================
+STATISTICS_CASES = {
+    "NFL": [
+        {"title":"Fan Survey Sample","kind":"Sampling","mode":"sample","story":"A team surveys 24 randomly selected fans, and 15 say defense is the team's biggest strength.","sample":24,"success":15,"population":240,"question":"About how many fans in a group of 240 would you predict would give the same answer?"},
+        {"title":"Biased Survey","kind":"Sampling Bias","mode":"bias","story":"A football team asks only members of its official fan club whether the team has the best offense in the league.","correct":"Biased","question":"Is this sample likely representative or biased?"},
+        {"title":"Two Game Samples","kind":"Compare Samples","mode":"compare_means","a":[24,27,21,30,28],"b":[18,22,20,19,21],"question":"Which sample has the higher mean scoring total?"},
+        {"title":"Consistency Check","kind":"Spread","mode":"range","a":[17,20,21,19,23],"b":[10,18,24,28,20],"question":"Which sample is more consistent based on range?"},
+        {"title":"Season Claim","kind":"Claim Check","mode":"claim","story":"A player scored 100+ rushing yards in 4 of 5 sampled games.","sample":5,"success":4,"question":"Does this sample support the claim that the player usually reaches 100 rushing yards?"},
+        {"title":"Random Sample Method","kind":"Sampling Method","mode":"method","story":"A coach wants a fair sample of students' favorite NFL teams.","correct":"Randomly select students from the full class list","question":"Which method would be most representative?"}
+    ],
+    "NBA": [
+        {"title":"Favorite Player Survey","kind":"Sampling","mode":"sample","story":"A school surveys 30 randomly selected students, and 18 choose the same favorite NBA player.","sample":30,"success":18,"population":300,"question":"About how many of 300 students would you predict would choose that player?"},
+        {"title":"Student Section Bias","kind":"Sampling Bias","mode":"bias","story":"A basketball team asks only students sitting in the home student section whether home games are exciting.","correct":"Biased","question":"Is this sample likely representative or biased?"},
+        {"title":"Scoring Samples","kind":"Compare Samples","mode":"compare_means","a":[22,24,28,25,26],"b":[18,21,20,23,19],"question":"Which sample has the higher mean scoring total?"},
+        {"title":"Scoring Consistency","kind":"Spread","mode":"range","a":[19,20,21,20,20],"b":[12,18,24,28,18],"question":"Which player is more consistent based on range?"},
+        {"title":"Three-Point Claim","kind":"Claim Check","mode":"claim","story":"A player made at least 3 three-pointers in 8 of 10 sampled games.","sample":10,"success":8,"question":"Does this sample support the claim that the player usually makes at least 3 threes?"},
+        {"title":"Fair Survey Method","kind":"Sampling Method","mode":"method","story":"A teacher wants a fair sample of students' favorite NBA teams.","correct":"Randomly select students from the entire grade","question":"Which method would be most representative?"}
+    ],
+    "MLB": [
+        {"title":"Ballpark Food Survey","kind":"Sampling","mode":"sample","story":"A team surveys 20 randomly selected fans, and 13 prefer hot dogs over pizza.","sample":20,"success":13,"population":200,"question":"About how many of 200 fans would you predict would prefer hot dogs?"},
+        {"title":"Season Ticket Bias","kind":"Sampling Bias","mode":"bias","story":"A baseball team surveys only season-ticket holders about whether ticket prices are affordable.","correct":"Biased","question":"Is this sample likely representative or biased?"},
+        {"title":"Hit Samples","kind":"Compare Samples","mode":"compare_means","a":[2,1,3,2,2],"b":[1,0,2,1,1],"question":"Which sample has the higher mean hits per game?"},
+        {"title":"Pitching Consistency","kind":"Spread","mode":"range","a":[5,6,5,7,6],"b":[2,5,8,9,4],"question":"Which pitcher is more consistent based on range?"},
+        {"title":"Hit Claim","kind":"Claim Check","mode":"claim","story":"A hitter recorded at least one hit in 9 of 12 sampled games.","sample":12,"success":9,"question":"Does this sample support the claim that the hitter usually gets a hit?"},
+        {"title":"Fair Fan Sample","kind":"Sampling Method","mode":"method","story":"A team wants a fair sample of fans entering the stadium.","correct":"Select every 20th fan entering through several gates","question":"Which method would be most representative?"}
+    ],
+    "NHL": [
+        {"title":"Favorite Jersey Survey","kind":"Sampling","mode":"sample","story":"A team surveys 25 randomly selected fans, and 16 prefer the alternate jersey.","sample":25,"success":16,"population":250,"question":"About how many of 250 fans would you predict would prefer it?"},
+        {"title":"Supporters Club Bias","kind":"Sampling Bias","mode":"bias","story":"A hockey team asks only members of its supporters club whether the arena atmosphere is excellent.","correct":"Biased","question":"Is this sample likely representative or biased?"},
+        {"title":"Goal Samples","kind":"Compare Samples","mode":"compare_means","a":[3,4,2,5,3],"b":[1,2,2,3,2],"question":"Which sample has the higher mean goals?"},
+        {"title":"Save Consistency","kind":"Spread","mode":"range","a":[28,30,29,31,30],"b":[20,25,34,36,24],"question":"Which goalie is more consistent based on range?"},
+        {"title":"Save Claim","kind":"Claim Check","mode":"claim","story":"A goalie saved at least 90% of shots in 7 of 9 sampled games.","sample":9,"success":7,"question":"Does this sample support the claim that the goalie usually reaches a .900 save rate?"},
+        {"title":"Fair Arena Sample","kind":"Sampling Method","mode":"method","story":"A team wants to know what all arena visitors think about concessions.","correct":"Randomly survey fans from different sections and price levels","question":"Which method would be most representative?"}
+    ],
+    "Soccer": [
+        {"title":"Favorite Formation Survey","kind":"Sampling","mode":"sample","story":"A club surveys 40 randomly selected fans, and 26 prefer a 4-3-3 formation.","sample":40,"success":26,"population":400,"question":"About how many of 400 fans would you predict would prefer it?"},
+        {"title":"Supporters Group Bias","kind":"Sampling Bias","mode":"bias","story":"A soccer club asks only members of one supporters group whether that group creates the best atmosphere.","correct":"Biased","question":"Is this sample likely representative or biased?"},
+        {"title":"Goal Samples","kind":"Compare Samples","mode":"compare_means","a":[2,3,1,4,2],"b":[1,1,2,2,1],"question":"Which sample has the higher mean goals?"},
+        {"title":"Passing Consistency","kind":"Spread","mode":"range","a":[78,80,81,79,82],"b":[65,72,84,89,70],"question":"Which player is more consistent based on range?"},
+        {"title":"Scoring Claim","kind":"Claim Check","mode":"claim","story":"A forward scored in 6 of 8 sampled matches.","sample":8,"success":6,"question":"Does this sample support the claim that the forward usually scores?"},
+        {"title":"Fair Fan Sample","kind":"Sampling Method","mode":"method","story":"A club wants a fair sample of opinions from match-going fans.","correct":"Randomly select fans from multiple seating areas","question":"Which method would be most representative?"}
+    ],
+    "Formula 1": [
+        {"title":"Favorite Driver Survey","kind":"Sampling","mode":"sample","story":"A race event surveys 30 randomly selected fans, and 21 choose the same favorite driver.","sample":30,"success":21,"population":300,"question":"About how many of 300 fans would you predict would choose that driver?"},
+        {"title":"Team Fan Bias","kind":"Sampling Bias","mode":"bias","story":"A racing team asks only visitors to its own merchandise booth whether it is the most popular team.","correct":"Biased","question":"Is this sample likely representative or biased?"},
+        {"title":"Points Samples","kind":"Compare Samples","mode":"compare_means","a":[18,22,20,25,21],"b":[12,16,15,17,14],"question":"Which sample has the higher mean points?"},
+        {"title":"Lap Time Consistency","kind":"Spread","mode":"range","a":[91.2,91.5,91.3,91.4,91.2],"b":[90.8,91.1,92.0,92.4,91.0],"question":"Which driver is more consistent based on range?"},
+        {"title":"Top-10 Claim","kind":"Claim Check","mode":"claim","story":"A driver finished in the top 10 in 9 of 12 sampled races.","sample":12,"success":9,"question":"Does this sample support the claim that the driver usually finishes in the top 10?"},
+        {"title":"Fair Grandstand Sample","kind":"Sampling Method","mode":"method","story":"An event organizer wants a fair sample of spectators' opinions.","correct":"Randomly survey spectators from several grandstands and ticket levels","question":"Which method would be most representative?"}
+    ],
+}
+
+def make_dynamic_statistics_case(sport, template, previous=None):
+    case = copy.deepcopy(template)
+    mode = case["mode"]
+
+    if mode == "sample":
+        sample = random.choice([20,24,25,30,32,40,50])
+        ratio = random.choice([0.4,0.5,0.6,0.65,0.7,0.75,0.8])
+        success = max(1, round(sample*ratio))
+        population = sample * random.choice([5,8,10,12])
+        case["sample"] = sample
+        case["success"] = success
+        case["population"] = population
+        case["story"] = f"In a random {sport} survey, {success} of {sample} people chose the same response."
+        case["question"] = f"About how many people in a group of {population} would you predict would give that response?"
+        case["answer"] = (success/sample)*population
+    elif mode == "compare_means":
+        base_a = random.randint(12,30)
+        base_b = random.randint(8,25)
+        while abs(base_a-base_b) < 4:
+            base_b = random.randint(8,25)
+        a = [base_a + random.randint(-3,3) for _ in range(5)]
+        b = [base_b + random.randint(-3,3) for _ in range(5)]
+        case["a"] = a
+        case["b"] = b
+    elif mode == "range":
+        center = random.randint(15,35)
+        a = [center-1, center, center+1, center, center+2]
+        b = [center-random.randint(5,10), center-2, center+3, center+random.randint(6,12), center]
+        random.shuffle(a); random.shuffle(b)
+        case["a"] = a
+        case["b"] = b
+    elif mode == "claim":
+        sample = random.choice([8,10,12,15,20])
+        success = random.randint(max(1, sample//2), sample)
+        case["sample"] = sample
+        case["success"] = success
+        case["story"] = f"In a random sample of {sample} {sport} events, the condition happened {success} times."
+    case["dynamic_id"] = f"{mode}|{case.get('sample')}|{case.get('success')}|{case.get('a')}|{case.get('b')}"
+    return case
+
+def statistics_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None, generated_case=None):
+    st.markdown('<div class="step">7th Grade Math Lab · Statistics & Sampling</div>', unsafe_allow_html=True)
+    st.subheader("📊 Sports Statistics & Sampling Lab")
+    st.write("Use samples, averages, spread, and sampling methods to decide what the data can reasonably tell you.")
+
+    if generated_case is not None and generated_sport:
+        sport = generated_sport
+        case = generated_case
+    else:
+        sports = list(STATISTICS_CASES)
+        if sport_filter != "Any Sport":
+            sports = [sport_filter]
+        sport = st.selectbox("Sport", sports, key="stats_sport")
+        labels = {f"{c['kind']} · {c['title']}": c for c in STATISTICS_CASES[sport]}
+        selected = st.selectbox("Scenario", list(labels), key="stats_case")
+        case = labels[selected]
+
+    cid = clean_filename(f"{sport}_{case['title']}")
+    mode = case["mode"]
+
+    st.markdown(f"""
+    <div class="card">
+      <div class="step">{SPORT_ICONS.get(sport,'')} {sport} · {case['kind']}</div>
+      <h2>{case['title']}</h2>
+      <p><b>Situation:</b> {case.get('story','')}</p>
+      <p><b>Question:</b> {case['question']}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if mode == "sample":
+        st.markdown("### Step 1 · Find the sample proportion")
+        ratio_raw = st.text_input("Sample proportion or percent", key=f"stats_ratio_{cid}", placeholder="Example: 0.6 or 60")
+        ratio_ans = parse_student_number(ratio_raw)
+        true_prop = case["success"]/case["sample"]
+
+        if st.button("Check Sample Proportion", key=f"stats_ratio_check_{cid}", use_container_width=True):
+            ok = False
+            if ratio_ans is not None:
+                ok = math.isclose(ratio_ans, true_prop, abs_tol=0.01) or math.isclose(ratio_ans, true_prop*100, abs_tol=0.5)
+            if ok:
+                st.success(f"✅ Correct — about {true_prop:.2f}, or {true_prop*100:.1f}%.")
+            else:
+                st.info("Divide the number with the response by the sample size.")
+
+        st.markdown("### Step 2 · Predict the larger population")
+        pred_raw = st.text_input("Predicted number", key=f"stats_answer_{cid}", placeholder="Type your answer")
+        pred = parse_student_number(pred_raw)
+        true_pred = true_prop*case["population"]
+        if st.button("Check My Prediction", key=f"stats_answer_check_{cid}", use_container_width=True):
+            if pred is not None and math.isclose(pred,true_pred,abs_tol=max(1,0.03*true_pred)):
+                st.success(f"✅ Reasonable prediction — about {true_pred:.0f}.")
+            else:
+                st.info("Use the sample proportion and apply it to the larger population.")
+
+    elif mode == "bias":
+        st.markdown("### Step 1 · Judge the sample")
+        opts = ["Representative","Biased","Not enough information"]
+        order_key=f"stats_bias_order_{cid}"
+        if order_key not in st.session_state:
+            vals=list(opts); random.shuffle(vals); st.session_state[order_key]=vals
+        choice=st.radio("How would you classify the sample?",st.session_state[order_key],key=f"stats_bias_{cid}")
+        if st.button("Check My Choice",key=f"stats_bias_check_{cid}",use_container_width=True):
+            if choice==case["correct"]:
+                st.success("✅ Correct.")
+            else:
+                st.info("Ask whether everyone in the population had a fair chance to be selected.")
+
+    elif mode == "compare_means":
+        st.markdown("### Step 1 · Compare two samples")
+        st.write(f"**Sample A:** {case['a']}")
+        st.write(f"**Sample B:** {case['b']}")
+        mean_a=sum(case["a"])/len(case["a"]); mean_b=sum(case["b"])/len(case["b"])
+        ans_a=st.text_input("Mean of Sample A",key=f"stats_mean_a_{cid}",placeholder="Type your answer")
+        ans_b=st.text_input("Mean of Sample B",key=f"stats_mean_b_{cid}",placeholder="Type your answer")
+        a_num=parse_student_number(ans_a); b_num=parse_student_number(ans_b)
+        if st.button("Check Means",key=f"stats_means_check_{cid}",use_container_width=True):
+            if a_num is not None and b_num is not None and math.isclose(a_num,mean_a,abs_tol=.1) and math.isclose(b_num,mean_b,abs_tol=.1):
+                st.success("✅ Both means are correct.")
+            else:
+                st.info("Add each sample and divide by the number of values.")
+        higher="A" if mean_a>mean_b else "B" if mean_b>mean_a else "Same"
+        comp=st.radio("Which sample has the higher mean?",["A","B","Same"],horizontal=True,key=f"stats_compare_{cid}")
+        if st.button("Check Comparison",key=f"stats_compare_check_{cid}",use_container_width=True):
+            if comp==higher: st.success("✅ Correct.")
+            else: st.info("Compare the two means you calculated.")
+
+    elif mode == "range":
+        st.markdown("### Step 1 · Compare spread")
+        st.write(f"**Sample A:** {case['a']}")
+        st.write(f"**Sample B:** {case['b']}")
+        range_a=max(case["a"])-min(case["a"]); range_b=max(case["b"])-min(case["b"])
+        ra=st.text_input("Range of Sample A",key=f"stats_range_a_{cid}",placeholder="Type your answer")
+        rb=st.text_input("Range of Sample B",key=f"stats_range_b_{cid}",placeholder="Type your answer")
+        ra_num=parse_student_number(ra); rb_num=parse_student_number(rb)
+        if st.button("Check Ranges",key=f"stats_ranges_check_{cid}",use_container_width=True):
+            if ra_num is not None and rb_num is not None and math.isclose(ra_num,range_a,abs_tol=.1) and math.isclose(rb_num,range_b,abs_tol=.1):
+                st.success("✅ Both ranges are correct.")
+            else:
+                st.info("Range = maximum − minimum.")
+        consistent="A" if range_a<range_b else "B" if range_b<range_a else "Same"
+        comp=st.radio("Which sample is more consistent?",["A","B","Same"],horizontal=True,key=f"stats_consistent_{cid}")
+        if st.button("Check Consistency",key=f"stats_consistent_check_{cid}",use_container_width=True):
+            if comp==consistent: st.success("✅ Correct — smaller range means less spread.")
+            else: st.info("The smaller range indicates more consistency.")
+
+    elif mode == "claim":
+        st.markdown("### Step 1 · Evaluate the claim")
+        pct=case["success"]/case["sample"]
+        answer=st.radio("What is the best conclusion?",[
+            "The sample supports the claim, but it does not prove it for every event.",
+            "The sample proves the claim will always be true.",
+            "The sample tells us nothing at all."
+        ],key=f"stats_claim_{cid}")
+        if st.button("Check Claim",key=f"stats_claim_check_{cid}",use_container_width=True):
+            if answer.startswith("The sample supports"):
+                st.success(f"✅ Good reasoning. The condition occurred in about {pct*100:.1f}% of the sample.")
+            else:
+                st.info("A sample can provide evidence, but it does not guarantee every future result.")
+
+    elif mode == "method":
+        st.markdown("### Step 1 · Choose a sampling method")
+        distractors=[
+            case["correct"],
+            "Ask only the easiest people to reach",
+            "Ask only people who already agree",
+            "Let volunteers decide whether to participate"
+        ]
+        order_key=f"stats_method_order_{cid}"
+        if order_key not in st.session_state:
+            vals=list(dict.fromkeys(distractors)); random.shuffle(vals); st.session_state[order_key]=vals
+        choice=st.radio("Which method is best?",st.session_state[order_key],key=f"stats_method_{cid}")
+        if st.button("Check Sampling Method",key=f"stats_method_check_{cid}",use_container_width=True):
+            if choice==case["correct"]: st.success("✅ Correct.")
+            else: st.info("A representative sample should give the full population a fair chance to be included.")
+
+    st.markdown("### Final · Explain your reasoning")
+    st.text_area(
+        "Explain what the sample or statistics tell you — and what they do not guarantee.",
+        key=f"stats_reasoning_{cid}",
+        placeholder="Use the data in your explanation."
+    )
 # =========================================================
 # SPORTS MATH CHALLENGE — MULTI-SKILL HIGHER-LEVEL THINKING
 # =========================================================
@@ -5779,13 +6015,13 @@ if branch == "Teacher Assignment Builder":
 
     assignment_type = st.selectbox(
         "Assignment type",
-        ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Sports Math Challenge"],
+        ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Statistics & Sampling", "Sports Math Challenge"],
         key="teacher_topic"
     )
     count = st.selectbox("Activities required", [1,2,3], key="teacher_count")
     sport_limit = st.selectbox("Allowed sport", ["Any Sport"] + list(RATE_CASES), key="teacher_sport")
 
-    if assignment_type in ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry"]:
+    if assignment_type in ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Statistics & Sampling"]:
         difficulty = st.selectbox("Difficulty", ["Guided","Independent"], key="teacher_difficulty")
         challenge_level = "Any Level"
     else:
@@ -6290,6 +6526,8 @@ def make_dynamic_math_case(topic, sport, template, previous_case=None):
         return make_dynamic_rational_case(sport, template, previous_case)
     if topic == "Geometry":
         return make_dynamic_geometry_case(sport, template, previous_case)
+    if topic == "Statistics & Sampling":
+        return make_dynamic_statistics_case(sport, template, previous_case)
     return copy.deepcopy(template)
 
 
@@ -6314,6 +6552,8 @@ def math_lab_final_reasoning(generated):
         return st.session_state.get(f"ratnum_reasoning_{cid}", "").strip()
     if topic == "Geometry":
         return st.session_state.get(f"geo_reasoning_{cid}", "").strip()
+    if topic == "Statistics & Sampling":
+        return st.session_state.get(f"stats_reasoning_{cid}", "").strip()
     return ""
 
 def math_lab_answer_summary(generated):
@@ -6369,6 +6609,21 @@ def math_lab_answer_summary(generated):
             ("Answer", st.session_state.get(f"geo_answer_{cid}", "")),
             ("Unit", st.session_state.get(f"geo_unit_{cid}", "")),
             ("Reasoning", st.session_state.get(f"geo_reasoning_{cid}", "")),
+        ]
+    elif topic == "Statistics & Sampling":
+        rows = [
+            ("Sample proportion", st.session_state.get(f"stats_ratio_{cid}", "")),
+            ("Prediction", st.session_state.get(f"stats_answer_{cid}", "")),
+            ("Bias judgment", st.session_state.get(f"stats_bias_{cid}", "")),
+            ("Mean A", st.session_state.get(f"stats_mean_a_{cid}", "")),
+            ("Mean B", st.session_state.get(f"stats_mean_b_{cid}", "")),
+            ("Mean comparison", st.session_state.get(f"stats_compare_{cid}", "")),
+            ("Range A", st.session_state.get(f"stats_range_a_{cid}", "")),
+            ("Range B", st.session_state.get(f"stats_range_b_{cid}", "")),
+            ("Consistency", st.session_state.get(f"stats_consistent_{cid}", "")),
+            ("Claim conclusion", st.session_state.get(f"stats_claim_{cid}", "")),
+            ("Sampling method", st.session_state.get(f"stats_method_{cid}", "")),
+            ("Reasoning", st.session_state.get(f"stats_reasoning_{cid}", "")),
         ]
 
     return [(label, str(value)) for label, value in rows if str(value).strip()]
@@ -6433,6 +6688,32 @@ def math_lab_core_answer_correct(generated):
                 float(case["answer"]),
                 abs_tol=geometry_tolerance(case)
             )
+
+        if topic == "Statistics & Sampling":
+            mode = case.get("mode")
+            if mode == "sample":
+                ans = parse_student_number(st.session_state.get(f"stats_answer_{cid}", ""))
+                true_pred = (case["success"]/case["sample"])*case["population"]
+                return ans is not None and math.isclose(ans,true_pred,abs_tol=max(1,0.03*true_pred))
+            if mode == "bias":
+                return st.session_state.get(f"stats_bias_{cid}") == case.get("correct")
+            if mode == "compare_means":
+                a = parse_student_number(st.session_state.get(f"stats_mean_a_{cid}", ""))
+                b = parse_student_number(st.session_state.get(f"stats_mean_b_{cid}", ""))
+                ma=sum(case["a"])/len(case["a"]); mb=sum(case["b"])/len(case["b"])
+                higher="A" if ma>mb else "B" if mb>ma else "Same"
+                return a is not None and b is not None and math.isclose(a,ma,abs_tol=.1) and math.isclose(b,mb,abs_tol=.1) and st.session_state.get(f"stats_compare_{cid}")==higher
+            if mode == "range":
+                a = parse_student_number(st.session_state.get(f"stats_range_a_{cid}", ""))
+                b = parse_student_number(st.session_state.get(f"stats_range_b_{cid}", ""))
+                ra=max(case["a"])-min(case["a"]); rb=max(case["b"])-min(case["b"])
+                consistent="A" if ra<rb else "B" if rb<ra else "Same"
+                return a is not None and b is not None and math.isclose(a,ra,abs_tol=.1) and math.isclose(b,rb,abs_tol=.1) and st.session_state.get(f"stats_consistent_{cid}")==consistent
+            if mode == "claim":
+                return str(st.session_state.get(f"stats_claim_{cid}","")).startswith("The sample supports")
+            if mode == "method":
+                return st.session_state.get(f"stats_method_{cid}")==case.get("correct")
+            return False
     except Exception:
         return False
 
@@ -6655,7 +6936,7 @@ if branch == "7th Grade Math Lab":
         with s1:
             config["topic"] = st.selectbox(
                 "Math topic",
-                ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry"],
+                ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Statistics & Sampling"],
                 key="math_topic_select"
             )
         with s2:
@@ -6750,6 +7031,17 @@ if branch == "7th Grade Math Lab":
                 "difficulty": config.get("difficulty", "Guided"),
                 "title": template["title"], "case": fresh_case
             }
+        elif topic == "Statistics & Sampling":
+            options = STATISTICS_CASES[actual_sport]
+            previous_title = previous.get("title") if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport else None
+            choices = [c for c in options if c["title"] != previous_title] or options
+            template = random.choice(choices)
+            fresh_case = make_dynamic_math_case(topic, actual_sport, template, previous_case)
+            generated = {
+                "topic": topic, "sport": actual_sport,
+                "difficulty": config.get("difficulty", "Guided"),
+                "title": template["title"], "case": fresh_case
+            }
         else:
             labels = list(RATE_CASES[actual_sport])
             previous_label = previous.get("athlete") if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport else None
@@ -6777,7 +7069,11 @@ if branch == "7th Grade Math Lab":
             "ratnum_answer_", "ratnum_attempts_", "ratnum_context_", "ratnum_context_order_",
             "ratnum_reasoning_",
             "geo_plan_", "geo_plan_order_", "geo_answer_", "geo_attempts_",
-            "geo_unit_", "geo_unit_order_", "geo_reasoning_"
+            "geo_unit_", "geo_unit_order_", "geo_reasoning_",
+            "stats_ratio_", "stats_answer_", "stats_bias_", "stats_bias_order_",
+            "stats_mean_a_", "stats_mean_b_", "stats_compare_", "stats_range_a_",
+            "stats_range_b_", "stats_consistent_", "stats_claim_", "stats_method_",
+            "stats_method_order_", "stats_reasoning_"
         )
         for key in list(st.session_state.keys()):
             if key.startswith(clear_prefixes):
@@ -6863,6 +7159,14 @@ if branch == "7th Grade Math Lab":
                 generated_title=generated["title"],
                 generated_case=generated.get("case")
             )
+        elif generated["topic"] == "Statistics & Sampling":
+            statistics_engine(
+                generated["sport"],
+                generated["difficulty"],
+                generated_sport=generated["sport"],
+                generated_title=generated["title"],
+                generated_case=generated.get("case")
+            )
         else:
             ratios_rates_engine(
                 generated["sport"],
@@ -6877,7 +7181,7 @@ if branch == "7th Grade Math Lab":
         st.caption("No practice question has been generated yet.")
 
     st.markdown("---")
-    st.caption("7th Grade Math Lab · Ratios & Proportions · Equations & Inequalities · Probability · Percent & Percent Change · Rational Numbers · Geometry")
+    st.caption("7th Grade Math Lab · Ratios & Proportions · Equations & Inequalities · Probability · Percent & Percent Change · Rational Numbers · Geometry · Statistics & Sampling")
     st.stop()
 
 st.markdown("""
