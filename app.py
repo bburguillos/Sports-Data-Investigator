@@ -8804,7 +8804,13 @@ def diagnose_fraction_mistake(stage, case, value=None, choice=""):
 
 
 def math_game_state(generated):
-    """Translate performance points into a sport-specific game progression."""
+    """Translate performance into a sport-specific progression.
+
+    During work, students move forward based on Performance Points.
+    Once a fully correct Math Lab problem is successfully submitted,
+    the game ALWAYS reaches the final scoring stage. Mistakes affect
+    the performance description, not whether the student scores.
+    """
     summary = math_perf_summary(generated)
     pts = summary["game_points"]
     sport = generated.get("sport", "NFL")
@@ -8856,7 +8862,10 @@ def math_game_state(generated):
 
     stages = paths.get(sport, paths["NFL"])
 
-    # First-try success moves a student faster, but wrong answers never move backward.
+    perf_record = math_perf_store().get(math_perf_key(generated), {})
+    submitted = bool(perf_record.get("submitted"))
+
+    # While working, Performance Points move the student through the game.
     if pts <= 0:
         level = 0
     elif pts <= 2:
@@ -8868,13 +8877,36 @@ def math_game_state(generated):
     else:
         level = 4
 
+    # Successful submission means the student completed the entire math task,
+    # so the sports sequence should always end with a score/finish.
+    if submitted:
+        level = len(stages) - 1
+
     events = summary.get("events", [])
-    if not events:
-        last_play = "Your next checked answer starts the game."
-    elif events[-1].get("correct"):
-        last_play = "✅ Positive play — your last checked step was correct."
+
+    if submitted:
+        solved = max(1, summary.get("solved_skills", 0))
+        first_try = summary.get("first_try", 0)
+        hints = summary.get("hints", 0)
+        incorrect = summary.get("incorrect_checks", 0)
+
+        if incorrect == 0 and hints == 0 and first_try >= solved:
+            performance_label = "Clutch Performance"
+            last_play = "🏆 Complete! You finished the problem cleanly and scored."
+        elif incorrect <= 2 and hints <= 2:
+            performance_label = "Strong Comeback"
+            last_play = "🏆 Complete! You made adjustments, finished correctly, and scored."
+        else:
+            performance_label = "Battled Through It"
+            last_play = "🏆 Complete! You used feedback, kept working, and finished the problem correctly."
     else:
-        last_play = "🧠 Coach's timeout — use the feedback and try again. No points were lost."
+        performance_label = "In Progress"
+        if not events:
+            last_play = "Your next checked answer starts the game."
+        elif events[-1].get("correct"):
+            last_play = "✅ Positive play — your last checked step was correct."
+        else:
+            last_play = "🧠 Coach's timeout — use the feedback and try again. No points were lost."
 
     return {
         "sport": sport,
@@ -8883,6 +8915,8 @@ def math_game_state(generated):
         "points": pts,
         "summary": summary,
         "last_play": last_play,
+        "submitted": submitted,
+        "performance_label": performance_label,
     }
 
 
@@ -8895,7 +8929,10 @@ def render_math_game_status(generated, compact=False):
 
     stage_html = []
     for i, (icon, label) in enumerate(stages):
-        if i < level:
+        if game.get("submitted") and i <= level:
+            state_class = "game-stage-complete"
+            marker = "✓"
+        elif i < level:
             state_class = "game-stage-complete"
             marker = "✓"
         elif i == level:
@@ -8913,7 +8950,7 @@ def render_math_game_status(generated, compact=False):
             '</div>'
         )
 
-    progress_pct = min(100, level * 25)
+    progress_pct = 100 if game.get("submitted") else min(100, level * 25)
     current_label = stages[level][1]
 
     # IMPORTANT:
@@ -8958,6 +8995,7 @@ def render_math_game_status(generated, compact=False):
         '<div class="game-stages">' + ''.join(stage_html) + '</div>'
         '<div class="game-bar"><div class="game-bar-fill"></div></div>'
         '<div class="game-note"><b>Current position:</b> ' + html.escape(current_label) + '</div>'
+        '<div class="game-note"><b>Performance:</b> ' + html.escape(game["performance_label"]) + '</div>'
         '<div class="game-note">' + html.escape(game["last_play"]) + '</div>'
         '<div class="game-small">'
         'First-try solves: ' + str(s["first_try"]) +
@@ -9022,7 +9060,7 @@ def build_teacher_quick_report_pdf(player_name, student_name, class_period, gene
         p(f"First-try solves: {s['first_try']}"),
         p(f"Hints used: {s['hints']}"),
         p(f"Performance points: {s['game_points']}"),
-        p(f"Game finish: {game['sport']} · {game_stage}"),
+        p(f"Game finish: {game['sport']} · {game_stage} · {game['performance_label']}"),
         p(f"Most common mistake: {report['common']}"),
         Paragraph("Strengths", heading),
         p(", ".join(report["strengths"])),
@@ -9470,7 +9508,7 @@ def render_math_lab_submission(generated):
             f"""<div class="card">
             <div class="step">PLAYER DEVELOPMENT{(" · " + html.escape(player_name)) if player_name else ""}</div>
             <p><b>Student:</b> {html.escape(student_name)} · <b>Period:</b> {html.escape(class_period)}</p>
-            <p><b>Game Finish:</b> {html.escape(final_game["sport"])} · {html.escape(final_stage)} · {final_game["points"]} Performance Points</p>
+            <p><b>Game Finish:</b> {html.escape(final_game["sport"])} · {html.escape(final_stage)} · {html.escape(final_game["performance_label"])} · {final_game["points"]} Performance Points</p>
             <p><b>Strengths:</b> {html.escape(", ".join(report["strengths"]))}</p>
             <p><b>Work On:</b> {html.escape(", ".join(report["work_on"]))}</p>
             <p><b>Most Common Mistake:</b> {html.escape(report["common"])}</p>
