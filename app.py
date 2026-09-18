@@ -1336,6 +1336,51 @@ hr {
     border-top:1px solid rgba(255,255,255,.10)!important;
     margin:1.6rem 0!important;
 }
+
+/* High-visibility action buttons */
+div.stButton > button,
+div[data-testid="stDownloadButton"] > button {
+    background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #60a5fa !important;
+    border-radius: 12px !important;
+    min-height: 46px !important;
+    font-weight: 850 !important;
+    box-shadow: 0 7px 18px rgba(0,0,0,.18) !important;
+}
+div.stButton > button *,
+div[data-testid="stDownloadButton"] > button * {
+    color: #ffffff !important;
+}
+div.stButton > button:hover,
+div[data-testid="stDownloadButton"] > button:hover {
+    background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%) !important;
+    color: #ffffff !important;
+    border-color: #93c5fd !important;
+    transform: translateY(-1px);
+}
+div.stButton > button:active,
+div[data-testid="stDownloadButton"] > button:active {
+    transform: translateY(0);
+    background: #1e40af !important;
+}
+div.stButton > button:focus,
+div[data-testid="stDownloadButton"] > button:focus {
+    color: #ffffff !important;
+    border-color: #bfdbfe !important;
+    box-shadow: 0 0 0 3px rgba(96,165,250,.28) !important;
+}
+
+/* Make final completion/download actions distinct */
+div[data-testid="stDownloadButton"] > button {
+    background: linear-gradient(180deg, #16a34a 0%, #15803d 100%) !important;
+    border-color: #4ade80 !important;
+}
+div[data-testid="stDownloadButton"] > button:hover {
+    background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%) !important;
+    border-color: #86efac !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -1993,6 +2038,8 @@ def challenge_lab_engine(level_filter="Any Level", sport_filter="Any Sport"):
         placeholder="Describe your plan. You do not need to name a formula."
     )
 
+    current_results = []
+
     for i, part in enumerate(case["parts"], start=1):
         st.markdown(f"### Part {i}")
         st.write(part["prompt"])
@@ -2002,6 +2049,12 @@ def challenge_lab_engine(level_filter="Any Level", sport_filter="Any Sport"):
             placeholder="Type your answer"
         )
         ans = parse_student_number(raw)
+        is_correct_now = (
+            ans is not None
+            and math.isclose(ans, float(part["answer"]), abs_tol=float(part["tol"]))
+        )
+        current_results.append(is_correct_now)
+
         attempt_key = f"challenge_attempts_{case['id']}_{i}"
         if attempt_key not in st.session_state:
             st.session_state[attempt_key] = 0
@@ -2011,9 +2064,8 @@ def challenge_lab_engine(level_filter="Any Level", sport_filter="Any Sport"):
             key=f"challenge_check_{case['id']}_{i}",
             use_container_width=True
         ):
-            if ans is not None and math.isclose(ans, float(part["answer"]), abs_tol=float(part["tol"])):
+            if is_correct_now:
                 st.success("✅ Correct — or within the accepted rounding range.")
-                st.session_state[attempt_key] = 0
             else:
                 st.session_state[attempt_key] += 1
                 if st.session_state[attempt_key] == 1:
@@ -2023,11 +2075,219 @@ def challenge_lab_engine(level_filter="Any Level", sport_filter="Any Sport"):
 
     st.markdown("### Final Reasoning")
     st.write(case["reflection"])
-    st.text_area(
+    reasoning_key = f"challenge_reflection_{case['id']}"
+    reasoning = st.text_area(
         "Your explanation",
-        key=f"challenge_reflection_{case['id']}",
+        key=reasoning_key,
         placeholder="Use numbers from your work and explain your thinking."
     )
+
+    st.markdown("---")
+    st.markdown('<div class="step">Finish & Submit</div>', unsafe_allow_html=True)
+    st.write(
+        "When your math is correct and your final reasoning is complete, submit the challenge "
+        "to unlock your completion receipt."
+    )
+
+    submitted_key = f"challenge_submitted_{case['id']}"
+    completion_key = f"challenge_completion_id_{case['id']}"
+
+    if st.button(
+        "✅ Submit Final Reasoning & Complete Challenge",
+        key=f"challenge_submit_{case['id']}",
+        use_container_width=True
+    ):
+        student_name = st.session_state.get("challenge_student_name", "").strip()
+        class_period = st.session_state.get("challenge_class_period", "").strip()
+        missing = []
+
+        if not student_name:
+            missing.append("student name")
+        if not class_period:
+            missing.append("class period")
+        if not all(current_results):
+            missing.append("all math parts correct")
+        if len(reasoning.strip()) < 20:
+            missing.append("a complete final reasoning response")
+
+        if missing:
+            st.session_state[submitted_key] = False
+            st.warning(
+                "Before submitting, complete: " + ", ".join(missing) + "."
+            )
+        else:
+            if completion_key not in st.session_state:
+                st.session_state[completion_key] = uuid.uuid4().hex[:8].upper()
+            st.session_state[submitted_key] = True
+
+    if st.session_state.get(submitted_key, False):
+        completion_id = st.session_state.get(completion_key, "")
+        student_name = st.session_state.get("challenge_student_name", "").strip()
+        class_period = st.session_state.get("challenge_class_period", "").strip()
+
+        st.success(
+            f"🏁 Challenge Complete · Completion ID: **{completion_id}**"
+        )
+
+        pdf_bytes = build_challenge_submission_pdf(
+            student_name=student_name,
+            class_period=class_period,
+            case=case,
+            plan=plan,
+            reasoning=reasoning,
+            completion_id=completion_id,
+        )
+
+        filename = (
+            f"Sports_Math_Challenge_"
+            f"{clean_filename(student_name)}_"
+            f"{clean_filename(case['title'])}_"
+            f"{completion_id}.pdf"
+        )
+
+        st.download_button(
+            "📄 Download My Completion Report",
+            data=pdf_bytes,
+            file_name=filename,
+            mime="application/pdf",
+            key=f"challenge_download_{case['id']}",
+            use_container_width=True,
+        )
+        st.caption(
+            "Your report includes the challenge, your plan, your answers, your final reasoning, "
+            "attempt counts, and your unique completion ID."
+        )
+
+def build_challenge_submission_pdf(student_name, class_period, case, plan, reasoning, completion_id):
+    """Generate the Sports Math Challenge completion receipt."""
+    buffer = BytesIO()
+    generated = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        rightMargin=0.55*inch,
+        leftMargin=0.55*inch,
+        topMargin=0.55*inch,
+        bottomMargin=0.55*inch,
+    )
+
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        "ChallengeTitle",
+        parent=styles["Title"],
+        alignment=TA_CENTER,
+        fontSize=18,
+        leading=21,
+        spaceAfter=8,
+        textColor=colors.HexColor("#0F2747"),
+    )
+    heading = ParagraphStyle(
+        "ChallengeHeading",
+        parent=styles["Heading2"],
+        fontSize=12,
+        leading=14,
+        spaceBefore=8,
+        spaceAfter=4,
+        textColor=colors.HexColor("#173F73"),
+    )
+    body = ParagraphStyle(
+        "ChallengeBody",
+        parent=styles["BodyText"],
+        fontSize=9.5,
+        leading=13,
+        textColor=colors.HexColor("#1F2937"),
+    )
+    small = ParagraphStyle(
+        "ChallengeSmall",
+        parent=body,
+        fontSize=8,
+        leading=10,
+        textColor=colors.HexColor("#4B5563"),
+    )
+
+    story = []
+    story.append(Paragraph("Sports Math Challenge - Completion Report", title_style))
+    story.append(Paragraph(
+        f"<b>Completion ID:</b> {completion_id} &nbsp;&nbsp;&nbsp; "
+        f"<b>Generated:</b> {generated}",
+        small
+    ))
+    story.append(Spacer(1, 8))
+
+    info_data = [
+        ["Student", student_name, "Class Period", class_period],
+        ["Sport", case["sport"], "Challenge Level", case["level"]],
+        ["Challenge", case["title"], "", ""],
+    ]
+    info = Table(info_data, colWidths=[0.9*inch, 2.2*inch, 1.05*inch, 2.15*inch])
+    info.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,-1), colors.HexColor("#F8FAFC")),
+        ("GRID", (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
+        ("FONTNAME", (0,0), (0,-1), "Helvetica-Bold"),
+        ("FONTNAME", (2,0), (2,-1), "Helvetica-Bold"),
+        ("FONTSIZE", (0,0), (-1,-1), 8.5),
+        ("VALIGN", (0,0), (-1,-1), "TOP"),
+        ("SPAN", (1,2), (3,2)),
+        ("LEFTPADDING", (0,0), (-1,-1), 6),
+        ("RIGHTPADDING", (0,0), (-1,-1), 6),
+        ("TOPPADDING", (0,0), (-1,-1), 5),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 5),
+    ]))
+    story.append(info)
+
+    story.append(Paragraph("Situation", heading))
+    story.append(Paragraph(case["story"], body))
+
+    story.append(Paragraph("Student Plan", heading))
+    story.append(Paragraph(plan.strip() or "(No plan entered.)", body))
+
+    story.append(Paragraph("Math Work", heading))
+    work_rows = [["Part", "Question", "Student Answer", "Attempts"]]
+    for i, part in enumerate(case["parts"], start=1):
+        answer = st.session_state.get(f"challenge_{case['id']}_{i}", "")
+        attempts = st.session_state.get(f"challenge_attempts_{case['id']}_{i}", 0)
+        work_rows.append([
+            str(i),
+            Paragraph(part["prompt"], small),
+            str(answer),
+            str(attempts),
+        ])
+
+    work_table = Table(
+        work_rows,
+        repeatRows=1,
+        colWidths=[0.45*inch, 4.15*inch, 1.15*inch, 0.7*inch],
+    )
+    work_table.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#DCEBFA")),
+        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+        ("GRID", (0,0), (-1,-1), 0.45, colors.HexColor("#CBD5E1")),
+        ("FONTSIZE", (0,0), (-1,-1), 8),
+        ("VALIGN", (0,0), (-1,-1), "TOP"),
+        ("ALIGN", (0,1), (0,-1), "CENTER"),
+        ("ALIGN", (2,1), (-1,-1), "CENTER"),
+        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
+    ]))
+    story.append(work_table)
+
+    story.append(Paragraph("Final Reasoning Question", heading))
+    story.append(Paragraph(case["reflection"], body))
+    story.append(Spacer(1, 3))
+    story.append(Paragraph("<b>Student Response:</b>", body))
+    story.append(Paragraph(reasoning.strip(), body))
+
+    story.append(Spacer(1, 10))
+    story.append(Paragraph(
+        "Completion status: All numeric challenge parts were correct within the accepted "
+        "rounding range, and a final reasoning response was submitted. The app does not "
+        "automatically grade the quality of the written reasoning.",
+        small
+    ))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer.getvalue()
 
 def clean_filename(text):
     safe = "".join(ch if ch.isalnum() else "_" for ch in str(text).strip())
