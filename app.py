@@ -1205,6 +1205,20 @@ div[data-testid="stRadio"] > label {
     color:#f8fafc!important;
     font-weight:800;
 }
+div[data-testid="stRadio"] label,
+div[data-testid="stRadio"] label p,
+div[data-testid="stRadio"] span,
+div[data-testid="stRadio"] [role="radiogroup"] label,
+div[data-testid="stRadio"] [role="radiogroup"] label p {
+    color:#f8fafc !important;
+    opacity:1 !important;
+}
+div[data-testid="stRadio"] [role="radiogroup"] {
+    background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,255,255,.09);
+    border-radius:14px;
+    padding:.55rem .65rem;
+}
 div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
     background:#fff!important;
     color:#0f172a!important;
@@ -1484,7 +1498,10 @@ def rate_tolerance(correct):
 def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided"):
     st.markdown('<div class="step">7th Grade Math Lab · Ratios, Rates & Proportions</div>', unsafe_allow_html=True)
     st.subheader("🏁 Sports Rate Lab")
-    st.write("Use a real sports total to find a unit rate, build a proportion, and make a prediction.")
+    st.write(
+        "Use the sports situation to decide what math you need. "
+        "Try each step first — the app gives stronger help only after repeated mistakes."
+    )
 
     allowed = list(RATE_CASES)
     if sport_filter != "Any Sport":
@@ -1492,9 +1509,18 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided"):
 
     a, b = st.columns(2)
     with a:
-        sport = st.selectbox("Sport", allowed, format_func=lambda s:f"{SPORT_ICONS.get(s,'')} {s}", key="rate_sport")
+        sport = st.selectbox(
+            "Sport",
+            allowed,
+            format_func=lambda s:f"{SPORT_ICONS.get(s,'')} {s}",
+            key="rate_sport"
+        )
     with b:
-        athlete = st.selectbox("Athlete", list(RATE_CASES[sport]), key="rate_athlete")
+        athlete = st.selectbox(
+            "Athlete",
+            list(RATE_CASES[sport]),
+            key="rate_athlete"
+        )
 
     case = RATE_CASES[sport][athlete]
     total = float(case["total"])
@@ -1511,64 +1537,171 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided"):
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("### Step 1 · Write the ratio")
-    st.write(f"Compare **{fmt(total)} {case['label']}** to **{fmt(games)} games/matches/races**.")
-    st.text_input("Write the ratio as total ÷ games", key="rate_ratio", placeholder=f"{fmt(total)} ÷ {fmt(games)}")
+    # -----------------------------
+    # STEP 1 — Student constructs ratio independently
+    # -----------------------------
+    st.markdown("### Step 1 · Write a ratio")
+    st.write(
+        "Write a ratio that compares the athlete's total statistic to the number of games, matches, or races."
+    )
+    ratio_raw = st.text_input(
+        "Your ratio",
+        key="rate_ratio",
+        placeholder="Type your ratio"
+    )
 
+    if "ratio_attempts" not in st.session_state:
+        st.session_state.ratio_attempts = 0
+
+    def ratio_is_correct(text):
+        compact = str(text).lower().replace(" ", "").replace(",", "")
+        acceptable = {
+            f"{int(total)}/{int(games)}",
+            f"{int(total)}:{int(games)}",
+            f"{int(total)}÷{int(games)}",
+            f"{int(total)}/{int(games)}games",
+        }
+        return compact in acceptable
+
+    if st.button("Check My Ratio", use_container_width=True):
+        if ratio_is_correct(ratio_raw):
+            st.success("✅ Yes. You compared the total statistic to the number of games.")
+            st.session_state.ratio_attempts = 0
+        else:
+            st.session_state.ratio_attempts += 1
+            if st.session_state.ratio_attempts == 1:
+                st.info(
+                    "Look back at the situation. Which number is the total statistic, "
+                    "and which number tells how many games, matches, or races were played?"
+                )
+            else:
+                st.warning(
+                    f"Use the total first and the number of games second: "
+                    f"**{fmt(total)} to {fmt(games)}**. "
+                    "You may write a ratio with a colon, fraction bar, or division sign."
+                )
+
+    # -----------------------------
+    # STEP 2 — Unit rate; no formula shown first
+    # -----------------------------
     st.markdown("### Step 2 · Find the unit rate")
-    st.markdown(f'<div class="formula">Unit Rate = {fmt(total)} ÷ {fmt(games)}</div>', unsafe_allow_html=True)
-    rate_raw = st.text_input(f"About how many {case['unit']}?", key="rate_unit_answer", placeholder="Type your answer")
+    st.write(
+        f"How many **{case['unit']}** did {athlete} average?"
+    )
+    rate_raw = st.text_input(
+        "Unit rate",
+        key="rate_unit_answer",
+        placeholder="Type your answer"
+    )
     rate_ans = parse_student_number(rate_raw)
 
     if "rate_attempts" not in st.session_state:
         st.session_state.rate_attempts = 0
+
     if st.button("Check My Unit Rate", use_container_width=True):
-        if rate_ans is not None and math.isclose(rate_ans, true_rate, abs_tol=rate_tolerance(true_rate)):
-            st.success(f"✅ Correct — or close enough. The unit rate is about {true_rate:.2f}.")
+        if rate_ans is not None and math.isclose(
+            rate_ans, true_rate, abs_tol=rate_tolerance(true_rate)
+        ):
+            st.success(
+                f"✅ Correct — or close enough. About **{true_rate:.2f} {case['unit']}**."
+            )
             st.session_state.rate_attempts = 0
         else:
             st.session_state.rate_attempts += 1
-            if st.session_state.rate_attempts < 2:
-                st.info("Try again. Divide the total amount by the number of games.")
+            if st.session_state.rate_attempts == 1:
+                st.info(
+                    "A unit rate tells the amount for **1** game, match, or race. "
+                    "Think about which operation would turn the game total into 1."
+                )
             else:
-                st.warning(f"Use **{fmt(total)} ÷ {fmt(games)}**. That gives about **{true_rate:.2f} {case['unit']}**.")
+                st.warning(
+                    f"Now use **{fmt(total)} ÷ {fmt(games)}**. "
+                    f"That gives about **{true_rate:.2f}**."
+                )
 
-    st.markdown("### Step 3 · Use a proportion")
-    st.write(f"At the same rate, what total would you predict over **{fmt(target_games)}** games/matches/races?")
-    st.markdown(f'<div class="formula">{fmt(total)} / {fmt(games)} = x / {fmt(target_games)}</div>', unsafe_allow_html=True)
-    if difficulty == "Guided":
-        st.caption("Use your unit rate and multiply it by the new number of games.")
+    # -----------------------------
+    # STEP 3 — Proportional prediction; setup not pre-given
+    # -----------------------------
+    st.markdown("### Step 3 · Make a proportional prediction")
+    st.write(
+        f"If the same rate continued for **{fmt(target_games)}** games, matches, or races, "
+        "what total would you predict?"
+    )
 
-    pred_raw = st.text_input("Predicted total", key="rate_projection", placeholder="Type your answer")
+    setup_raw = st.text_input(
+        "How would you set up the math?",
+        key="rate_proportion_setup",
+        placeholder="Write an equation, proportion, or calculation"
+    )
+
+    pred_raw = st.text_input(
+        "Predicted total",
+        key="rate_projection",
+        placeholder="Type your answer"
+    )
     pred_ans = parse_student_number(pred_raw)
 
     if "projection_attempts" not in st.session_state:
         st.session_state.projection_attempts = 0
+
     if st.button("Check My Prediction", use_container_width=True):
         tol = max(0.5, abs(true_projection) * 0.02)
-        if pred_ans is not None and math.isclose(pred_ans, true_projection, abs_tol=tol):
-            st.success(f"✅ Good prediction. About {true_projection:.1f} is reasonable.")
+        if pred_ans is not None and math.isclose(
+            pred_ans, true_projection, abs_tol=tol
+        ):
+            st.success(
+                f"✅ Good prediction. About **{true_projection:.1f}** is reasonable."
+            )
             st.session_state.projection_attempts = 0
         else:
             st.session_state.projection_attempts += 1
-            if st.session_state.projection_attempts < 2:
-                st.info("Try again: unit rate × new number of games.")
+            if st.session_state.projection_attempts == 1:
+                st.info(
+                    "Use the unit rate you found in Step 2. "
+                    "How can you use that rate with the new number of games?"
+                )
             else:
-                st.warning(f"Take about **{true_rate:.2f}** per game and multiply by **{fmt(target_games)}**.")
+                st.warning(
+                    f"Multiply the unit rate, about **{true_rate:.2f}**, "
+                    f"by **{fmt(target_games)}**."
+                )
+                if difficulty == "Guided":
+                    st.caption(
+                        f"Another valid setup is: {fmt(total)} / {fmt(games)} = x / {fmt(target_games)}."
+                    )
 
-    st.markdown("### Step 4 · Proportional or not?")
-    answer = st.radio("If the same rate continues, is this proportional?", ["Yes","No","I'm not sure"],
-                      horizontal=True, key="rate_proportional")
+    # -----------------------------
+    # STEP 4 — Conceptual reasoning
+    # -----------------------------
+    st.markdown("### Step 4 · Is the relationship proportional?")
+    answer = st.radio(
+        "If the same rate continues, is this a proportional relationship?",
+        ["Yes", "No", "I'm not sure"],
+        horizontal=True,
+        key="rate_proportional"
+    )
+
     if st.button("Check Proportional Thinking", use_container_width=True):
         if answer == "Yes":
-            st.success("✅ Yes. This model assumes the same unit rate stays constant.")
+            st.success(
+                "✅ Yes. The model assumes the same unit rate stays constant."
+            )
         else:
-            st.info("For this model, the unit rate is constant, so the relationship is proportional.")
+            st.info(
+                "A proportional relationship has a constant unit rate. "
+                "In this model, we are assuming the athlete continues at the same rate."
+            )
 
-    st.markdown("### Step 5 · Explain it")
-    st.text_area("What does the unit rate mean in this sports situation?",
-                 key="rate_explanation",
-                 placeholder=f"Example: This means {athlete} averaged about ... per game.")
+    # -----------------------------
+    # STEP 5 — Explanation
+    # -----------------------------
+    st.markdown("### Step 5 · Explain your reasoning")
+    st.text_area(
+        "Explain what the unit rate means in this sports situation.",
+        key="rate_explanation",
+        placeholder="Explain it in your own words."
+    )
+
 
 def clean_filename(text):
     safe = "".join(ch if ch.isalnum() else "_" for ch in str(text).strip())
@@ -2326,11 +2459,13 @@ st.markdown("""
 if "app_branch" not in st.session_state:
     st.session_state.app_branch = "Sports Data Investigations"
 
+st.markdown("### Choose a learning path")
 branch = st.radio(
     "Choose a learning path",
     ["Sports Data Investigations", "7th Grade Math Lab", "Teacher Assignment Builder"],
     key="app_branch",
-    horizontal=True
+    horizontal=True,
+    label_visibility="collapsed"
 )
 
 if branch == "Teacher Assignment Builder":
