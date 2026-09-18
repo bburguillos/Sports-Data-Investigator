@@ -1541,7 +1541,7 @@ RATE_CASES = {
 def rate_tolerance(correct):
     return max(0.1, abs(correct) * 0.015)
 
-def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided"):
+def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_athlete=None):
     st.markdown('<div class="step">7th Grade Math Lab · Ratios, Rates & Proportions</div>', unsafe_allow_html=True)
     st.subheader("🏁 Sports Rate Lab")
     st.write(
@@ -1549,24 +1549,28 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided"):
         "Try each step first — the app gives stronger help only after repeated mistakes."
     )
 
-    allowed = list(RATE_CASES)
-    if sport_filter != "Any Sport":
-        allowed = [sport_filter]
+    if generated_sport and generated_athlete:
+        sport = generated_sport
+        athlete = generated_athlete
+    else:
+        allowed = list(RATE_CASES)
+        if sport_filter != "Any Sport":
+            allowed = [sport_filter]
 
-    a, b = st.columns(2)
-    with a:
-        sport = st.selectbox(
-            "Sport",
-            allowed,
-            format_func=lambda s:f"{SPORT_ICONS.get(s,'')} {s}",
-            key="rate_sport"
-        )
-    with b:
-        athlete = st.selectbox(
-            "Athlete",
-            list(RATE_CASES[sport]),
-            key="rate_athlete"
-        )
+        a, b = st.columns(2)
+        with a:
+            sport = st.selectbox(
+                "Sport",
+                allowed,
+                format_func=lambda s:f"{SPORT_ICONS.get(s,'')} {s}",
+                key="rate_sport"
+            )
+        with b:
+            athlete = st.selectbox(
+                "Athlete",
+                list(RATE_CASES[sport]),
+                key="rate_athlete"
+            )
 
     case = RATE_CASES[sport][athlete]
     total = float(case["total"])
@@ -2242,7 +2246,7 @@ EQUATION_CASES = {
     ],
 }
 
-def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided"):
+def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None):
     st.markdown('<div class="step">7th Grade Math Lab · Equations & Inequalities</div>', unsafe_allow_html=True)
     st.subheader("⚖️ Sports Equation Lab")
     st.write(
@@ -2250,46 +2254,54 @@ def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided")
         "Try first — stronger hints appear only after repeated mistakes."
     )
 
-    sports = list(EQUATION_CASES)
-    if sport_filter != "Any Sport":
-        sports = [sport_filter]
+    if generated_sport and generated_title:
+        eq_sport = generated_sport
+        case_options = EQUATION_CASES[eq_sport]
+        matches = [c for c in case_options if c["title"] == generated_title]
+        if not matches:
+            st.error("The generated problem could not be found.")
+            return
+        case = matches[0]
+    else:
+        sports = list(EQUATION_CASES)
+        if sport_filter != "Any Sport":
+            sports = [sport_filter]
 
-    c1, c2 = st.columns(2)
-    with c1:
-        eq_sport = st.selectbox(
-            "Sport",
-            sports,
-            format_func=lambda s: f"{SPORT_ICONS.get(s,'')} {s}",
-            key="eq_sport"
+        c1, c2 = st.columns(2)
+        with c1:
+            eq_sport = st.selectbox(
+                "Sport",
+                sports,
+                format_func=lambda s: f"{SPORT_ICONS.get(s,'')} {s}",
+                key="eq_sport"
+            )
+        case_options = EQUATION_CASES[eq_sport]
+        labels = {f"{c['kind']} · {c['title']}": c for c in case_options}
+
+        # Reset the chosen problem if the sport changes.
+        sport_state_key = "eq_last_sport"
+        if st.session_state.get(sport_state_key) != eq_sport:
+            st.session_state[sport_state_key] = eq_sport
+            st.session_state.pop("eq_case", None)
+
+        def choose_different_equation_problem(options):
+            current = st.session_state.get("eq_case")
+            choices = [label for label in options if label != current]
+            if choices:
+                st.session_state["eq_case"] = random.choice(choices)
+
+        with c2:
+            case_label = st.selectbox("Problem", list(labels), key="eq_case")
+
+        st.button(
+            "🎲 Give Me a Different Problem",
+            key="eq_new_problem",
+            use_container_width=True,
+            on_click=choose_different_equation_problem,
+            args=(list(labels),),
         )
-    case_options = EQUATION_CASES[eq_sport]
-    labels = {f"{c['kind']} · {c['title']}": c for c in case_options}
 
-    # Reset the chosen problem if the sport changes.
-    sport_state_key = "eq_last_sport"
-    if st.session_state.get(sport_state_key) != eq_sport:
-        st.session_state[sport_state_key] = eq_sport
-        st.session_state.pop("eq_case", None)
-
-    def choose_different_equation_problem(options):
-        """Change the selectbox safely inside a Streamlit callback."""
-        current = st.session_state.get("eq_case")
-        choices = [label for label in options if label != current]
-        if choices:
-            st.session_state["eq_case"] = random.choice(choices)
-
-    with c2:
-        case_label = st.selectbox("Problem", list(labels), key="eq_case")
-
-    st.button(
-        "🎲 Give Me a Different Problem",
-        key="eq_new_problem",
-        use_container_width=True,
-        on_click=choose_different_equation_problem,
-        args=(list(labels),),
-    )
-
-    case = labels[st.session_state.get("eq_case", case_label)]
+        case = labels[st.session_state.get("eq_case", case_label)]
 
     case_id = clean_filename(f"{eq_sport}_{case['title']}")
 
@@ -3828,7 +3840,7 @@ if branch == "7th Grade Math Lab":
     <div class="card">
       <div class="step">7th Grade Math Lab</div>
       <h2>Real sports. Real 7th-grade math.</h2>
-      <p>Practice one skill at a time using sports situations, guided checking, and hints that appear only when needed.</p>
+      <p>Choose your topic, sport, and support level first. A question will not appear until you generate one.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -3847,7 +3859,7 @@ if branch == "7th Grade Math Lab":
         "pdf":False
     }
 
-    assignment_loaded = False
+    valid_config = True
 
     if entry == "I Have an Assignment Code":
         code_in = st.text_input(
@@ -3855,6 +3867,7 @@ if branch == "7th Grade Math Lab":
             key="student_assignment_code",
             placeholder="Paste code from your teacher"
         )
+        valid_config = False
         if code_in.strip():
             decoded = decode_assignment(code_in)
             if decoded:
@@ -3862,7 +3875,7 @@ if branch == "7th Grade Math Lab":
                     st.warning("That code belongs in the Sports Math Challenge branch.")
                 else:
                     config.update(decoded)
-                    assignment_loaded = True
+                    valid_config = True
                     st.success(
                         f"Loaded: {config['topic']} · {config['count']} activity(ies) · "
                         f"{config['sport']} · {config['difficulty']}"
@@ -3871,21 +3884,26 @@ if branch == "7th Grade Math Lab":
                 st.error("That assignment code could not be read.")
 
     if entry == "Free Explore":
-        config["topic"] = st.selectbox(
-            "Math topic",
-            ["Ratios, Rates & Proportions", "Equations & Inequalities"],
-            key="math_topic_select"
-        )
-        config["sport"] = st.selectbox(
-            "Sport filter",
-            ["Any Sport"] + list(RATE_CASES),
-            key="math_sport_filter"
-        )
-        config["difficulty"] = st.selectbox(
-            "Support level",
-            ["Guided", "Independent"],
-            key="math_difficulty_select"
-        )
+        st.markdown("### 1 · Choose your practice settings")
+        s1, s2, s3 = st.columns(3)
+        with s1:
+            config["topic"] = st.selectbox(
+                "Math topic",
+                ["Ratios, Rates & Proportions", "Equations & Inequalities"],
+                key="math_topic_select"
+            )
+        with s2:
+            config["sport"] = st.selectbox(
+                "Sport",
+                ["Any Sport"] + list(RATE_CASES),
+                key="math_sport_filter"
+            )
+        with s3:
+            config["difficulty"] = st.selectbox(
+                "Support level",
+                ["Guided", "Independent"],
+                key="math_difficulty_select"
+            )
 
     st.markdown("""
     <div class="card">
@@ -3900,19 +3918,107 @@ if branch == "7th Grade Math Lab":
     with y:
         st.text_input("Class Period", key="math_class_period", placeholder="Example: 4E")
 
-    if config.get("topic") == "Equations & Inequalities":
-        equations_inequalities_engine(
-            config.get("sport","Any Sport"),
-            config.get("difficulty","Guided")
+    def generate_math_question():
+        topic = config.get("topic")
+        chosen_sport = config.get("sport", "Any Sport")
+        actual_sport = chosen_sport
+        if actual_sport == "Any Sport":
+            actual_sport = random.choice(list(RATE_CASES))
+
+        previous = st.session_state.get("math_generated_question")
+
+        if topic == "Equations & Inequalities":
+            options = EQUATION_CASES[actual_sport]
+            if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
+                options = [c for c in options if c["title"] != previous.get("title")] or options
+            selected = random.choice(options)
+            generated = {
+                "topic": topic,
+                "sport": actual_sport,
+                "difficulty": config.get("difficulty", "Guided"),
+                "title": selected["title"],
+            }
+        else:
+            athletes = list(RATE_CASES[actual_sport])
+            if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
+                athletes = [a for a in athletes if a != previous.get("athlete")] or athletes
+            selected_athlete = random.choice(athletes)
+            generated = {
+                "topic": topic,
+                "sport": actual_sport,
+                "difficulty": config.get("difficulty", "Guided"),
+                "athlete": selected_athlete,
+            }
+
+        # Clear answer/check state from the prior Math Lab problem.
+        clear_prefixes = (
+            "rate_", "ratio_", "projection_",
+            "eq_unknown_", "eq_model_", "eq_answer_", "eq_interpret_",
+            "eq_reasoning_", "eq_model_attempts_", "eq_answer_attempts_",
+            "eq_model_order_", "eq_interpret_order_"
+        )
+        for key in list(st.session_state.keys()):
+            if key.startswith(clear_prefixes):
+                del st.session_state[key]
+
+        st.session_state["math_generated_question"] = generated
+
+    st.markdown("### 2 · Generate your question")
+    if valid_config:
+        button_label = (
+            "🎲 Generate Question"
+            if "math_generated_question" not in st.session_state
+            else "🎲 Generate a New Question"
+        )
+        st.button(
+            button_label,
+            key="math_generate_question",
+            use_container_width=True,
+            on_click=generate_math_question
         )
     else:
-        ratios_rates_engine(
-            config.get("sport","Any Sport"),
-            config.get("difficulty","Guided")
+        st.info("Enter a valid assignment code before generating a question.")
+
+    generated = st.session_state.get("math_generated_question")
+
+    # If the visible selections no longer match the generated question,
+    # hide the old question until the student presses Generate again.
+    if generated:
+        selection_matches = (
+            generated.get("topic") == config.get("topic")
+            and generated.get("difficulty") == config.get("difficulty")
+            and (
+                config.get("sport") == "Any Sport"
+                or generated.get("sport") == config.get("sport")
+            )
         )
+        if not selection_matches:
+            st.session_state.pop("math_generated_question", None)
+            generated = None
+            st.info("Your settings changed. Press **Generate Question** to create a problem with the new choices.")
+
+    if generated:
+        st.markdown("---")
+        st.markdown("### 3 · Work the generated question")
+        if generated["topic"] == "Equations & Inequalities":
+            equations_inequalities_engine(
+                generated["sport"],
+                generated["difficulty"],
+                generated_sport=generated["sport"],
+                generated_title=generated["title"]
+            )
+        else:
+            ratios_rates_engine(
+                generated["sport"],
+                generated["difficulty"],
+                generated_sport=generated["sport"],
+                generated_athlete=generated["athlete"]
+            )
+    else:
+        st.caption("No practice question has been generated yet.")
 
     st.markdown("---")
-    st.caption("7th Grade Math Lab · Ratios, Rates & Proportions · Equations & Inequalities")
+    st.caption("7th Grade Math Lab · select settings → generate question → solve")
     st.stop()
 
 st.markdown("""
