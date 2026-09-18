@@ -8904,153 +8904,70 @@ def render_math_game_status(generated, compact=False):
         else:
             state_class = "game-stage-future"
             marker = "○"
+
         stage_html.append(
-            f"""<div class="game-stage {state_class}">
-                <div class="game-icon">{icon}</div>
-                <div class="game-label">{html.escape(label)}</div>
-                <div class="game-marker">{marker}</div>
-            </div>"""
+            '<div class="game-stage ' + state_class + '">'
+            '<div class="game-icon">' + icon + '</div>'
+            '<div class="game-label">' + html.escape(label) + '</div>'
+            '<div class="game-marker">' + marker + '</div>'
+            '</div>'
         )
 
     progress_pct = min(100, level * 25)
     current_label = stages[level][1]
 
-    st.markdown(
-        f"""
-        <style>
-        .game-board {{
-            background: linear-gradient(180deg, rgba(15,39,71,.98) 0%, rgba(11,29,54,.98) 100%);
-            border: 1px solid rgba(96,165,250,.45);
-            border-radius: 16px;
-            padding: 16px 18px;
-            margin: 8px 0 18px 0;
-            box-shadow: 0 10px 24px rgba(0,0,0,.20);
-        }}
-        .game-head {{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            gap:12px;
-            flex-wrap:wrap;
-            margin-bottom:12px;
-        }}
-        .game-title {{
-            font-weight:900;
-            font-size:1.05rem;
-            color:#ffffff;
-        }}
-        .game-score {{
-            font-weight:900;
-            color:#ffffff;
-            background:rgba(37,99,235,.85);
-            border:1px solid rgba(147,197,253,.75);
-            border-radius:999px;
-            padding:6px 11px;
-        }}
-        .game-stages {{
-            display:grid;
-            grid-template-columns:repeat(5, minmax(0,1fr));
-            gap:7px;
-            margin:8px 0 10px;
-        }}
-        .game-stage {{
-            text-align:center;
-            border-radius:12px;
-            padding:9px 5px 7px;
-            min-height:76px;
-            display:flex;
-            flex-direction:column;
-            justify-content:center;
-            align-items:center;
-        }}
-        .game-stage-complete {{
-            background:rgba(22,163,74,.18);
-            border:1px solid rgba(74,222,128,.55);
-        }}
-        .game-stage-current {{
-            background:rgba(37,99,235,.28);
-            border:2px solid rgba(96,165,250,.95);
-            transform:translateY(-2px);
-        }}
-        .game-stage-future {{
-            background:rgba(255,255,255,.045);
-            border:1px solid rgba(148,163,184,.22);
-            opacity:.72;
-        }}
-        .game-icon {{ font-size:1.35rem; line-height:1.2; }}
-        .game-label {{
-            color:#ffffff;
-            font-size:.78rem;
-            font-weight:800;
-            line-height:1.1;
-            margin-top:4px;
-        }}
-        .game-marker {{
-            color:#dbeafe;
-            font-size:.75rem;
-            margin-top:3px;
-        }}
-        .game-bar {{
-            height:9px;
-            background:rgba(255,255,255,.10);
-            border-radius:999px;
-            overflow:hidden;
-            margin:7px 0 10px;
-        }}
-        .game-bar-fill {{
-            height:100%;
-            width:{progress_pct}%;
-            background:linear-gradient(90deg,#2563eb,#22c55e);
-            border-radius:999px;
-        }}
-        .game-note {{
-            color:#dbeafe;
-            font-size:.9rem;
-            margin:.2rem 0;
-        }}
-        .game-small {{
-            color:#a8b3c7;
-            font-size:.8rem;
-            margin-top:5px;
-        }}
-        @media (max-width: 720px) {{
-            .game-stages {{
-                grid-template-columns:repeat(5, 1fr);
-                gap:4px;
-            }}
-            .game-stage {{
-                min-height:68px;
-                padding:7px 2px;
-            }}
-            .game-label {{
-                font-size:.64rem;
-            }}
-        }}
-        </style>
-
-        <div class="game-board">
-            <div class="game-head">
-                <div class="game-title">🎮 GAME MODE · {html.escape(game['sport'])}</div>
-                <div class="game-score">{game['points']} Performance Points</div>
-            </div>
-
-            <div class="game-stages">
-                {''.join(stage_html)}
-            </div>
-
-            <div class="game-bar"><div class="game-bar-fill"></div></div>
-
-            <div class="game-note"><b>Current position:</b> {html.escape(current_label)}</div>
-            <div class="game-note">{html.escape(game['last_play'])}</div>
-            <div class="game-small">
-                First-try solves: {s['first_try']} &nbsp; · &nbsp;
-                Hints used: {s['hints']} &nbsp; · &nbsp;
-                Wrong answers never subtract points.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
+    # IMPORTANT:
+    # Keep the raw HTML left-aligned. Leading indentation inside a Markdown
+    # string can make Streamlit display the HTML as literal code/text.
+    board_html = (
+        '<style>'
+        '.game-board{'
+        'background:linear-gradient(180deg,rgba(15,39,71,.98) 0%,rgba(11,29,54,.98) 100%);'
+        'border:1px solid rgba(96,165,250,.45);'
+        'border-radius:16px;'
+        'padding:16px 18px;'
+        'margin:8px 0 18px 0;'
+        'box-shadow:0 10px 24px rgba(0,0,0,.20);'
+        '}'
+        '.game-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;}'
+        '.game-title{font-weight:900;font-size:1.05rem;color:#ffffff;}'
+        '.game-score{font-weight:900;color:#ffffff;background:rgba(37,99,235,.85);border:1px solid rgba(147,197,253,.75);border-radius:999px;padding:6px 11px;}'
+        '.game-stages{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:8px 0 10px;}'
+        '.game-stage{text-align:center;border-radius:12px;padding:9px 5px 7px;min-height:76px;display:flex;flex-direction:column;justify-content:center;align-items:center;}'
+        '.game-stage-complete{background:rgba(22,163,74,.18);border:1px solid rgba(74,222,128,.55);}'
+        '.game-stage-current{background:rgba(37,99,235,.28);border:2px solid rgba(96,165,250,.95);transform:translateY(-2px);}'
+        '.game-stage-future{background:rgba(255,255,255,.045);border:1px solid rgba(148,163,184,.22);opacity:.72;}'
+        '.game-icon{font-size:1.35rem;line-height:1.2;}'
+        '.game-label{color:#ffffff;font-size:.78rem;font-weight:800;line-height:1.1;margin-top:4px;}'
+        '.game-marker{color:#dbeafe;font-size:.75rem;margin-top:3px;}'
+        '.game-bar{height:9px;background:rgba(255,255,255,.10);border-radius:999px;overflow:hidden;margin:7px 0 10px;}'
+        f'.game-bar-fill{{height:100%;width:{progress_pct}%;background:linear-gradient(90deg,#2563eb,#22c55e);border-radius:999px;}}'
+        '.game-note{color:#dbeafe;font-size:.9rem;margin:.2rem 0;}'
+        '.game-small{color:#a8b3c7;font-size:.8rem;margin-top:5px;}'
+        '@media (max-width:720px){'
+        '.game-stages{grid-template-columns:repeat(5,1fr);gap:4px;}'
+        '.game-stage{min-height:68px;padding:7px 2px;}'
+        '.game-label{font-size:.64rem;}'
+        '}'
+        '</style>'
+        '<div class="game-board">'
+        '<div class="game-head">'
+        '<div class="game-title">🎮 GAME MODE · ' + html.escape(game["sport"]) + '</div>'
+        '<div class="game-score">' + str(game["points"]) + ' Performance Points</div>'
+        '</div>'
+        '<div class="game-stages">' + ''.join(stage_html) + '</div>'
+        '<div class="game-bar"><div class="game-bar-fill"></div></div>'
+        '<div class="game-note"><b>Current position:</b> ' + html.escape(current_label) + '</div>'
+        '<div class="game-note">' + html.escape(game["last_play"]) + '</div>'
+        '<div class="game-small">'
+        'First-try solves: ' + str(s["first_try"]) +
+        ' &nbsp; · &nbsp; Hints used: ' + str(s["hints"]) +
+        ' &nbsp; · &nbsp; Wrong answers never subtract points.'
+        '</div>'
+        '</div>'
     )
+
+    st.markdown(board_html, unsafe_allow_html=True)
 
 
 def scouting_report_data(generated):
