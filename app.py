@@ -4770,7 +4770,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
             td = random.randint(1,5)
             fg = random.randint(1,4)
             case.update({
-                "story": f"A football team scores **x touchdowns** worth 6 points each and also makes **{fg} field goals** worth 3 points each.",
+                "story": f"A football team scores x touchdowns worth 6 points each and also makes {fg} field goals worth 3 points each.",
                 "question": "Which expression represents the team's total points?",
                 "correct": f"6x + {3*fg}",
                 "variable_meaning": "x = number of touchdowns",
@@ -4787,7 +4787,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "combine":
             a,b = random.randint(2,6), random.randint(2,6)
             case.update({
-                "story": f"A receiver gains **{a}x yards** in one group of plays and **{b}x yards** in another group, plus 10 yards on one extra play.",
+                "story": f"A receiver gains {a}x yards in one group of plays and {b}x yards in another group, plus 10 yards on one extra play.",
                 "expression": f"{a}x + {b}x + 10",
                 "correct": f"{a+b}x + 10",
                 "question": "Simplify the expression for total receiving yards.",
@@ -4796,7 +4796,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "distribute":
             groups = random.randint(2,5); extra = random.randint(2,8)
             case.update({
-                "story": f"A football drill has **{groups} identical stations**. At each station, a player completes **x regular reps and {extra} bonus reps**.",
+                "story": f"A football drill has {groups} identical stations. At each station, a player completes x regular reps and {extra} bonus reps.",
                 "expression": f"{groups}(x + {extra})",
                 "correct": f"{groups}x + {groups*extra}",
                 "question": "Rewrite the total number of reps using the distributive property.",
@@ -4805,7 +4805,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "equivalent":
             groups = random.randint(2,5); extra = random.randint(2,7)
             case.update({
-                "story": f"A team runs **{groups} identical practice blocks**. Each block contains **x normal plays and {extra} red-zone plays**.",
+                "story": f"A team runs {groups} identical practice blocks. Each block contains x normal plays and {extra} red-zone plays.",
                 "expression": f"{groups}(x + {extra})",
                 "correct": f"{groups}x + {groups*extra}",
                 "question": "Which expression gives the same total number of plays?",
@@ -4814,7 +4814,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         else:
             start = random.randint(20,60); per = random.randint(3,8)
             case.update({
-                "story": f"A running back already has **{start} rushing yards** and then gains **{per} yards on each of x carries**.",
+                "story": f"A running back already has {start} rushing yards and then gains {per} yards on each of x carries.",
                 "correct": f"{start} + {per}x",
                 "question": "Write an expression for the running back's total rushing yards.",
                 "variable_meaning": "x = number of additional carries",
@@ -4824,7 +4824,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         if mode == "translate":
             twos = random.randint(2,6)
             case.update({
-                "story": f"A player makes **x three-pointers** worth 3 points each and also makes **{twos} two-point baskets**.",
+                "story": f"A player makes x three-pointers worth 3 points each and also makes {twos} two-point baskets.",
                 "question": "Which expression represents the player's total points from those shots?",
                 "correct": f"3x + {2*twos}",
                 "variable_meaning": "x = made three-pointers",
@@ -4840,7 +4840,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "combine":
             a,b = random.randint(2,5), random.randint(2,5)
             case.update({
-                "story": f"A player scores **{a}x points** in one stretch and **{b}x points** in another, plus 6 free-throw points.",
+                "story": f"A player scores {a}x points in one stretch and {b}x points in another, plus 6 free-throw points.",
                 "expression": f"{a}x + {b}x + 6",
                 "correct": f"{a+b}x + 6",
                 "question": "Simplify the expression for total points.",
@@ -4849,7 +4849,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "distribute":
             q = random.choice([2,3,4]); bonus = random.randint(2,6)
             case.update({
-                "story": f"A team scores **x regular points plus {bonus} bonus points** in each of {q} equal scoring periods.",
+                "story": f"A team scores x regular points plus {bonus} bonus points in each of {q} equal scoring periods.",
                 "expression": f"{q}(x + {bonus})",
                 "correct": f"{q}x + {q*bonus}",
                 "question": "Rewrite the total points using the distributive property.",
@@ -4858,7 +4858,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "equivalent":
             groups = random.randint(2,5); extra = random.randint(2,8)
             case.update({
-                "story": f"A player repeats the same scoring drill {groups} times. Each drill gives **x regular points plus {extra} bonus points**.",
+                "story": f"A player repeats the same scoring drill {groups} times. Each drill gives x regular points plus {extra} bonus points.",
                 "expression": f"{groups}(x + {extra})",
                 "correct": f"{groups}x + {groups*extra}",
                 "question": "Which expression is equivalent to the total scoring expression?",
@@ -4868,7 +4868,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
             start = random.randint(8,30); per = random.choice([2,3])
             shot_name = "two-point baskets" if per==2 else "three-pointers"
             case.update({
-                "story": f"A player already has **{start} points** and then makes **x {shot_name}**, each worth {per} points.",
+                "story": f"A player already has {start} points and then makes x {shot_name}, each worth {per} points.",
                 "correct": f"{start} + {per}x",
                 "question": "Write an expression for the player's final point total.",
                 "variable_meaning": f"x = number of additional {shot_name}",
@@ -4878,7 +4878,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         if mode == "translate":
             doubles = random.randint(1,5)
             case.update({
-                "story": f"A hitter records **x singles** worth 1 total base each and **{doubles} doubles** worth 2 total bases each.",
+                "story": f"A hitter records x singles worth 1 total base each and {doubles} doubles worth 2 total bases each.",
                 "question": "Which expression represents the hitter's total bases from these hits?",
                 "correct": f"x + {2*doubles}",
                 "variable_meaning": "x = number of singles",
@@ -4894,7 +4894,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "combine":
             a,b = random.randint(2,6), random.randint(2,6)
             case.update({
-                "story": f"A hitter gets **{a}x hits** in one stretch and **{b}x hits** in another, plus 2 extra hits.",
+                "story": f"A hitter gets {a}x hits in one stretch and {b}x hits in another, plus 2 extra hits.",
                 "expression": f"{a}x + {b}x + 2",
                 "correct": f"{a+b}x + 2",
                 "question": "Simplify the expression for total hits.",
@@ -4903,7 +4903,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "distribute":
             groups = random.randint(2,5); extra = random.randint(1,5)
             case.update({
-                "story": f"A batting practice has {groups} rounds. In each round, a hitter takes **x normal swings and {extra} bonus swings**.",
+                "story": f"A batting practice has {groups} rounds. In each round, a hitter takes x normal swings and {extra} bonus swings.",
                 "expression": f"{groups}(x + {extra})",
                 "correct": f"{groups}x + {groups*extra}",
                 "question": "Rewrite the total swings using the distributive property.",
@@ -4912,7 +4912,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "equivalent":
             groups = random.randint(2,5); extra = random.randint(1,6)
             case.update({
-                "story": f"A pitcher completes {groups} bullpen sets. Each set contains **x regular pitches and {extra} warm-up pitches**.",
+                "story": f"A pitcher completes {groups} bullpen sets. Each set contains x regular pitches and {extra} warm-up pitches.",
                 "expression": f"{groups}(x + {extra})",
                 "correct": f"{groups}x + {groups*extra}",
                 "question": "Which expression is equivalent to the total pitches?",
@@ -4921,7 +4921,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         else:
             start = random.randint(20,60); per = random.randint(3,10)
             case.update({
-                "story": f"A pitcher has already thrown **{start} pitches** and then throws **{per} pitches in each of x additional innings**.",
+                "story": f"A pitcher has already thrown {start} pitches and then throws {per} pitches in each of x additional innings.",
                 "correct": f"{start} + {per}x",
                 "question": "Write an expression for the total pitches thrown.",
                 "variable_meaning": "x = additional innings",
@@ -4931,7 +4931,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         if mode == "translate":
             assists = random.randint(2,8)
             case.update({
-                "story": f"A hockey player has **x goals** and **{assists} assists**. A player's points equal goals plus assists.",
+                "story": f"A hockey player has x goals and {assists} assists. A player's points equal goals plus assists.",
                 "question": "Which expression represents the player's total points?",
                 "correct": f"x + {assists}",
                 "variable_meaning": "x = goals",
@@ -4947,7 +4947,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "combine":
             a,b = random.randint(2,5), random.randint(2,5)
             case.update({
-                "story": f"A player takes **{a}x shots** in one stretch and **{b}x shots** in another, plus 4 extra shots.",
+                "story": f"A player takes {a}x shots in one stretch and {b}x shots in another, plus 4 extra shots.",
                 "expression": f"{a}x + {b}x + 4",
                 "correct": f"{a+b}x + 4",
                 "question": "Simplify the expression for total shots.",
@@ -4956,7 +4956,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "distribute":
             shifts = random.randint(2,5); extra = random.randint(1,5)
             case.update({
-                "story": f"A player has {shifts} identical practice shifts. Each shift has **x normal reps and {extra} bonus reps**.",
+                "story": f"A player has {shifts} identical practice shifts. Each shift has x normal reps and {extra} bonus reps.",
                 "expression": f"{shifts}(x + {extra})",
                 "correct": f"{shifts}x + {shifts*extra}",
                 "question": "Rewrite the total reps using the distributive property.",
@@ -4965,7 +4965,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "equivalent":
             groups = random.randint(2,5); extra = random.randint(1,5)
             case.update({
-                "story": f"A team completes {groups} shooting stations. Each station has **x regular shots and {extra} bonus shots**.",
+                "story": f"A team completes {groups} shooting stations. Each station has x regular shots and {extra} bonus shots.",
                 "expression": f"{groups}(x + {extra})",
                 "correct": f"{groups}x + {groups*extra}",
                 "question": "Which expression is equivalent to the total shots?",
@@ -4974,7 +4974,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         else:
             start = random.randint(10,35); per = random.randint(2,6)
             case.update({
-                "story": f"A goalie already has **{start} saves** and then makes **{per} saves in each of x later periods or drill segments**.",
+                "story": f"A goalie already has {start} saves and then makes {per} saves in each of x later periods or drill segments.",
                 "correct": f"{start} + {per}x",
                 "question": "Write an expression for the goalie's total saves.",
                 "variable_meaning": "x = later periods or drill segments",
@@ -4984,7 +4984,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         if mode == "translate":
             draws = random.randint(1,5)
             case.update({
-                "story": f"A soccer club earns **3 points for each win** and 1 point for each draw. The club has **x wins** and **{draws} draws**.",
+                "story": f"A soccer club earns 3 points for each win and 1 point for each draw. The club has x wins and {draws} draws.",
                 "question": "Which expression represents the club's table points?",
                 "correct": f"3x + {draws}",
                 "variable_meaning": "x = wins",
@@ -5000,7 +5000,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "combine":
             a,b = random.randint(2,6), random.randint(2,6)
             case.update({
-                "story": f"A midfielder completes **{a}x passes** in one phase and **{b}x passes** in another, plus 5 extra passes.",
+                "story": f"A midfielder completes {a}x passes in one phase and {b}x passes in another, plus 5 extra passes.",
                 "expression": f"{a}x + {b}x + 5",
                 "correct": f"{a+b}x + 5",
                 "question": "Simplify the expression for total completed passes.",
@@ -5009,7 +5009,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "distribute":
             groups = random.randint(2,5); extra = random.randint(2,6)
             case.update({
-                "story": f"A player completes {groups} identical drills. Each drill has **x normal touches and {extra} bonus touches**.",
+                "story": f"A player completes {groups} identical drills. Each drill has x normal touches and {extra} bonus touches.",
                 "expression": f"{groups}(x + {extra})",
                 "correct": f"{groups}x + {groups*extra}",
                 "question": "Rewrite the total touches using the distributive property.",
@@ -5018,7 +5018,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "equivalent":
             groups = random.randint(2,5); extra = random.randint(2,6)
             case.update({
-                "story": f"A club runs {groups} training blocks. Each block contains **x regular shots and {extra} penalty kicks**.",
+                "story": f"A club runs {groups} training blocks. Each block contains x regular shots and {extra} penalty kicks.",
                 "expression": f"{groups}(x + {extra})",
                 "correct": f"{groups}x + {groups*extra}",
                 "question": "Which expression is equivalent to the total number of shots?",
@@ -5027,7 +5027,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         else:
             start = random.randint(10,40); per = random.randint(3,8)
             case.update({
-                "story": f"A midfielder already has **{start} completed passes** and then completes **{per} passes in each of x later possessions**.",
+                "story": f"A midfielder already has {start} completed passes and then completes {per} passes in each of x later possessions.",
                 "correct": f"{start} + {per}x",
                 "question": "Write an expression for the total completed passes.",
                 "variable_meaning": "x = later possessions",
@@ -5037,7 +5037,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         if mode == "translate":
             bonus = random.randint(2,8)
             case.update({
-                "story": f"A driver earns **x points in each of 4 race segments** in a classroom simulation, plus **{bonus} bonus points**.",
+                "story": f"A driver earns x points in each of 4 race segments in a classroom simulation, plus {bonus} bonus points.",
                 "question": "Which expression represents the driver's total points?",
                 "correct": f"4x + {bonus}",
                 "variable_meaning": "x = points per race segment",
@@ -5053,7 +5053,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "combine":
             a,b = random.randint(2,6), random.randint(2,6)
             case.update({
-                "story": f"A driver completes **{a}x laps** in one stint and **{b}x laps** in another, plus 3 formation laps.",
+                "story": f"A driver completes {a}x laps in one stint and {b}x laps in another, plus 3 formation laps.",
                 "expression": f"{a}x + {b}x + 3",
                 "correct": f"{a+b}x + 3",
                 "question": "Simplify the expression for total laps.",
@@ -5062,7 +5062,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "distribute":
             sets = random.randint(2,5); extra = random.randint(1,4)
             case.update({
-                "story": f"A team prepares {sets} identical tire sets. Each set includes **x standard checks and {extra} extra checks**.",
+                "story": f"A team prepares {sets} identical tire sets. Each set includes x standard checks and {extra} extra checks.",
                 "expression": f"{sets}(x + {extra})",
                 "correct": f"{sets}x + {sets*extra}",
                 "question": "Rewrite the total checks using the distributive property.",
@@ -5071,7 +5071,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         elif mode == "equivalent":
             groups = random.randint(2,5); extra = random.randint(1,5)
             case.update({
-                "story": f"A driver runs {groups} equal practice stints. Each stint includes **x timed laps and {extra} warm-up laps**.",
+                "story": f"A driver runs {groups} equal practice stints. Each stint includes x timed laps and {extra} warm-up laps.",
                 "expression": f"{groups}(x + {extra})",
                 "correct": f"{groups}x + {groups*extra}",
                 "question": "Which expression is equivalent to the total laps?",
@@ -5080,7 +5080,7 @@ def make_dynamic_expression_case(sport, template, previous=None):
         else:
             start = random.randint(10,30); per = random.randint(3,8)
             case.update({
-                "story": f"A driver has completed **{start} laps** and then completes **{per} laps in each of x additional stints**.",
+                "story": f"A driver has completed {start} laps and then completes {per} laps in each of x additional stints.",
                 "correct": f"{start} + {per}x",
                 "question": "Write an expression for the total laps.",
                 "variable_meaning": "x = additional stints",
@@ -5158,7 +5158,7 @@ def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_
             else:
                 if difficulty=="Guided":
                     st.info(
-                        f"Use the meaning of x: **{case.get('variable_meaning','')}**. "
+                        f"Use the meaning of x: {case.get('variable_meaning','')}. "
                         "Match each part of the expression to the quantities in the sports situation."
                     )
                 else:
@@ -5178,32 +5178,32 @@ def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_
             else:
                 if difficulty=="Guided":
                     st.info(
-                        f"Remember: **{case.get('variable_meaning','')}**. "
+                        f"Remember: {case.get('variable_meaning','')}. "
                         "The fixed amount and the repeated amount should both appear."
                     )
                 else:
                     st.info("Check how the variable connects to the sports quantity.")
 
     elif mode == "evaluate":
-        st.markdown(f"### Sports formula: **{case['expression']}**")
-        st.write(f"Here, **{case.get('variable_meaning','x is the variable')}**.")
+        st.markdown(f"### Sports formula: {case['expression']}")
+        st.write(f"Here, {case.get('variable_meaning','x is the variable')}.")
         raw=st.text_input("Calculated sports total",key=f"expr_answer_{cid}",placeholder="Type your answer")
         ans=parse_student_number(raw)
         if st.button("Check My Value",key=f"expr_answer_check_{cid}",use_container_width=True):
             if ans is not None and math.isclose(ans,float(case["answer"]),abs_tol=.05):
-                st.success(f"✅ Correct — the sports total is **{fmt(float(case['answer']))}**.")
+                st.success(f"✅ Correct — the sports total is {fmt(float(case['answer']))}.")
             else:
                 if difficulty=="Guided":
                     st.info(
-                        f"Substitute **x = {case['x']}** into the sports formula first, "
+                        f"Substitute x = {case['x']} into the sports formula first, "
                         "then calculate the total."
                     )
                 else:
                     st.info("Check your substitution and arithmetic.")
 
     elif mode == "combine":
-        st.markdown(f"### Sports expression: **{case['expression']}**")
-        st.write(f"Here, **{case.get('variable_meaning','x is the repeated sports amount')}**.")
+        st.markdown(f"### Sports expression: {case['expression']}")
+        st.write(f"Here, {case.get('variable_meaning','x is the repeated sports amount')}.")
         raw=st.text_input("Simplified sports expression",key=f"expr_written_{cid}",placeholder="Simplify the expression")
         if st.button("Check My Simplified Expression",key=f"expr_written_check_{cid}",use_container_width=True):
             if normalize_expression_text(raw)==normalize_expression_text(case["correct"]):
