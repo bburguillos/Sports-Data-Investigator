@@ -1487,54 +1487,264 @@ def decode_assignment(code):
 
 RATE_CASES = {
     "NFL": {
-        "Patrick Mahomes": {"total": 4839, "games": 17, "projection_games": 12, "label": "passing yards",
-                           "unit": "passing yards per game", "story": "Patrick Mahomes threw for 4,839 yards over 17 games."},
-        "Josh Allen": {"total": 42, "games": 17, "projection_games": 10, "label": "total touchdowns",
-                       "unit": "total touchdowns per game", "story": "Josh Allen recorded 42 total touchdowns over 17 games."},
-        "Justin Jefferson": {"total": 1616, "games": 17, "projection_games": 12, "label": "receiving yards",
-                             "unit": "receiving yards per game", "story": "Justin Jefferson recorded 1,616 receiving yards over 17 games."},
-        "Dan Marino": {"total": 5084, "games": 16, "projection_games": 12, "label": "passing yards",
-                       "unit": "passing yards per game", "story": "Dan Marino threw for 5,084 yards over 16 games in 1984."},
+        "Mahomes · Passing Yards per Game": {
+            "unit": "passing yards per game", "total_label": "passing yards",
+            "total": 4839, "games": 17, "projection_games": 12,
+            "story": "Patrick Mahomes threw for 4,839 yards over 17 games.",
+            "task_type": "unit_rate"
+        },
+        "Jefferson · Receiving Yards per Game": {
+            "unit": "receiving yards per game", "total_label": "receiving yards",
+            "total": 1616, "games": 17, "projection_games": 10,
+            "story": "Justin Jefferson recorded 1,616 receiving yards over 17 games.",
+            "task_type": "unit_rate"
+        },
+        "Allen · Touchdowns per Game": {
+            "unit": "touchdowns per game", "total_label": "touchdowns",
+            "total": 42, "games": 17, "projection_games": 12,
+            "story": "Josh Allen recorded 42 total touchdowns over 17 games.",
+            "task_type": "unit_rate"
+        },
+        "Henry · Yards per Carry": {
+            "unit": "yards per carry", "total_label": "rushing yards",
+            "total": 1538, "games": 280, "projection_games": 325,
+            "story": "Derrick Henry gained 1,538 rushing yards on 280 carries.",
+            "task_type": "unit_rate",
+            "denominator_label": "carries",
+            "projection_label": "carries"
+        },
+        "Receiver Catch Rate": {
+            "unit": "catches per target", "total_label": "catches",
+            "total": 84, "games": 126, "projection_games": 150,
+            "story": "A receiver caught 84 passes on 126 targets.",
+            "task_type": "unit_rate",
+            "denominator_label": "targets",
+            "projection_label": "targets"
+        },
+        "Field Goal Pace": {
+            "unit": "made field goals per attempt", "total_label": "made field goals",
+            "total": 27, "games": 30, "projection_games": 40,
+            "story": "A kicker made 27 field goals in 30 attempts.",
+            "task_type": "unit_rate",
+            "denominator_label": "attempts",
+            "projection_label": "attempts"
+        },
     },
     "NBA": {
-        "LeBron James": {"total": 1695, "games": 63, "projection_games": 70, "label": "points",
-                         "unit": "points per game", "story": "LeBron James scored 1,695 points over 63 games."},
-        "Stephen Curry": {"total": 337, "games": 63, "projection_games": 70, "label": "made 3-pointers",
-                          "unit": "made 3-pointers per game", "story": "Stephen Curry made 337 three-pointers over 63 games."},
-        "Michael Jordan": {"total": 3041, "games": 82, "projection_games": 60, "label": "points",
-                           "unit": "points per game", "story": "Michael Jordan scored 3,041 points over 82 games in 1986-87."},
+        "Curry · Threes per Game": {
+            "unit": "made 3-pointers per game", "total_label": "made 3-pointers",
+            "total": 337, "games": 63, "projection_games": 70,
+            "story": "Stephen Curry made 337 three-pointers over 63 games.",
+            "task_type": "unit_rate"
+        },
+        "Jordan · Points per Game": {
+            "unit": "points per game", "total_label": "points",
+            "total": 3041, "games": 82, "projection_games": 60,
+            "story": "Michael Jordan scored 3,041 points over 82 games in 1986-87.",
+            "task_type": "unit_rate"
+        },
+        "LeBron · Assists per Game": {
+            "unit": "assists per game", "total_label": "assists",
+            "total": 518, "games": 71, "projection_games": 65,
+            "story": "LeBron James recorded 518 assists over 71 games.",
+            "task_type": "unit_rate"
+        },
+        "Free Throw Rate": {
+            "unit": "made free throws per attempt", "total_label": "made free throws",
+            "total": 72, "games": 90, "projection_games": 120,
+            "story": "A player made 72 free throws in 90 attempts.",
+            "task_type": "unit_rate",
+            "denominator_label": "attempts",
+            "projection_label": "attempts"
+        },
+        "Rebounds per Minute": {
+            "unit": "rebounds per minute", "total_label": "rebounds",
+            "total": 14, "games": 28, "projection_games": 36,
+            "story": "A player grabbed 14 rebounds in 28 minutes.",
+            "task_type": "unit_rate",
+            "denominator_label": "minutes",
+            "projection_label": "minutes"
+        },
+        "Team Scoring Pace": {
+            "unit": "points per quarter", "total_label": "points",
+            "total": 84, "games": 3, "projection_games": 4,
+            "story": "A team scored 84 points through 3 quarters.",
+            "task_type": "unit_rate",
+            "denominator_label": "quarters",
+            "projection_label": "quarters"
+        },
     },
     "MLB": {
-        "Aaron Judge": {"total": 62, "games": 157, "projection_games": 100, "label": "home runs",
-                        "unit": "home runs per game", "story": "Aaron Judge hit 62 home runs over 157 games in 2022."},
-        "Shohei Ohtani": {"total": 54, "games": 159, "projection_games": 100, "label": "home runs",
-                          "unit": "home runs per game", "story": "Shohei Ohtani hit 54 home runs over 159 games."},
-        "Babe Ruth": {"total": 59, "games": 152, "projection_games": 100, "label": "home runs",
-                      "unit": "home runs per game", "story": "Babe Ruth hit 59 home runs over 152 games in 1921."},
+        "Judge · Home Runs per Game": {
+            "unit": "home runs per game", "total_label": "home runs",
+            "total": 62, "games": 157, "projection_games": 100,
+            "story": "Aaron Judge hit 62 home runs over 157 games in 2022.",
+            "task_type": "unit_rate"
+        },
+        "Ohtani · Home Runs per Game": {
+            "unit": "home runs per game", "total_label": "home runs",
+            "total": 54, "games": 159, "projection_games": 120,
+            "story": "Shohei Ohtani hit 54 home runs over 159 games.",
+            "task_type": "unit_rate"
+        },
+        "Hits per At-Bat": {
+            "unit": "hits per at-bat", "total_label": "hits",
+            "total": 45, "games": 150, "projection_games": 200,
+            "story": "A hitter recorded 45 hits in 150 at-bats.",
+            "task_type": "unit_rate",
+            "denominator_label": "at-bats",
+            "projection_label": "at-bats"
+        },
+        "Strikeouts per Inning": {
+            "unit": "strikeouts per inning", "total_label": "strikeouts",
+            "total": 72, "games": 60, "projection_games": 90,
+            "story": "A pitcher recorded 72 strikeouts in 60 innings.",
+            "task_type": "unit_rate",
+            "denominator_label": "innings",
+            "projection_label": "innings"
+        },
+        "Runs per Inning": {
+            "unit": "runs per inning", "total_label": "runs",
+            "total": 18, "games": 6, "projection_games": 9,
+            "story": "A team scored 18 runs over 6 innings in a classroom simulation.",
+            "task_type": "unit_rate",
+            "denominator_label": "innings",
+            "projection_label": "innings"
+        },
+        "Stolen Base Pace": {
+            "unit": "stolen bases per game", "total_label": "stolen bases",
+            "total": 24, "games": 40, "projection_games": 75,
+            "story": "A player stole 24 bases over 40 games.",
+            "task_type": "unit_rate"
+        },
     },
     "NHL": {
-        "Connor McDavid": {"total": 153, "games": 82, "projection_games": 60, "label": "points",
-                           "unit": "points per game", "story": "Connor McDavid recorded 153 points over 82 games."},
-        "Auston Matthews": {"total": 69, "games": 81, "projection_games": 60, "label": "goals",
-                            "unit": "goals per game", "story": "Auston Matthews scored 69 goals over 81 games."},
-        "Wayne Gretzky": {"total": 212, "games": 80, "projection_games": 60, "label": "points",
-                          "unit": "points per game", "story": "Wayne Gretzky recorded 212 points over 80 games in 1981-82."},
+        "McDavid · Points per Game": {
+            "unit": "points per game", "total_label": "points",
+            "total": 153, "games": 82, "projection_games": 60,
+            "story": "Connor McDavid recorded 153 points over 82 games.",
+            "task_type": "unit_rate"
+        },
+        "Matthews · Goals per Game": {
+            "unit": "goals per game", "total_label": "goals",
+            "total": 69, "games": 81, "projection_games": 60,
+            "story": "Auston Matthews scored 69 goals over 81 games.",
+            "task_type": "unit_rate"
+        },
+        "Shots per Game": {
+            "unit": "shots per game", "total_label": "shots",
+            "total": 96, "games": 24, "projection_games": 35,
+            "story": "A player recorded 96 shots over 24 games.",
+            "task_type": "unit_rate"
+        },
+        "Saves per Shot": {
+            "unit": "saves per shot", "total_label": "saves",
+            "total": 45, "games": 50, "projection_games": 80,
+            "story": "A goalie made 45 saves on 50 shots.",
+            "task_type": "unit_rate",
+            "denominator_label": "shots",
+            "projection_label": "shots"
+        },
+        "Penalty Minutes per Game": {
+            "unit": "penalty minutes per game", "total_label": "penalty minutes",
+            "total": 36, "games": 18, "projection_games": 30,
+            "story": "A player accumulated 36 penalty minutes over 18 games.",
+            "task_type": "unit_rate"
+        },
+        "Power-Play Goals per Chance": {
+            "unit": "goals per power-play chance", "total_label": "power-play goals",
+            "total": 12, "games": 48, "projection_games": 80,
+            "story": "A team scored 12 power-play goals in 48 chances.",
+            "task_type": "unit_rate",
+            "denominator_label": "power-play chances",
+            "projection_label": "power-play chances"
+        },
     },
     "Soccer": {
-        "Lionel Messi": {"total": 43, "games": 38, "projection_games": 30, "label": "league goals",
-                         "unit": "league goals per match", "story": "Lionel Messi scored 43 league goals over 38 matches in 2014-15."},
-        "Erling Haaland": {"total": 36, "games": 35, "projection_games": 30, "label": "league goals",
-                           "unit": "league goals per match", "story": "Erling Haaland scored 36 league goals over 35 matches in 2022-23."},
-        "Pelé": {"total": 6, "games": 4, "projection_games": 7, "label": "World Cup goals",
-                 "unit": "World Cup goals per match", "story": "Pelé scored 6 goals over 4 matches at the 1958 World Cup."},
+        "Messi · Goals per Match": {
+            "unit": "goals per match", "total_label": "goals",
+            "total": 43, "games": 38, "projection_games": 30,
+            "story": "Lionel Messi scored 43 league goals over 38 matches in 2014-15.",
+            "task_type": "unit_rate"
+        },
+        "Haaland · Goals per Match": {
+            "unit": "goals per match", "total_label": "goals",
+            "total": 36, "games": 35, "projection_games": 30,
+            "story": "Erling Haaland scored 36 league goals over 35 matches in 2022-23.",
+            "task_type": "unit_rate"
+        },
+        "Passes per Minute": {
+            "unit": "completed passes per minute", "total_label": "completed passes",
+            "total": 54, "games": 90, "projection_games": 60,
+            "story": "A midfielder completed 54 passes in 90 minutes.",
+            "task_type": "unit_rate",
+            "denominator_label": "minutes",
+            "projection_label": "minutes"
+        },
+        "Shots per Match": {
+            "unit": "shots per match", "total_label": "shots",
+            "total": 28, "games": 7, "projection_games": 12,
+            "story": "A forward took 28 shots over 7 matches.",
+            "task_type": "unit_rate"
+        },
+        "Penalty Conversion Rate": {
+            "unit": "goals per penalty attempt", "total_label": "penalty goals",
+            "total": 8, "games": 10, "projection_games": 15,
+            "story": "A player scored on 8 of 10 penalty attempts.",
+            "task_type": "unit_rate",
+            "denominator_label": "penalty attempts",
+            "projection_label": "penalty attempts"
+        },
+        "Team Points per Match": {
+            "unit": "table points per match", "total_label": "table points",
+            "total": 21, "games": 9, "projection_games": 15,
+            "story": "A club earned 21 table points over 9 matches.",
+            "task_type": "unit_rate"
+        },
     },
     "Formula 1": {
-        "Max Verstappen": {"total": 575, "games": 22, "projection_games": 20, "label": "championship points",
-                           "unit": "championship points per race", "story": "Max Verstappen scored 575 championship points over 22 races in 2023."},
-        "Lewis Hamilton": {"total": 413, "games": 21, "projection_games": 20, "label": "championship points",
-                           "unit": "championship points per race", "story": "Lewis Hamilton scored 413 championship points over 21 races in 2019."},
-        "Ayrton Senna": {"total": 90, "games": 16, "projection_games": 12, "label": "championship points",
-                         "unit": "championship points per race", "story": "Ayrton Senna scored 90 championship points over 16 races in 1988."},
+        "Verstappen · Points per Race": {
+            "unit": "championship points per race", "total_label": "championship points",
+            "total": 575, "games": 22, "projection_games": 20,
+            "story": "Max Verstappen scored 575 championship points over 22 races in 2023.",
+            "task_type": "unit_rate"
+        },
+        "Hamilton · Points per Race": {
+            "unit": "championship points per race", "total_label": "championship points",
+            "total": 413, "games": 21, "projection_games": 18,
+            "story": "Lewis Hamilton scored 413 championship points over 21 races in 2019.",
+            "task_type": "unit_rate"
+        },
+        "Laps per Minute": {
+            "unit": "laps per minute", "total_label": "laps",
+            "total": 18, "games": 27, "projection_games": 45,
+            "story": "A driver completed 18 laps in 27 minutes during a practice simulation.",
+            "task_type": "unit_rate",
+            "denominator_label": "minutes",
+            "projection_label": "minutes"
+        },
+        "Pit Stops per Race": {
+            "unit": "pit stops per race", "total_label": "pit stops",
+            "total": 12, "games": 6, "projection_games": 10,
+            "story": "A team made 12 pit stops over 6 races.",
+            "task_type": "unit_rate"
+        },
+        "Fuel per Lap": {
+            "unit": "liters per lap", "total_label": "liters of fuel",
+            "total": 90, "games": 50, "projection_games": 70,
+            "story": "A race simulation used 90 liters of fuel over 50 laps.",
+            "task_type": "unit_rate",
+            "denominator_label": "laps",
+            "projection_label": "laps"
+        },
+        "Points per Sprint": {
+            "unit": "points per sprint", "total_label": "points",
+            "total": 24, "games": 4, "projection_games": 7,
+            "story": "A driver earned 24 sprint points over 4 sprint events.",
+            "task_type": "unit_rate",
+            "denominator_label": "sprints",
+            "projection_label": "sprints"
+        },
     },
 }
 
@@ -1567,7 +1777,7 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
             )
         with b:
             athlete = st.selectbox(
-                "Athlete",
+                "Scenario",
                 list(RATE_CASES[sport]),
                 key="rate_athlete"
             )
@@ -1576,6 +1786,8 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
     total = float(case["total"])
     games = float(case["games"])
     target_games = float(case["projection_games"])
+    denominator_label = case.get("denominator_label", "games")
+    projection_label = case.get("projection_label", denominator_label)
     true_rate = total / games
     true_projection = true_rate * target_games
 
@@ -1592,7 +1804,7 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
     # -----------------------------
     st.markdown("### Step 1 · Write a ratio")
     st.write(
-        "Write a ratio that compares the athlete's total statistic to the number of games, matches, or races."
+        f"Write a ratio that compares **{case['total_label']}** to **{denominator_label}**."
     )
     ratio_raw = st.text_input(
         "Your ratio",
@@ -1621,8 +1833,8 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
             st.session_state.ratio_attempts += 1
             if st.session_state.ratio_attempts == 1:
                 st.info(
-                    "Look back at the situation. Which number is the total statistic, "
-                    "and which number tells how many games, matches, or races were played?"
+                    f"Look back at the situation. Which number is the **{case['total_label']}** total, "
+                    f"and which number is the number of **{denominator_label}**?"
                 )
             else:
                 st.warning(
@@ -1636,7 +1848,7 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
     # -----------------------------
     st.markdown("### Step 2 · Find the unit rate")
     st.write(
-        f"How many **{case['unit']}** did {athlete} average?"
+        f"What is the **{case['unit']}**?"
     )
     rate_raw = st.text_input(
         "Unit rate",
@@ -1660,8 +1872,8 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
             st.session_state.rate_attempts += 1
             if st.session_state.rate_attempts == 1:
                 st.info(
-                    "A unit rate tells the amount for **1** game, match, or race. "
-                    "Think about which operation would turn the game total into 1."
+                    f"A unit rate tells the amount for **1 {denominator_label.rstrip('s')}**. "
+                    "Think about which operation turns the denominator into 1."
                 )
             else:
                 st.warning(
@@ -1674,7 +1886,7 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
     # -----------------------------
     st.markdown("### Step 3 · Make a proportional prediction")
     st.write(
-        f"If the same rate continued for **{fmt(target_games)}** games, matches, or races, "
+        f"If the same rate continued for **{fmt(target_games)} {projection_label}**, "
         "what total would you predict?"
     )
 
@@ -1708,7 +1920,7 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
             if st.session_state.projection_attempts == 1:
                 st.info(
                     "Use the unit rate you found in Step 2. "
-                    "How can you use that rate with the new number of games?"
+                    f"How can you use that rate with **{fmt(target_games)} {projection_label}**?"
                 )
             else:
                 st.warning(
