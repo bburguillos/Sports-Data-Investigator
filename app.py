@@ -7514,8 +7514,27 @@ def make_dynamic_ratio_case(sport, template, previous=None):
     rate = random.choice(rate_choices)
     total = round(den * rate, 2)
 
+    # Some sports rates are "successes out of attempts." Those must NEVER
+    # generate more successes than attempts. Use realistic, student-friendly
+    # fractions that simplify cleanly and convert nicely to decimals.
+    bounded_success_rates = {
+        ("catches", "targets"): [(6,10), (8,10), (12,15), (15,20), (18,24)],
+        ("made field goals", "attempts"): [(6,8), (8,10), (9,12), (12,15), (16,20)],
+        ("made free throws", "attempts"): [(6,8), (8,10), (9,12), (15,20), (18,24)],
+        ("hits", "at-bats"): [(4,10), (6,15), (8,20), (9,24), (12,30)],
+        ("saves", "shots"): [(8,10), (9,10), (18,20), (21,24), (27,30)],
+        ("power-play goals", "power-play chances"): [(2,10), (3,12), (4,16), (5,20), (6,24)],
+        ("penalty goals", "penalty attempts"): [(3,5), (4,5), (6,10), (8,10), (9,12)],
+    }
+
+    bounded_key = (str(total_label).lower(), str(denominator_label).lower())
+
+    if bounded_key in bounded_success_rates:
+        total, den = random.choice(bounded_success_rates[bounded_key])
+        rate = total / den
+
     # Avoid implausibly tiny/huge values for common sport units.
-    if "yards" in unit and "carry" not in unit:
+    elif "yards" in unit and "carry" not in unit:
         den = random.choice([8, 10, 12, 16, 17])
         rate = random.choice([180, 220, 240, 260, 280, 300, 320])
         total = den * rate
@@ -7537,10 +7556,16 @@ def make_dynamic_ratio_case(sport, template, previous=None):
     case["total"] = total
     case["games"] = den
     case["projection_games"] = target
-    case["story"] = (
-        f"In this {sport} practice scenario, there are **{fmt(float(total))} {total_label}** "
-        f"over **{fmt(float(den))} {denominator_label}**."
-    )
+    if bounded_key in bounded_success_rates:
+        case["story"] = (
+            f"In this {sport} scenario, there are **{fmt(float(total))} {total_label}** "
+            f"in **{fmt(float(den))} {denominator_label}**."
+        )
+    else:
+        case["story"] = (
+            f"In this {sport} practice scenario, there are **{fmt(float(total))} {total_label}** "
+            f"over **{fmt(float(den))} {denominator_label}**."
+        )
     case["dynamic_id"] = f"{total}|{den}|{target}"
     return case
 
