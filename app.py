@@ -4698,6 +4698,219 @@ def statistics_engine(sport_filter="Any Sport", difficulty="Guided", generated_s
         key=f"stats_reasoning_{cid}",
         placeholder="Use the data in your explanation."
     )
+
+# =========================================================
+# 7TH GRADE MATH LAB — EXPRESSIONS & ALGEBRAIC REASONING
+# =========================================================
+EXPRESSION_CASES = {
+    "NFL": [
+        {"title":"Touchdown Scoring Expression","kind":"Translate Expression","mode":"translate","story":"A team already has 10 points and then scores x touchdowns worth 7 points each.","correct":"10 + 7x","question":"Which expression represents the team's total points?"},
+        {"title":"Evaluate Fantasy Score","kind":"Evaluate Expression","mode":"evaluate","expression":"6x + 8","x":3,"question":"Evaluate 6x + 8 when x = 3.","answer":26},
+        {"title":"Combine Yardage Terms","kind":"Combine Like Terms","mode":"combine","expression":"4x + 3x + 12","correct":"7x + 12","question":"Simplify the expression."},
+        {"title":"Distribute Practice Reps","kind":"Distributive Property","mode":"distribute","expression":"3(x + 5)","correct":"3x + 15","question":"Use the distributive property to rewrite the expression."},
+        {"title":"Equivalent Play Calls","kind":"Equivalent Expressions","mode":"equivalent","expression":"5(x + 2)","correct":"5x + 10","question":"Which expression is equivalent?"},
+        {"title":"Write an Expression","kind":"Write Expression","mode":"write","story":"A player has 22 fantasy points and earns 4 more points for each bonus play x.","correct":"22 + 4x","question":"Write an expression for the total fantasy points."}
+    ],
+    "NBA": [
+        {"title":"Three-Point Scoring Expression","kind":"Translate Expression","mode":"translate","story":"A player already has 12 points and then makes x three-pointers worth 3 points each.","correct":"12 + 3x","question":"Which expression represents the total points?"},
+        {"title":"Evaluate Scoring Expression","kind":"Evaluate Expression","mode":"evaluate","expression":"4x + 6","x":5,"question":"Evaluate 4x + 6 when x = 5.","answer":26},
+        {"title":"Combine Shot Terms","kind":"Combine Like Terms","mode":"combine","expression":"5x + 2x + 9","correct":"7x + 9","question":"Simplify the expression."},
+        {"title":"Distribute Drill Sets","kind":"Distributive Property","mode":"distribute","expression":"4(x + 3)","correct":"4x + 12","question":"Use the distributive property to rewrite the expression."},
+        {"title":"Equivalent Scoring Forms","kind":"Equivalent Expressions","mode":"equivalent","expression":"2(x + 7)","correct":"2x + 14","question":"Which expression is equivalent?"},
+        {"title":"Write an Assist Expression","kind":"Write Expression","mode":"write","story":"A player starts with 8 assists and adds 2 assists for each game x.","correct":"8 + 2x","question":"Write an expression for the total assists."}
+    ],
+    "MLB": [
+        {"title":"Run Scoring Expression","kind":"Translate Expression","mode":"translate","story":"A team starts with 3 runs and scores x home runs worth 1 run each in this simplified model.","correct":"3 + x","question":"Which expression represents the total runs?"},
+        {"title":"Evaluate Hit Expression","kind":"Evaluate Expression","mode":"evaluate","expression":"3x + 4","x":6,"question":"Evaluate 3x + 4 when x = 6.","answer":22},
+        {"title":"Combine Hit Terms","kind":"Combine Like Terms","mode":"combine","expression":"2x + 5x + 6","correct":"7x + 6","question":"Simplify the expression."},
+        {"title":"Distribute Batting Groups","kind":"Distributive Property","mode":"distribute","expression":"5(x + 2)","correct":"5x + 10","question":"Use the distributive property to rewrite the expression."},
+        {"title":"Equivalent Run Forms","kind":"Equivalent Expressions","mode":"equivalent","expression":"3(x + 4)","correct":"3x + 12","question":"Which expression is equivalent?"},
+        {"title":"Write a Pitch Expression","kind":"Write Expression","mode":"write","story":"A pitcher has thrown 40 pitches and throws 8 more pitches each inning x.","correct":"40 + 8x","question":"Write an expression for the total pitches."}
+    ],
+    "NHL": [
+        {"title":"Goal Scoring Expression","kind":"Translate Expression","mode":"translate","story":"A team starts with 2 goals and adds x more goals.","correct":"2 + x","question":"Which expression represents the total goals?"},
+        {"title":"Evaluate Point Expression","kind":"Evaluate Expression","mode":"evaluate","expression":"5x + 3","x":4,"question":"Evaluate 5x + 3 when x = 4.","answer":23},
+        {"title":"Combine Shot Terms","kind":"Combine Like Terms","mode":"combine","expression":"6x + x + 5","correct":"7x + 5","question":"Simplify the expression."},
+        {"title":"Distribute Shift Groups","kind":"Distributive Property","mode":"distribute","expression":"2(x + 6)","correct":"2x + 12","question":"Use the distributive property to rewrite the expression."},
+        {"title":"Equivalent Shot Forms","kind":"Equivalent Expressions","mode":"equivalent","expression":"4(x + 3)","correct":"4x + 12","question":"Which expression is equivalent?"},
+        {"title":"Write a Save Expression","kind":"Write Expression","mode":"write","story":"A goalie starts with 15 saves and adds 5 saves each period x.","correct":"15 + 5x","question":"Write an expression for the total saves."}
+    ],
+    "Soccer": [
+        {"title":"Goal Expression","kind":"Translate Expression","mode":"translate","story":"A club starts with 1 goal and scores x additional goals.","correct":"1 + x","question":"Which expression represents the total goals?"},
+        {"title":"Evaluate Point Expression","kind":"Evaluate Expression","mode":"evaluate","expression":"3x + 2","x":5,"question":"Evaluate 3x + 2 when x = 5.","answer":17},
+        {"title":"Combine Pass Terms","kind":"Combine Like Terms","mode":"combine","expression":"4x + 2x + 10","correct":"6x + 10","question":"Simplify the expression."},
+        {"title":"Distribute Training Sets","kind":"Distributive Property","mode":"distribute","expression":"3(x + 4)","correct":"3x + 12","question":"Use the distributive property to rewrite the expression."},
+        {"title":"Equivalent Goal Forms","kind":"Equivalent Expressions","mode":"equivalent","expression":"6(x + 2)","correct":"6x + 12","question":"Which expression is equivalent?"},
+        {"title":"Write a Pass Expression","kind":"Write Expression","mode":"write","story":"A midfielder begins with 20 completed passes and adds 6 passes each segment x.","correct":"20 + 6x","question":"Write an expression for the total completed passes."}
+    ],
+    "Formula 1": [
+        {"title":"Race Point Expression","kind":"Translate Expression","mode":"translate","story":"A driver starts with 18 points and earns x additional race bonuses worth 5 points each.","correct":"18 + 5x","question":"Which expression represents the total points?"},
+        {"title":"Evaluate Race Expression","kind":"Evaluate Expression","mode":"evaluate","expression":"7x + 4","x":3,"question":"Evaluate 7x + 4 when x = 3.","answer":25},
+        {"title":"Combine Lap Terms","kind":"Combine Like Terms","mode":"combine","expression":"3x + 4x + 2","correct":"7x + 2","question":"Simplify the expression."},
+        {"title":"Distribute Pit Sets","kind":"Distributive Property","mode":"distribute","expression":"4(x + 2)","correct":"4x + 8","question":"Use the distributive property to rewrite the expression."},
+        {"title":"Equivalent Point Forms","kind":"Equivalent Expressions","mode":"equivalent","expression":"5(x + 3)","correct":"5x + 15","question":"Which expression is equivalent?"},
+        {"title":"Write a Lap Expression","kind":"Write Expression","mode":"write","story":"A driver has completed 12 laps and adds 4 laps each segment x.","correct":"12 + 4x","question":"Write an expression for the total laps."}
+    ],
+}
+
+def normalize_expression_text(text):
+    return (
+        str(text).lower().replace(" ", "")
+        .replace("*","").replace("×","")
+        .replace("–","-").replace("—","-")
+    )
+
+def make_dynamic_expression_case(sport, template, previous=None):
+    case = copy.deepcopy(template)
+    mode = case["mode"]
+
+    if mode in ("translate","write"):
+        start = random.randint(5,40)
+        rate = random.randint(2,9)
+        case["story"] = f"In this {sport} situation, the starting amount is {start}, and each group x adds {rate} more."
+        case["correct"] = f"{start} + {rate}x"
+        case["question"] = "Write or choose an expression for the total amount."
+        case["dynamic_id"] = f"{mode}|{start}|{rate}"
+    elif mode == "evaluate":
+        coeff = random.randint(2,9)
+        constant = random.randint(1,15)
+        xval = random.randint(2,10)
+        case["expression"] = f"{coeff}x + {constant}"
+        case["x"] = xval
+        case["answer"] = coeff*xval + constant
+        case["question"] = f"Evaluate {case['expression']} when x = {xval}."
+        case["dynamic_id"] = f"{mode}|{coeff}|{constant}|{xval}"
+    elif mode == "combine":
+        a = random.randint(2,8)
+        b = random.randint(2,8)
+        constant = random.randint(1,15)
+        case["expression"] = f"{a}x + {b}x + {constant}"
+        case["correct"] = f"{a+b}x + {constant}"
+        case["question"] = "Simplify the expression."
+        case["dynamic_id"] = f"{mode}|{a}|{b}|{constant}"
+    elif mode in ("distribute","equivalent"):
+        outer = random.randint(2,8)
+        inner = random.randint(2,10)
+        case["expression"] = f"{outer}(x + {inner})"
+        case["correct"] = f"{outer}x + {outer*inner}"
+        case["question"] = "Which expression is equivalent?"
+        case["dynamic_id"] = f"{mode}|{outer}|{inner}"
+    return case
+
+def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None, generated_case=None):
+    st.markdown('<div class="step">7th Grade Math Lab · Expressions & Algebraic Reasoning</div>', unsafe_allow_html=True)
+    st.subheader("🧠 Sports Expressions Lab")
+    st.write("Translate, simplify, evaluate, and recognize equivalent algebraic expressions in sports situations.")
+
+    if generated_case is not None and generated_sport:
+        sport = generated_sport
+        case = generated_case
+    else:
+        sports = list(EXPRESSION_CASES)
+        if sport_filter != "Any Sport":
+            sports = [sport_filter]
+        sport = st.selectbox("Sport", sports, key="expr_sport")
+        labels = {f"{c['kind']} · {c['title']}": c for c in EXPRESSION_CASES[sport]}
+        selected = st.selectbox("Scenario", list(labels), key="expr_case")
+        case = labels[selected]
+
+    cid = clean_filename(f"{sport}_{case['title']}")
+    mode = case["mode"]
+
+    st.markdown(f"""
+    <div class="card">
+      <div class="step">{SPORT_ICONS.get(sport,'')} {sport} · {case['kind']}</div>
+      <h2>{case['title']}</h2>
+      <p><b>Situation:</b> {case.get('story','')}</p>
+      <p><b>Question:</b> {case['question']}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if mode in ("translate","equivalent","distribute"):
+        if mode == "translate":
+            correct = case["correct"]
+            start, rest = correct.split(" + ",1)
+            rate = rest.replace("x","")
+            options = [
+                correct,
+                f"{rate} + {start}x",
+                f"{start}x + {rate}",
+                f"{start} - {rate}x",
+            ]
+        else:
+            correct = case["correct"]
+            outer = int(case["expression"].split("(")[0])
+            inner = int(case["expression"].split("+")[1].replace(")","").strip())
+            options = [
+                correct,
+                f"{outer}x + {inner}",
+                f"{outer+inner}x",
+                f"{outer}x + {inner+outer}",
+            ]
+
+        order_key=f"expr_order_{cid}"
+        if order_key not in st.session_state:
+            vals=list(dict.fromkeys(options)); random.shuffle(vals); st.session_state[order_key]=vals
+
+        choice=st.radio("Choose the correct expression.",st.session_state[order_key],key=f"expr_choice_{cid}")
+        if st.button("Check My Expression",key=f"expr_choice_check_{cid}",use_container_width=True):
+            if normalize_expression_text(choice)==normalize_expression_text(correct):
+                st.success("✅ Correct.")
+            else:
+                if difficulty=="Guided":
+                    st.info("Look at the starting amount, the amount multiplied by x, and whether the operation should be addition or subtraction.")
+                else:
+                    st.info("Try again.")
+
+    elif mode == "write":
+        raw=st.text_input("Your expression",key=f"expr_written_{cid}",placeholder="Example: 12 + 4x")
+        if st.button("Check My Expression",key=f"expr_written_check_{cid}",use_container_width=True):
+            student=normalize_expression_text(raw)
+            correct=normalize_expression_text(case["correct"])
+            # accept reversed addition order
+            alt=""
+            if "+" in correct:
+                parts=correct.split("+")
+                alt="+".join(reversed(parts))
+            if student==correct or student==alt:
+                st.success("✅ Correct.")
+            else:
+                if difficulty=="Guided":
+                    st.info("Your expression should include the starting amount and the repeated amount multiplied by x.")
+                else:
+                    st.info("Check your expression and try again.")
+
+    elif mode == "evaluate":
+        st.markdown(f"### Expression: **{case['expression']}**")
+        st.write(f"Use **x = {case['x']}**.")
+        raw=st.text_input("Value of the expression",key=f"expr_answer_{cid}",placeholder="Type your answer")
+        ans=parse_student_number(raw)
+        if st.button("Check My Value",key=f"expr_answer_check_{cid}",use_container_width=True):
+            if ans is not None and math.isclose(ans,float(case["answer"]),abs_tol=.05):
+                st.success(f"✅ Correct — {fmt(float(case['answer']))}.")
+            else:
+                if difficulty=="Guided":
+                    st.info("Substitute the value for x first, then follow the order of operations.")
+                else:
+                    st.info("Check your substitution and arithmetic.")
+
+    elif mode == "combine":
+        raw=st.text_input("Simplified expression",key=f"expr_written_{cid}",placeholder="Example: 7x + 4")
+        if st.button("Check My Simplified Expression",key=f"expr_written_check_{cid}",use_container_width=True):
+            if normalize_expression_text(raw)==normalize_expression_text(case["correct"]):
+                st.success("✅ Correct.")
+            else:
+                if difficulty=="Guided":
+                    st.info("Only combine terms that have the same variable part.")
+                else:
+                    st.info("Check which terms are alike.")
+
+    st.markdown("### Final · Explain your reasoning")
+    st.text_area(
+        "Explain what the variable x represents or why your simplified/evaluated expression makes sense.",
+        key=f"expr_reasoning_{cid}",
+        placeholder="Explain your algebra thinking in your own words."
+    )
 # =========================================================
 # SPORTS MATH CHALLENGE — MULTI-SKILL HIGHER-LEVEL THINKING
 # =========================================================
@@ -6015,13 +6228,13 @@ if branch == "Teacher Assignment Builder":
 
     assignment_type = st.selectbox(
         "Assignment type",
-        ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Statistics & Sampling", "Sports Math Challenge"],
+        ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Statistics & Sampling", "Expressions & Algebraic Reasoning", "Sports Math Challenge"],
         key="teacher_topic"
     )
     count = st.selectbox("Activities required", [1,2,3], key="teacher_count")
     sport_limit = st.selectbox("Allowed sport", ["Any Sport"] + list(RATE_CASES), key="teacher_sport")
 
-    if assignment_type in ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Statistics & Sampling"]:
+    if assignment_type in ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Statistics & Sampling", "Expressions & Algebraic Reasoning"]:
         difficulty = st.selectbox("Difficulty", ["Guided","Independent"], key="teacher_difficulty")
         challenge_level = "Any Level"
     else:
@@ -6528,6 +6741,8 @@ def make_dynamic_math_case(topic, sport, template, previous_case=None):
         return make_dynamic_geometry_case(sport, template, previous_case)
     if topic == "Statistics & Sampling":
         return make_dynamic_statistics_case(sport, template, previous_case)
+    if topic == "Expressions & Algebraic Reasoning":
+        return make_dynamic_expression_case(sport, template, previous_case)
     return copy.deepcopy(template)
 
 
@@ -6554,6 +6769,8 @@ def math_lab_final_reasoning(generated):
         return st.session_state.get(f"geo_reasoning_{cid}", "").strip()
     if topic == "Statistics & Sampling":
         return st.session_state.get(f"stats_reasoning_{cid}", "").strip()
+    if topic == "Expressions & Algebraic Reasoning":
+        return st.session_state.get(f"expr_reasoning_{cid}", "").strip()
     return ""
 
 def math_lab_answer_summary(generated):
@@ -6624,6 +6841,13 @@ def math_lab_answer_summary(generated):
             ("Claim conclusion", st.session_state.get(f"stats_claim_{cid}", "")),
             ("Sampling method", st.session_state.get(f"stats_method_{cid}", "")),
             ("Reasoning", st.session_state.get(f"stats_reasoning_{cid}", "")),
+        ]
+    elif topic == "Expressions & Algebraic Reasoning":
+        rows = [
+            ("Selected expression", st.session_state.get(f"expr_choice_{cid}", "")),
+            ("Written expression", st.session_state.get(f"expr_written_{cid}", "")),
+            ("Evaluated value", st.session_state.get(f"expr_answer_{cid}", "")),
+            ("Reasoning", st.session_state.get(f"expr_reasoning_{cid}", "")),
         ]
 
     return [(label, str(value)) for label, value in rows if str(value).strip()]
@@ -6713,6 +6937,23 @@ def math_lab_core_answer_correct(generated):
                 return str(st.session_state.get(f"stats_claim_{cid}","")).startswith("The sample supports")
             if mode == "method":
                 return st.session_state.get(f"stats_method_{cid}")==case.get("correct")
+            return False
+
+        if topic == "Expressions & Algebraic Reasoning":
+            mode = case.get("mode")
+            if mode in ("translate","equivalent","distribute"):
+                return normalize_expression_text(st.session_state.get(f"expr_choice_{cid}","")) == normalize_expression_text(case.get("correct",""))
+            if mode in ("write","combine"):
+                student = normalize_expression_text(st.session_state.get(f"expr_written_{cid}",""))
+                correct = normalize_expression_text(case.get("correct",""))
+                if mode == "write" and "+" in correct:
+                    parts = correct.split("+")
+                    alt = "+".join(reversed(parts))
+                    return student == correct or student == alt
+                return student == correct
+            if mode == "evaluate":
+                ans = parse_student_number(st.session_state.get(f"expr_answer_{cid}",""))
+                return ans is not None and math.isclose(ans,float(case.get("answer",0)),abs_tol=.05)
             return False
     except Exception:
         return False
@@ -6936,7 +7177,7 @@ if branch == "7th Grade Math Lab":
         with s1:
             config["topic"] = st.selectbox(
                 "Math topic",
-                ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Statistics & Sampling"],
+                ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Statistics & Sampling", "Expressions & Algebraic Reasoning"],
                 key="math_topic_select"
             )
         with s2:
@@ -7042,6 +7283,17 @@ if branch == "7th Grade Math Lab":
                 "difficulty": config.get("difficulty", "Guided"),
                 "title": template["title"], "case": fresh_case
             }
+        elif topic == "Expressions & Algebraic Reasoning":
+            options = EXPRESSION_CASES[actual_sport]
+            previous_title = previous.get("title") if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport else None
+            choices = [c for c in options if c["title"] != previous_title] or options
+            template = random.choice(choices)
+            fresh_case = make_dynamic_math_case(topic, actual_sport, template, previous_case)
+            generated = {
+                "topic": topic, "sport": actual_sport,
+                "difficulty": config.get("difficulty", "Guided"),
+                "title": template["title"], "case": fresh_case
+            }
         else:
             labels = list(RATE_CASES[actual_sport])
             previous_label = previous.get("athlete") if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport else None
@@ -7073,7 +7325,8 @@ if branch == "7th Grade Math Lab":
             "stats_ratio_", "stats_answer_", "stats_bias_", "stats_bias_order_",
             "stats_mean_a_", "stats_mean_b_", "stats_compare_", "stats_range_a_",
             "stats_range_b_", "stats_consistent_", "stats_claim_", "stats_method_",
-            "stats_method_order_", "stats_reasoning_"
+            "stats_method_order_", "stats_reasoning_",
+            "expr_order_", "expr_choice_", "expr_written_", "expr_answer_", "expr_reasoning_"
         )
         for key in list(st.session_state.keys()):
             if key.startswith(clear_prefixes):
@@ -7167,6 +7420,14 @@ if branch == "7th Grade Math Lab":
                 generated_title=generated["title"],
                 generated_case=generated.get("case")
             )
+        elif generated["topic"] == "Expressions & Algebraic Reasoning":
+            expressions_engine(
+                generated["sport"],
+                generated["difficulty"],
+                generated_sport=generated["sport"],
+                generated_title=generated["title"],
+                generated_case=generated.get("case")
+            )
         else:
             ratios_rates_engine(
                 generated["sport"],
@@ -7181,7 +7442,7 @@ if branch == "7th Grade Math Lab":
         st.caption("No practice question has been generated yet.")
 
     st.markdown("---")
-    st.caption("7th Grade Math Lab · Ratios & Proportions · Equations & Inequalities · Probability · Percent & Percent Change · Rational Numbers · Geometry · Statistics & Sampling")
+    st.caption("7th Grade Math Lab · Ratios & Proportions · Equations & Inequalities · Probability · Percent & Percent Change · Rational Numbers · Geometry · Statistics & Sampling · Expressions & Algebraic Reasoning")
     st.stop()
 
 st.markdown("""
