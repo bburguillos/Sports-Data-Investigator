@@ -2670,6 +2670,385 @@ def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided",
         placeholder="Explain your steps in your own words."
     )
 
+
+# =========================================================
+# 7TH GRADE MATH LAB — PROBABILITY
+# =========================================================
+PROBABILITY_CASES = {
+    "NFL": [
+        {
+            "title": "Field Goal Success",
+            "story": "A kicker made 18 of 24 field-goal attempts.",
+            "successes": 18, "trials": 24, "future": 40,
+            "event": "made field goals", "trial_label": "attempts"
+        },
+        {
+            "title": "Two-Point Conversion",
+            "story": "A team converted 7 of 10 two-point attempts.",
+            "successes": 7, "trials": 10, "future": 20,
+            "event": "successful conversions", "trial_label": "attempts"
+        },
+        {
+            "title": "Third-Down Conversions",
+            "story": "An offense converted 16 of 40 third downs.",
+            "successes": 16, "trials": 40, "future": 60,
+            "event": "third-down conversions", "trial_label": "third downs"
+        },
+        {
+            "title": "Interception Frequency",
+            "story": "A quarterback threw 5 interceptions in 100 pass attempts.",
+            "successes": 5, "trials": 100, "future": 200,
+            "event": "interceptions", "trial_label": "pass attempts"
+        },
+        {
+            "title": "Red-Zone Touchdowns",
+            "story": "A team scored touchdowns on 21 of 30 red-zone trips.",
+            "successes": 21, "trials": 30, "future": 50,
+            "event": "red-zone touchdowns", "trial_label": "red-zone trips"
+        },
+        {
+            "title": "Coin Toss Simulation",
+            "story": "In a classroom football simulation, heads appeared 27 times in 50 tosses.",
+            "successes": 27, "trials": 50, "future": 100,
+            "event": "heads", "trial_label": "coin tosses"
+        },
+    ],
+    "NBA": [
+        {
+            "title": "Free Throw Success",
+            "story": "A player made 72 of 90 free throws.",
+            "successes": 72, "trials": 90, "future": 50,
+            "event": "made free throws", "trial_label": "free-throw attempts"
+        },
+        {
+            "title": "Three-Point Shooting",
+            "story": "A player made 15 of 40 three-point attempts.",
+            "successes": 15, "trials": 40, "future": 80,
+            "event": "made three-pointers", "trial_label": "three-point attempts"
+        },
+        {
+            "title": "Layup Drill",
+            "story": "A player made 18 of 20 layups in practice.",
+            "successes": 18, "trials": 20, "future": 50,
+            "event": "made layups", "trial_label": "layup attempts"
+        },
+        {
+            "title": "Steal Chance",
+            "story": "A defender recorded a steal on 9 of 30 tracked possessions.",
+            "successes": 9, "trials": 30, "future": 100,
+            "event": "steals", "trial_label": "possessions"
+        },
+        {
+            "title": "Shot Contest Result",
+            "story": "An opponent missed 14 of 25 shots when closely defended.",
+            "successes": 14, "trials": 25, "future": 50,
+            "event": "missed shots", "trial_label": "closely defended shots"
+        },
+        {
+            "title": "Half-Court Challenge",
+            "story": "A student made 3 of 20 half-court shots.",
+            "successes": 3, "trials": 20, "future": 60,
+            "event": "made half-court shots", "trial_label": "half-court attempts"
+        },
+    ],
+    "MLB": [
+        {
+            "title": "Hit Probability",
+            "story": "A hitter recorded 32 hits in 100 at-bats.",
+            "successes": 32, "trials": 100, "future": 150,
+            "event": "hits", "trial_label": "at-bats"
+        },
+        {
+            "title": "Home Run Frequency",
+            "story": "A hitter hit 8 home runs in 50 at-bats.",
+            "successes": 8, "trials": 50, "future": 125,
+            "event": "home runs", "trial_label": "at-bats"
+        },
+        {
+            "title": "Stolen Base Success",
+            "story": "A runner was successful on 21 of 25 stolen-base attempts.",
+            "successes": 21, "trials": 25, "future": 40,
+            "event": "successful steals", "trial_label": "stolen-base attempts"
+        },
+        {
+            "title": "Strikeout Rate",
+            "story": "A pitcher struck out 27 of 90 batters faced.",
+            "successes": 27, "trials": 90, "future": 180,
+            "event": "strikeouts", "trial_label": "batters faced"
+        },
+        {
+            "title": "Fielding Success",
+            "story": "A fielder made the play on 47 of 50 chances.",
+            "successes": 47, "trials": 50, "future": 100,
+            "event": "successful fielding plays", "trial_label": "fielding chances"
+        },
+        {
+            "title": "Pitch Location",
+            "story": "A pitcher threw 36 strikes in 60 pitches.",
+            "successes": 36, "trials": 60, "future": 100,
+            "event": "strikes", "trial_label": "pitches"
+        },
+    ],
+    "NHL": [
+        {
+            "title": "Save Probability",
+            "story": "A goalie saved 45 of 50 shots.",
+            "successes": 45, "trials": 50, "future": 80,
+            "event": "saves", "trial_label": "shots faced"
+        },
+        {
+            "title": "Shootout Success",
+            "story": "A player scored on 6 of 10 shootout attempts.",
+            "successes": 6, "trials": 10, "future": 25,
+            "event": "shootout goals", "trial_label": "shootout attempts"
+        },
+        {
+            "title": "Power-Play Success",
+            "story": "A team scored on 9 of 30 power-play chances.",
+            "successes": 9, "trials": 30, "future": 50,
+            "event": "power-play goals", "trial_label": "power-play chances"
+        },
+        {
+            "title": "Faceoff Wins",
+            "story": "A center won 28 of 50 faceoffs.",
+            "successes": 28, "trials": 50, "future": 75,
+            "event": "faceoff wins", "trial_label": "faceoffs"
+        },
+        {
+            "title": "Penalty Kill",
+            "story": "A team successfully killed 24 of 30 penalties.",
+            "successes": 24, "trials": 30, "future": 50,
+            "event": "successful penalty kills", "trial_label": "penalties"
+        },
+        {
+            "title": "Shot Accuracy",
+            "story": "A player put 18 of 30 shot attempts on goal.",
+            "successes": 18, "trials": 30, "future": 60,
+            "event": "shots on goal", "trial_label": "shot attempts"
+        },
+    ],
+    "Soccer": [
+        {
+            "title": "Penalty Kick Success",
+            "story": "A player scored 8 of 10 penalty kicks.",
+            "successes": 8, "trials": 10, "future": 25,
+            "event": "penalty goals", "trial_label": "penalty attempts"
+        },
+        {
+            "title": "Shots on Target",
+            "story": "A forward put 21 of 35 shots on target.",
+            "successes": 21, "trials": 35, "future": 70,
+            "event": "shots on target", "trial_label": "shots"
+        },
+        {
+            "title": "Pass Completion",
+            "story": "A midfielder completed 72 of 90 passes.",
+            "successes": 72, "trials": 90, "future": 120,
+            "event": "completed passes", "trial_label": "passes"
+        },
+        {
+            "title": "Corner Kick Conversion",
+            "story": "A team scored from 3 of 20 corner kicks.",
+            "successes": 3, "trials": 20, "future": 60,
+            "event": "goals from corners", "trial_label": "corner kicks"
+        },
+        {
+            "title": "Tackle Success",
+            "story": "A defender won 18 of 24 tackles.",
+            "successes": 18, "trials": 24, "future": 40,
+            "event": "successful tackles", "trial_label": "tackles"
+        },
+        {
+            "title": "Goalkeeper Saves",
+            "story": "A goalkeeper saved 27 of 30 shots on target.",
+            "successes": 27, "trials": 30, "future": 50,
+            "event": "saves", "trial_label": "shots on target"
+        },
+    ],
+    "Formula 1": [
+        {
+            "title": "Podium Frequency",
+            "story": "A driver finished on the podium in 9 of 12 races.",
+            "successes": 9, "trials": 12, "future": 20,
+            "event": "podium finishes", "trial_label": "races"
+        },
+        {
+            "title": "Top-10 Finish Rate",
+            "story": "A driver finished in the top 10 in 14 of 18 races.",
+            "successes": 14, "trials": 18, "future": 24,
+            "event": "top-10 finishes", "trial_label": "races"
+        },
+        {
+            "title": "Pit Stop Success",
+            "story": "A team completed 23 of 25 pit stops without an error.",
+            "successes": 23, "trials": 25, "future": 50,
+            "event": "error-free pit stops", "trial_label": "pit stops"
+        },
+        {
+            "title": "Qualifying Advancement",
+            "story": "A driver advanced to the final qualifying round in 11 of 15 events.",
+            "successes": 11, "trials": 15, "future": 20,
+            "event": "final-round qualifying appearances", "trial_label": "qualifying events"
+        },
+        {
+            "title": "Race Finish Reliability",
+            "story": "A car finished 17 of 20 races.",
+            "successes": 17, "trials": 20, "future": 30,
+            "event": "race finishes", "trial_label": "race starts"
+        },
+        {
+            "title": "Fastest Lap Frequency",
+            "story": "A driver recorded fastest lap in 4 of 16 races.",
+            "successes": 4, "trials": 16, "future": 24,
+            "event": "fastest laps", "trial_label": "races"
+        },
+    ],
+}
+
+def probability_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None):
+    st.markdown('<div class="step">7th Grade Math Lab · Probability</div>', unsafe_allow_html=True)
+    st.subheader("🎲 Sports Probability Lab")
+    st.write(
+        "Use experimental results to find probability, convert between forms, and make a prediction."
+    )
+
+    if generated_sport and generated_title:
+        sport = generated_sport
+        matches = [c for c in PROBABILITY_CASES[sport] if c["title"] == generated_title]
+        if not matches:
+            st.error("The generated probability problem could not be found.")
+            return
+        case = matches[0]
+    else:
+        sports = list(PROBABILITY_CASES)
+        if sport_filter != "Any Sport":
+            sports = [sport_filter]
+        sport = st.selectbox("Sport", sports, key="prob_sport")
+        labels = {c["title"]: c for c in PROBABILITY_CASES[sport]}
+        selected = st.selectbox("Scenario", list(labels), key="prob_case")
+        case = labels[selected]
+
+    successes = float(case["successes"])
+    trials = float(case["trials"])
+    future = float(case["future"])
+    true_decimal = successes / trials
+    true_percent = true_decimal * 100
+    true_prediction = true_decimal * future
+    case_id = clean_filename(f"{sport}_{case['title']}")
+
+    st.markdown(f"""
+    <div class="card">
+      <div class="step">{SPORT_ICONS.get(sport,'')} {sport}</div>
+      <h2>{case['title']}</h2>
+      <p><b>Situation:</b> {case['story']}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("### Step 1 · Write the experimental probability")
+    st.write(
+        f"Write the probability of **{case['event']}** using the results above."
+    )
+    ratio_raw = st.text_input(
+        "Probability as a fraction or ratio",
+        key=f"prob_ratio_{case_id}",
+        placeholder="Type a fraction or ratio"
+    )
+
+    def probability_ratio_correct(text):
+        compact = str(text).strip().replace(" ", "").replace(",", "").replace(":", "/").replace("÷", "/")
+        if not compact:
+            return False
+        if "/" in compact:
+            parts = compact.split("/")
+            if len(parts) != 2:
+                return False
+            try:
+                return Fraction(parts[0]) / Fraction(parts[1]) == Fraction(str(successes)) / Fraction(str(trials))
+            except (ValueError, ZeroDivisionError):
+                return False
+        try:
+            return math.isclose(float(compact), true_decimal, abs_tol=0.0001)
+        except ValueError:
+            return False
+
+    ratio_attempt_key = f"prob_ratio_attempts_{case_id}"
+    if ratio_attempt_key not in st.session_state:
+        st.session_state[ratio_attempt_key] = 0
+
+    if st.button("Check My Probability", key=f"prob_ratio_check_{case_id}", use_container_width=True):
+        if probability_ratio_correct(ratio_raw):
+            st.success("✅ Correct. Equivalent fractions are accepted.")
+            st.session_state[ratio_attempt_key] = 0
+        else:
+            st.session_state[ratio_attempt_key] += 1
+            if st.session_state[ratio_attempt_key] == 1:
+                st.info("Experimental probability = successful outcomes ÷ total trials.")
+            else:
+                simplified = Fraction(int(successes), int(trials))
+                st.warning(
+                    f"Use **{int(successes)}/{int(trials)}**. "
+                    f"That simplifies to **{simplified.numerator}/{simplified.denominator}**."
+                )
+
+    st.markdown("### Step 2 · Convert to a decimal")
+    dec_raw = st.text_input(
+        "Probability as a decimal",
+        key=f"prob_decimal_{case_id}",
+        placeholder="Type your answer"
+    )
+    dec = parse_student_number(dec_raw)
+
+    if st.button("Check My Decimal", key=f"prob_dec_check_{case_id}", use_container_width=True):
+        if dec is not None and math.isclose(dec, true_decimal, abs_tol=0.01):
+            st.success(f"✅ Correct — about {true_decimal:.2f}.")
+        else:
+            if difficulty == "Guided":
+                st.info("Divide the number of successful outcomes by the total number of trials.")
+            else:
+                st.info("Check your decimal and try again.")
+
+    st.markdown("### Step 3 · Convert to a percent")
+    pct_raw = st.text_input(
+        "Probability as a percent",
+        key=f"prob_percent_{case_id}",
+        placeholder="Type the percent"
+    )
+    pct = parse_student_number(pct_raw)
+
+    if st.button("Check My Percent", key=f"prob_pct_check_{case_id}", use_container_width=True):
+        if pct is not None and math.isclose(pct, true_percent, abs_tol=0.5):
+            st.success(f"✅ Correct — about {true_percent:.1f}%.")
+        else:
+            st.info("Convert the decimal to a percent. Think about multiplying by 100.")
+
+    st.markdown("### Step 4 · Make a prediction")
+    st.write(
+        f"If the same experimental rate continued over **{fmt(future)} {case['trial_label']}**, "
+        f"about how many **{case['event']}** would you predict?"
+    )
+    pred_raw = st.text_input(
+        "Predicted number of successful outcomes",
+        key=f"prob_prediction_{case_id}",
+        placeholder="Type your answer"
+    )
+    pred = parse_student_number(pred_raw)
+
+    if st.button("Check My Prediction", key=f"prob_pred_check_{case_id}", use_container_width=True):
+        tol = max(0.5, abs(true_prediction) * 0.02)
+        if pred is not None and math.isclose(pred, true_prediction, abs_tol=tol):
+            st.success(f"✅ Reasonable prediction — about {true_prediction:.1f}.")
+        else:
+            if difficulty == "Guided":
+                st.info("Use your probability from Step 2 with the new number of trials.")
+            else:
+                st.info("Check how you used the probability to scale up.")
+
+    st.markdown("### Step 5 · Probability means prediction, not certainty")
+    reasoning = st.text_area(
+        "Why is your predicted result not guaranteed to happen exactly?",
+        key=f"prob_reasoning_{case_id}",
+        placeholder="Explain in your own words."
+    )
 # =========================================================
 # SPORTS MATH CHALLENGE — MULTI-SKILL HIGHER-LEVEL THINKING
 # =========================================================
@@ -3987,13 +4366,13 @@ if branch == "Teacher Assignment Builder":
 
     assignment_type = st.selectbox(
         "Assignment type",
-        ["Ratios, Rates & Proportions", "Equations & Inequalities", "Sports Math Challenge"],
+        ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Sports Math Challenge"],
         key="teacher_topic"
     )
     count = st.selectbox("Activities required", [1,2,3], key="teacher_count")
     sport_limit = st.selectbox("Allowed sport", ["Any Sport"] + list(RATE_CASES), key="teacher_sport")
 
-    if assignment_type in ["Ratios, Rates & Proportions", "Equations & Inequalities"]:
+    if assignment_type in ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability"]:
         difficulty = st.selectbox("Difficulty", ["Guided","Independent"], key="teacher_difficulty")
         challenge_level = "Any Level"
     else:
@@ -4137,7 +4516,7 @@ if branch == "7th Grade Math Lab":
         with s1:
             config["topic"] = st.selectbox(
                 "Math topic",
-                ["Ratios, Rates & Proportions", "Equations & Inequalities"],
+                ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability"],
                 key="math_topic_select"
             )
         with s2:
@@ -4186,6 +4565,17 @@ if branch == "7th Grade Math Lab":
                 "difficulty": config.get("difficulty", "Guided"),
                 "title": selected["title"],
             }
+        elif topic == "Probability":
+            options = PROBABILITY_CASES[actual_sport]
+            if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
+                options = [c for c in options if c["title"] != previous.get("title")] or options
+            selected = random.choice(options)
+            generated = {
+                "topic": topic,
+                "sport": actual_sport,
+                "difficulty": config.get("difficulty", "Guided"),
+                "title": selected["title"],
+            }
         else:
             athletes = list(RATE_CASES[actual_sport])
             if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
@@ -4203,7 +4593,9 @@ if branch == "7th Grade Math Lab":
             "rate_", "ratio_", "projection_",
             "eq_unknown_", "eq_model_", "eq_answer_", "eq_interpret_",
             "eq_reasoning_", "eq_model_attempts_", "eq_answer_attempts_",
-            "eq_model_order_", "eq_interpret_order_"
+            "eq_model_order_", "eq_interpret_order_",
+            "prob_ratio_", "prob_decimal_", "prob_percent_", "prob_prediction_",
+            "prob_reasoning_", "prob_ratio_attempts_"
         )
         for key in list(st.session_state.keys()):
             if key.startswith(clear_prefixes):
@@ -4255,6 +4647,13 @@ if branch == "7th Grade Math Lab":
                 generated_sport=generated["sport"],
                 generated_title=generated["title"]
             )
+        elif generated["topic"] == "Probability":
+            probability_engine(
+                generated["sport"],
+                generated["difficulty"],
+                generated_sport=generated["sport"],
+                generated_title=generated["title"]
+            )
         else:
             ratios_rates_engine(
                 generated["sport"],
@@ -4266,7 +4665,7 @@ if branch == "7th Grade Math Lab":
         st.caption("No practice question has been generated yet.")
 
     st.markdown("---")
-    st.caption("7th Grade Math Lab · select settings → generate question → solve")
+    st.caption("7th Grade Math Lab · Ratios & Proportions · Equations & Inequalities · Probability")
     st.stop()
 
 st.markdown("""
