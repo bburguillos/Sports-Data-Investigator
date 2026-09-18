@@ -4076,13 +4076,46 @@ def rational_numbers_engine(sport_filter="Any Sport", difficulty="Guided", gener
             st.info("Think about whether the situation ends above, below, or exactly at zero.")
 
     st.markdown("### Step 2 · Write the numerical expression")
-    expression_options = [
-        case["expression"],
-        case["expression"].replace("+ (-", "- ").replace(")", "") if "+ (-" in case["expression"] else f"-({case['expression']})",
-        f"{abs(correct)} + {abs(correct)}",
-        f"{abs(correct)} - 0"
-    ]
-    # Remove duplicates while preserving order.
+    # Build distractors that are mathematically different from the correct expression.
+    # Do NOT include equivalent rewrites such as 3 + (-5) and 3 - 5 as separate choices.
+    correct_expr = case["expression"]
+
+    if "+ (-" in correct_expr:
+        # Example correct form: 3 + (-5)
+        # Use sign/operation mistakes as distractors, not an equivalent subtraction form.
+        left, right = correct_expr.split("+ (-", 1)
+        right = right.replace(")", "").strip()
+        expression_options = [
+            correct_expr,
+            f"{left.strip()} + {right}",
+            f"-{left.strip()} + {right}",
+            f"{right} - {left.strip()}",
+        ]
+    elif " - " in correct_expr:
+        left, right = correct_expr.split(" - ", 1)
+        expression_options = [
+            correct_expr,
+            f"{left} + {right}",
+            f"{right} - {left}",
+            f"-{left} - {right}",
+        ]
+    elif " + " in correct_expr:
+        left, right = correct_expr.split(" + ", 1)
+        expression_options = [
+            correct_expr,
+            f"{left} - {right}",
+            f"{right} - {left}",
+            f"-{left} + {right}",
+        ]
+    else:
+        expression_options = [
+            correct_expr,
+            f"-({correct_expr})",
+            f"{abs(correct)} + {abs(correct)}",
+            f"{abs(correct)} - 0",
+        ]
+
+    # Remove accidental duplicates while preserving order.
     expression_options = list(dict.fromkeys(expression_options))
     expr_order_key = f"ratnum_expr_order_{case_id}"
     if expr_order_key not in st.session_state:
