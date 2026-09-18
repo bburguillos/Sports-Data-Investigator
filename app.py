@@ -1748,6 +1748,313 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided"):
     )
 
 
+
+# =========================================================
+# 7TH GRADE MATH LAB — EQUATIONS & INEQUALITIES
+# =========================================================
+EQUATION_CASES = {
+    "NFL": [
+        {
+            "title": "Reach 1,000 Yards",
+            "kind": "Equation",
+            "story": "A receiver has 780 receiving yards. The goal is to finish with exactly 1,000 yards.",
+            "question": "How many more receiving yards are needed?",
+            "models": ["780 + x = 1000", "780x = 1000", "1000 + x = 780", "780 - x = 1000"],
+            "correct_model": "780 + x = 1000",
+            "answer": 220,
+            "unit": "yards",
+            "hint1": "Think about what must be added to 780 to reach 1,000.",
+            "hint2": "Subtract the current total from the target: 1,000 − 780.",
+            "meaning": "The receiver needs 220 more receiving yards."
+        },
+        {
+            "title": "Fantasy Comeback",
+            "kind": "Inequality",
+            "story": "A fantasy football team has 94 points. It needs at least 118 points to win.",
+            "question": "How many more points does the team need at minimum?",
+            "models": ["94 + x ≥ 118", "94 + x ≤ 118", "94x ≥ 118", "118 + x ≥ 94"],
+            "correct_model": "94 + x ≥ 118",
+            "answer": 24,
+            "unit": "points",
+            "hint1": "The words 'at least' mean the final total can be 118 or greater.",
+            "hint2": "118 − 94 = 24, so x must be at least 24.",
+            "meaning": "The team needs 24 or more additional points."
+        },
+    ],
+    "NBA": [
+        {
+            "title": "Target Scoring Average",
+            "kind": "Equation",
+            "story": "A player scored 22, 31, 27, 25, and 20 points in five games. The player wants a 26-point average after six games.",
+            "question": "How many points must be scored in Game 6?",
+            "models": ["125 + x = 156", "125 + x = 26", "125x = 156", "156 + x = 125"],
+            "correct_model": "125 + x = 156",
+            "answer": 31,
+            "unit": "points",
+            "hint1": "First think about the total points needed for a 26-point average over 6 games.",
+            "hint2": "26 × 6 = 156 total points; 156 − 125 = 31.",
+            "meaning": "The player must score 31 points in Game 6."
+        },
+        {
+            "title": "Three-Pointer Challenge",
+            "kind": "Equation",
+            "story": "A team already has 52 points. Every remaining made three-pointer adds 3 points. The team wants exactly 70 points.",
+            "question": "How many three-pointers are needed?",
+            "models": ["52 + 3x = 70", "52 + x = 70", "3(52 + x) = 70", "70 + 3x = 52"],
+            "correct_model": "52 + 3x = 70",
+            "answer": 6,
+            "unit": "three-pointers",
+            "hint1": "Each unknown three-pointer is worth 3 points.",
+            "hint2": "70 − 52 = 18, then 18 ÷ 3 = 6.",
+            "meaning": "The team needs 6 more made three-pointers."
+        },
+    ],
+    "MLB": [
+        {
+            "title": "Home Run Goal",
+            "kind": "Equation",
+            "story": "A hitter has 34 home runs and wants to finish with exactly 50.",
+            "question": "How many more home runs are needed?",
+            "models": ["34 + x = 50", "34x = 50", "50 + x = 34", "34 - x = 50"],
+            "correct_model": "34 + x = 50",
+            "answer": 16,
+            "unit": "home runs",
+            "hint1": "What must be added to 34 to reach 50?",
+            "hint2": "50 − 34 = 16.",
+            "meaning": "The hitter needs 16 more home runs."
+        },
+        {
+            "title": "Ballpark Budget",
+            "kind": "Inequality",
+            "story": "A class has $500 for a baseball trip. The bus costs $140, and each student ticket costs $18.",
+            "question": "What is the greatest number of student tickets the class can buy?",
+            "models": ["140 + 18x ≤ 500", "140 + 18x ≥ 500", "18 + 140x ≤ 500", "140x + 18 = 500"],
+            "correct_model": "140 + 18x ≤ 500",
+            "answer": 20,
+            "unit": "student tickets",
+            "hint1": "The total cost cannot go over $500.",
+            "hint2": "500 − 140 = 360, and 360 ÷ 18 = 20.",
+            "meaning": "The class can buy at most 20 student tickets."
+        },
+    ],
+    "NHL": [
+        {
+            "title": "Point Streak Target",
+            "kind": "Equation",
+            "story": "A hockey player has 41 season points. The player wants exactly 60.",
+            "question": "How many more points are needed?",
+            "models": ["41 + x = 60", "41x = 60", "60 + x = 41", "41 - x = 60"],
+            "correct_model": "41 + x = 60",
+            "answer": 19,
+            "unit": "points",
+            "hint1": "What amount added to 41 reaches 60?",
+            "hint2": "60 − 41 = 19.",
+            "meaning": "The player needs 19 more points."
+        },
+        {
+            "title": "Shots on Goal",
+            "kind": "Inequality",
+            "story": "A team has 21 shots on goal after two periods. The coach wants at least 32 shots by the end of the game.",
+            "question": "How many shots are needed in the third period at minimum?",
+            "models": ["21 + x ≥ 32", "21 + x ≤ 32", "21x ≥ 32", "32 + x ≥ 21"],
+            "correct_model": "21 + x ≥ 32",
+            "answer": 11,
+            "unit": "shots",
+            "hint1": "'At least 32' means 32 or more.",
+            "hint2": "32 − 21 = 11, so x must be at least 11.",
+            "meaning": "The team needs 11 or more third-period shots."
+        },
+    ],
+    "Soccer": [
+        {
+            "title": "Goal Difference",
+            "kind": "Equation",
+            "story": "A club has scored 47 league goals. Its target is exactly 60.",
+            "question": "How many more goals are needed?",
+            "models": ["47 + x = 60", "47x = 60", "60 + x = 47", "47 - x = 60"],
+            "correct_model": "47 + x = 60",
+            "answer": 13,
+            "unit": "goals",
+            "hint1": "Find the difference between the target and the current total.",
+            "hint2": "60 − 47 = 13.",
+            "meaning": "The club needs 13 more goals."
+        },
+        {
+            "title": "Tournament Points",
+            "kind": "Inequality",
+            "story": "A team has 7 tournament points. Each win is worth 3 points. The team wants at least 16 points.",
+            "question": "What is the minimum number of additional wins needed?",
+            "models": ["7 + 3x ≥ 16", "7 + 3x ≤ 16", "7x + 3 ≥ 16", "16 + 3x ≥ 7"],
+            "correct_model": "7 + 3x ≥ 16",
+            "answer": 3,
+            "unit": "wins",
+            "hint1": "Each win adds 3 points, and 'at least' means 16 or more.",
+            "hint2": "16 − 7 = 9, and 9 ÷ 3 = 3.",
+            "meaning": "The team needs at least 3 more wins."
+        },
+    ],
+    "Formula 1": [
+        {
+            "title": "Championship Target",
+            "kind": "Equation",
+            "story": "A driver has 186 championship points and wants exactly 250.",
+            "question": "How many more points are needed?",
+            "models": ["186 + x = 250", "186x = 250", "250 + x = 186", "186 - x = 250"],
+            "correct_model": "186 + x = 250",
+            "answer": 64,
+            "unit": "points",
+            "hint1": "Find the difference between the target and the current total.",
+            "hint2": "250 − 186 = 64.",
+            "meaning": "The driver needs 64 more championship points."
+        },
+        {
+            "title": "Race Weekend Budget",
+            "kind": "Inequality",
+            "story": "A fan has $420 for a race weekend. A hotel costs $180, and each event ticket costs $60.",
+            "question": "What is the greatest number of event tickets the fan can buy?",
+            "models": ["180 + 60x ≤ 420", "180 + 60x ≥ 420", "60 + 180x ≤ 420", "180x + 60 = 420"],
+            "correct_model": "180 + 60x ≤ 420",
+            "answer": 4,
+            "unit": "tickets",
+            "hint1": "The total spending cannot exceed $420.",
+            "hint2": "420 − 180 = 240, and 240 ÷ 60 = 4.",
+            "meaning": "The fan can buy at most 4 event tickets."
+        },
+    ],
+}
+
+def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided"):
+    st.markdown('<div class="step">7th Grade Math Lab · Equations & Inequalities</div>', unsafe_allow_html=True)
+    st.subheader("⚖️ Sports Equation Lab")
+    st.write(
+        "Translate a sports situation into math, solve it, and explain what the answer means. "
+        "Try first — stronger hints appear only after repeated mistakes."
+    )
+
+    sports = list(EQUATION_CASES)
+    if sport_filter != "Any Sport":
+        sports = [sport_filter]
+
+    c1, c2 = st.columns(2)
+    with c1:
+        eq_sport = st.selectbox(
+            "Sport",
+            sports,
+            format_func=lambda s: f"{SPORT_ICONS.get(s,'')} {s}",
+            key="eq_sport"
+        )
+    case_options = EQUATION_CASES[eq_sport]
+    labels = {f"{c['kind']} · {c['title']}": c for c in case_options}
+    with c2:
+        case_label = st.selectbox("Problem", list(labels), key="eq_case")
+    case = labels[case_label]
+
+    case_id = clean_filename(f"{eq_sport}_{case['title']}")
+
+    st.markdown(f"""
+    <div class="card">
+      <div class="step">{SPORT_ICONS.get(eq_sport,'')} {eq_sport} · {case['kind']}</div>
+      <h2>{case['title']}</h2>
+      <p><b>Situation:</b> {case['story']}</p>
+      <p><b>Question:</b> {case['question']}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Step 1: identify the unknown before seeing models.
+    st.markdown("### Step 1 · Define the unknown")
+    unknown = st.text_input(
+        "What should x represent?",
+        key=f"eq_unknown_{case_id}",
+        placeholder="Explain what x means"
+    )
+
+    # Step 2: choose model.
+    st.markdown("### Step 2 · Model the situation")
+    st.write("Which mathematical statement best represents the situation?")
+    model_choice = st.radio(
+        "Choose a model",
+        case["models"],
+        key=f"eq_model_{case_id}",
+        label_visibility="collapsed"
+    )
+
+    model_attempt_key = f"eq_model_attempts_{case_id}"
+    if model_attempt_key not in st.session_state:
+        st.session_state[model_attempt_key] = 0
+
+    if st.button("Check My Model", key=f"eq_model_check_{case_id}", use_container_width=True):
+        if model_choice == case["correct_model"]:
+            st.success("✅ Correct model.")
+            st.session_state[model_attempt_key] = 0
+        else:
+            st.session_state[model_attempt_key] += 1
+            if st.session_state[model_attempt_key] == 1:
+                if case["kind"] == "Inequality":
+                    st.info("Pay attention to words such as **at least**, **at most**, or **cannot exceed**.")
+                else:
+                    st.info("Ask yourself: what operation connects the current amount, the unknown, and the target?")
+            else:
+                st.warning(f"A correct model is **{case['correct_model']}**.")
+
+    # Step 3: solve.
+    st.markdown("### Step 3 · Solve")
+    answer_raw = st.text_input(
+        f"What is x? ({case['unit']})",
+        key=f"eq_answer_{case_id}",
+        placeholder="Type your answer"
+    )
+    answer = parse_student_number(answer_raw)
+
+    answer_attempt_key = f"eq_answer_attempts_{case_id}"
+    if answer_attempt_key not in st.session_state:
+        st.session_state[answer_attempt_key] = 0
+
+    if st.button("Check My Solution", key=f"eq_answer_check_{case_id}", use_container_width=True):
+        if answer is not None and math.isclose(answer, float(case["answer"]), abs_tol=0.1):
+            st.success(f"✅ Correct. x = {fmt(float(case['answer']))} {case['unit']}.")
+            st.session_state[answer_attempt_key] = 0
+        else:
+            st.session_state[answer_attempt_key] += 1
+            if st.session_state[answer_attempt_key] == 1:
+                st.info(case["hint1"])
+            else:
+                st.warning(case["hint2"])
+
+    # Step 4: inequality-specific thinking or equation check.
+    st.markdown("### Step 4 · Interpret the solution")
+    if case["kind"] == "Inequality":
+        interpretation_options = [
+            case["meaning"],
+            f"The answer must be exactly {fmt(float(case['answer']))} {case['unit']} and cannot be more.",
+            "There is not enough information to interpret the solution."
+        ]
+    else:
+        interpretation_options = [
+            case["meaning"],
+            f"The current total is already {fmt(float(case['answer']))} {case['unit']}.",
+            "The variable does not represent a quantity in this situation."
+        ]
+
+    interpretation = st.radio(
+        "Which statement best explains the solution?",
+        interpretation_options,
+        key=f"eq_interpret_{case_id}"
+    )
+
+    if st.button("Check My Interpretation", key=f"eq_interpret_check_{case_id}", use_container_width=True):
+        if interpretation == case["meaning"]:
+            st.success("✅ Yes — that correctly explains the answer in context.")
+        else:
+            st.info("Go back to what x represents and connect the solution to the original question.")
+
+    # Step 5: written reasoning.
+    st.markdown("### Step 5 · Explain your reasoning")
+    st.text_area(
+        "Explain how you solved the problem and why your answer makes sense.",
+        key=f"eq_reasoning_{case_id}",
+        placeholder="Explain your steps in your own words."
+    )
+
 # =========================================================
 # SPORTS MATH CHALLENGE — MULTI-SKILL HIGHER-LEVEL THINKING
 # =========================================================
@@ -3065,13 +3372,13 @@ if branch == "Teacher Assignment Builder":
 
     assignment_type = st.selectbox(
         "Assignment type",
-        ["Ratios, Rates & Proportions", "Sports Math Challenge"],
+        ["Ratios, Rates & Proportions", "Equations & Inequalities", "Sports Math Challenge"],
         key="teacher_topic"
     )
     count = st.selectbox("Activities required", [1,2,3], key="teacher_count")
     sport_limit = st.selectbox("Allowed sport", ["Any Sport"] + list(RATE_CASES), key="teacher_sport")
 
-    if assignment_type == "Ratios, Rates & Proportions":
+    if assignment_type in ["Ratios, Rates & Proportions", "Equations & Inequalities"]:
         difficulty = st.selectbox("Difficulty", ["Guided","Independent"], key="teacher_difficulty")
         challenge_level = "Any Level"
     else:
@@ -3166,23 +3473,64 @@ if branch == "7th Grade Math Lab":
     <div class="card">
       <div class="step">7th Grade Math Lab</div>
       <h2>Real sports. Real 7th-grade math.</h2>
-      <p>The original Sports Data Investigations stay unchanged. This is the first standards-based branch.</p>
+      <p>Practice one skill at a time using sports situations, guided checking, and hints that appear only when needed.</p>
     </div>
     """, unsafe_allow_html=True)
 
-    entry = st.radio("How are you entering?", ["Free Explore","I Have an Assignment Code"],
-                     horizontal=True, key="math_entry")
-    config = {"topic":"Ratios, Rates & Proportions","count":1,"sport":"Any Sport","difficulty":"Guided","pdf":False}
+    entry = st.radio(
+        "How are you entering?",
+        ["Free Explore","I Have an Assignment Code"],
+        horizontal=True,
+        key="math_entry"
+    )
+
+    config = {
+        "topic":"Ratios, Rates & Proportions",
+        "count":1,
+        "sport":"Any Sport",
+        "difficulty":"Guided",
+        "pdf":False
+    }
+
+    assignment_loaded = False
 
     if entry == "I Have an Assignment Code":
-        code_in = st.text_input("Assignment Code", key="student_assignment_code", placeholder="Paste code from your teacher")
+        code_in = st.text_input(
+            "Assignment Code",
+            key="student_assignment_code",
+            placeholder="Paste code from your teacher"
+        )
         if code_in.strip():
             decoded = decode_assignment(code_in)
             if decoded:
-                config.update(decoded)
-                st.success(f"Loaded: {config['topic']} · {config['count']} activity(ies) · {config['sport']} · {config['difficulty']}")
+                if decoded.get("topic") == "Sports Math Challenge":
+                    st.warning("That code belongs in the Sports Math Challenge branch.")
+                else:
+                    config.update(decoded)
+                    assignment_loaded = True
+                    st.success(
+                        f"Loaded: {config['topic']} · {config['count']} activity(ies) · "
+                        f"{config['sport']} · {config['difficulty']}"
+                    )
             else:
                 st.error("That assignment code could not be read.")
+
+    if entry == "Free Explore":
+        config["topic"] = st.selectbox(
+            "Math topic",
+            ["Ratios, Rates & Proportions", "Equations & Inequalities"],
+            key="math_topic_select"
+        )
+        config["sport"] = st.selectbox(
+            "Sport filter",
+            ["Any Sport"] + list(RATE_CASES),
+            key="math_sport_filter"
+        )
+        config["difficulty"] = st.selectbox(
+            "Support level",
+            ["Guided", "Independent"],
+            key="math_difficulty_select"
+        )
 
     st.markdown("""
     <div class="card">
@@ -3190,15 +3538,26 @@ if branch == "7th Grade Math Lab":
       <p><b>Enter this before beginning.</b></p>
     </div>
     """, unsafe_allow_html=True)
+
     x,y = st.columns([2,1])
     with x:
         st.text_input("Student Name", key="math_student_name", placeholder="First and last name")
     with y:
         st.text_input("Class Period", key="math_class_period", placeholder="Example: 4E")
 
-    ratios_rates_engine(config.get("sport","Any Sport"), config.get("difficulty","Guided"))
+    if config.get("topic") == "Equations & Inequalities":
+        equations_inequalities_engine(
+            config.get("sport","Any Sport"),
+            config.get("difficulty","Guided")
+        )
+    else:
+        ratios_rates_engine(
+            config.get("sport","Any Sport"),
+            config.get("difficulty","Guided")
+        )
+
     st.markdown("---")
-    st.caption("7th Grade Math Lab · Ratios, Rates & Proportions · more standards branches can be added later.")
+    st.caption("7th Grade Math Lab · Ratios, Rates & Proportions · Equations & Inequalities")
     st.stop()
 
 st.markdown("""
