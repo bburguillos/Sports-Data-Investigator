@@ -1843,7 +1843,7 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
     <div class="card">
       <div class="step">{SPORT_ICONS.get(sport,'')} {sport}</div>
       <h2>{athlete}</h2>
-      <p><b>Situation:</b> {case["story"]}</p>
+      <p><b>Situation:</b> {clean_card_text(case["story"])}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -2649,8 +2649,8 @@ def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided",
     <div class="card">
       <div class="step">{SPORT_ICONS.get(eq_sport,'')} {eq_sport} · {case['kind']}</div>
       <h2>{case['title']}</h2>
-      <p><b>Situation:</b> {case['story']}</p>
-      <p><b>Question:</b> {case['question']}</p>
+      <p><b>Situation:</b> {clean_card_text(case['story'])}</p>
+      <p><b>Question:</b> {clean_card_text(case['question'])}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -3077,7 +3077,7 @@ def probability_engine(sport_filter="Any Sport", difficulty="Guided", generated_
     <div class="card">
       <div class="step">{SPORT_ICONS.get(sport,'')} {sport}</div>
       <h2>{case['title']}</h2>
-      <p><b>Situation:</b> {case['story']}</p>
+      <p><b>Situation:</b> {clean_card_text(case['story'])}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -3676,8 +3676,8 @@ def percent_engine(sport_filter="Any Sport", difficulty="Guided", generated_spor
     <div class="card">
       <div class="step">{SPORT_ICONS.get(sport,'')} {sport} · {case['kind']}</div>
       <h2>{case['title']}</h2>
-      <p><b>Situation:</b> {case['story']}</p>
-      <p><b>Question:</b> {case['question']}</p>
+      <p><b>Situation:</b> {clean_card_text(case['story'])}</p>
+      <p><b>Question:</b> {clean_card_text(case['question'])}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -4276,8 +4276,8 @@ def rational_numbers_engine(sport_filter="Any Sport", difficulty="Guided", gener
     <div class="card">
       <div class="step">{SPORT_ICONS.get(sport,'')} {sport} · {case['kind']}</div>
       <h2>{case['title']}</h2>
-      <p><b>Situation:</b> {case['story']}</p>
-      <p><b>Question:</b> {case['question']}</p>
+      <p><b>Situation:</b> {clean_card_text(case['story'])}</p>
+      <p><b>Question:</b> {clean_card_text(case['question'])}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -4574,8 +4574,8 @@ def geometry_engine(sport_filter="Any Sport", difficulty="Guided", generated_spo
     <div class="card">
       <div class="step">{SPORT_ICONS.get(sport,'')} {sport} · {case['kind']}</div>
       <h2>{case['title']}</h2>
-      <p><b>Situation:</b> {case['story']}</p>
-      <p><b>Question:</b> {case['question']}</p>
+      <p><b>Situation:</b> {clean_card_text(case['story'])}</p>
+      <p><b>Question:</b> {clean_card_text(case['question'])}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -4876,7 +4876,7 @@ def statistics_engine(sport_filter="Any Sport", difficulty="Guided", generated_s
       <div class="step">{SPORT_ICONS.get(sport,'')} {sport} · {case['kind']}</div>
       <h2>{case['title']}</h2>
       <p><b>Situation:</b> {case.get('story','')}</p>
-      <p><b>Question:</b> {case['question']}</p>
+      <p><b>Question:</b> {clean_card_text(case['question'])}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -5452,8 +5452,8 @@ def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_
       <div class="step">{SPORT_ICONS.get(sport,'')} {sport} · {case['kind']}</div>
       <h2>{case['title']}</h2>
       <p><b>Situation:</b> {case.get('story','')}</p>
-      <p><b>What x means:</b> {case.get('variable_meaning','')}</p>
-      <p><b>Question:</b> {case['question']}</p>
+      <p><b>What x means:</b> {clean_card_text(case.get('variable_meaning',''))}</p>
+      <p><b>Question:</b> {clean_card_text(case['question'])}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -5494,7 +5494,7 @@ def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_
             else:
                 if difficulty=="Guided":
                     st.info(
-                        f"Use the meaning of x: {case.get('variable_meaning','')}. "
+                        f"Use the meaning of x: {clean_card_text(case.get('variable_meaning',''))}. "
                         "Match each part of the expression to the quantities in the sports situation."
                     )
                 else:
@@ -5514,7 +5514,7 @@ def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_
             else:
                 if difficulty=="Guided":
                     st.info(
-                        f"Remember: {case.get('variable_meaning','')}. "
+                        f"Remember: {clean_card_text(case.get('variable_meaning',''))}. "
                         "The fixed amount and the repeated amount should both appear."
                     )
                 else:
@@ -5895,8 +5895,8 @@ def fractions_engine(sport_filter="Any Sport", difficulty="Guided", generated_sp
     <div class="card">
       <div class="step">{SPORT_ICONS.get(sport,'')} {sport} · {case['kind']}</div>
       <h2>{case['title']}</h2>
-      <p><b>Situation:</b> {case['story']}</p>
-      <p><b>Question:</b> {case['question']}</p>
+      <p><b>Situation:</b> {clean_card_text(case['story'])}</p>
+      <p><b>Question:</b> {clean_card_text(case['question'])}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -6261,7 +6261,7 @@ def challenge_lab_engine(level_filter="Any Level", sport_filter="Any Sport"):
     <div class="card">
       <div class="step">{SPORT_ICONS.get(case['sport'],'')} {case['sport']} · {case['level']}</div>
       <h2>{case['title']}</h2>
-      <p><b>Situation:</b> {case['story']}</p>
+      <p><b>Situation:</b> {clean_card_text(case['story'])}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -6521,6 +6521,10 @@ def build_challenge_submission_pdf(student_name, class_period, case, plan, reaso
     doc.build(story)
     buffer.seek(0)
     return buffer.getvalue()
+
+def clean_card_text(value):
+    """Remove Markdown emphasis markers from text shown inside raw HTML cards."""
+    return str(value).replace("**", "")
 
 def clean_filename(text):
     safe = "".join(ch if ch.isalnum() else "_" for ch in str(text).strip())
