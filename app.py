@@ -1755,6 +1755,59 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided"):
 # =========================================================
 EQUATION_CASES = {
     "NFL": [
+
+        {
+            "title": "Field Goal Scoring",
+            "kind": "Equation",
+            "story": "A kicker scores x total points using only field goals. Each field goal is worth 3 points, and the kicker scores 18 points.",
+            "question": "How many field goals were made?",
+            "models": ["3x = 18", "x + 3 = 18", "18x = 3", "x / 3 = 18"],
+            "correct_model": "3x = 18",
+            "answer": 6,
+            "unit": "field goals",
+            "hint1": "Each made field goal contributes 3 points.",
+            "hint2": "3x = 18, so divide 18 by 3.",
+            "meaning": "The kicker made 6 field goals."
+        },
+        {
+            "title": "Fourth-Quarter Comeback",
+            "kind": "Equation",
+            "story": "A team has 17 points. Each remaining touchdown with the extra point adds 7 points. The team wants exactly 31 points.",
+            "question": "How many touchdowns are needed?",
+            "models": ["17 + 7x = 31", "17 + x = 31", "7x = 31", "31 + 7x = 17"],
+            "correct_model": "17 + 7x = 31",
+            "answer": 2,
+            "unit": "touchdowns",
+            "hint1": "The team starts at 17, and each scoring event adds 7.",
+            "hint2": "17 + 7x = 31 → subtract 17, then divide by 7.",
+            "meaning": "The team needs 2 touchdowns."
+        },
+        {
+            "title": "Sack Yardage Loss",
+            "kind": "Equation",
+            "story": "An offense had 46 net passing yards on a drive before losing x yards on a sack. It finished with 38 net passing yards.",
+            "question": "How many yards were lost on the sack?",
+            "models": ["46 - x = 38", "46 + x = 38", "38 - x = 46", "46x = 38"],
+            "correct_model": "46 - x = 38",
+            "answer": 8,
+            "unit": "yards",
+            "hint1": "The sack decreases the original amount.",
+            "hint2": "46 − x = 38, so x = 8.",
+            "meaning": "The sack caused an 8-yard loss."
+        },
+        {
+            "title": "Practice Repetition Limit",
+            "kind": "Inequality",
+            "story": "A quarterback has already thrown 32 practice passes. The coach wants no more than 50 total passes.",
+            "question": "What is the greatest number of additional passes allowed?",
+            "models": ["32 + x ≤ 50", "32 + x ≥ 50", "32x ≤ 50", "50 + x ≤ 32"],
+            "correct_model": "32 + x ≤ 50",
+            "answer": 18,
+            "unit": "passes",
+            "hint1": "'No more than 50' means 50 or less.",
+            "hint2": "50 − 32 = 18.",
+            "meaning": "The quarterback can throw at most 18 more passes."
+        },
         {
             "title": "Touchdown Pace",
             "kind": "Equation",
@@ -1783,6 +1836,59 @@ EQUATION_CASES = {
         },
     ],
     "NBA": [
+
+        {
+            "title": "Quarter Scoring Average",
+            "kind": "Equation",
+            "story": "A team scored x total points across 4 quarters and averaged 24 points per quarter.",
+            "question": "How many total points did the team score?",
+            "models": ["x / 4 = 24", "4x = 24", "x + 4 = 24", "24 / x = 4"],
+            "correct_model": "x / 4 = 24",
+            "answer": 96,
+            "unit": "points",
+            "hint1": "The total is being split equally across 4 quarters.",
+            "hint2": "x ÷ 4 = 24, so multiply 24 by 4.",
+            "meaning": "The team scored 96 total points."
+        },
+        {
+            "title": "Comeback With Free Throws",
+            "kind": "Equation",
+            "story": "A team has 58 points. Each trip to the line adds 2 points. The team wants exactly 72 points.",
+            "question": "How many 2-point trips to the free-throw line are needed?",
+            "models": ["58 + 2x = 72", "58 + x = 72", "2x = 72", "72 + 2x = 58"],
+            "correct_model": "58 + 2x = 72",
+            "answer": 7,
+            "unit": "trips",
+            "hint1": "The team starts with 58 and gains 2 points each time.",
+            "hint2": "58 + 2x = 72 → subtract 58, then divide by 2.",
+            "meaning": "The team needs 7 two-point trips to reach 72."
+        },
+        {
+            "title": "Turnovers Reduced",
+            "kind": "Equation",
+            "story": "A team had 19 turnovers in one game. After improving, it had 11. Let x be the number of turnovers reduced.",
+            "question": "How many fewer turnovers did the team have?",
+            "models": ["19 - x = 11", "19 + x = 11", "11 - x = 19", "19x = 11"],
+            "correct_model": "19 - x = 11",
+            "answer": 8,
+            "unit": "turnovers",
+            "hint1": "The starting amount becomes smaller by x.",
+            "hint2": "19 − x = 11, so x = 8.",
+            "meaning": "The team reduced its turnovers by 8."
+        },
+        {
+            "title": "Minutes Limit",
+            "kind": "Inequality",
+            "story": "A player has already played 24 minutes. The coach wants the player to finish with no more than 34 minutes.",
+            "question": "What is the greatest number of additional minutes the player can play?",
+            "models": ["24 + x ≤ 34", "24 + x ≥ 34", "24x ≤ 34", "34 + x ≤ 24"],
+            "correct_model": "24 + x ≤ 34",
+            "answer": 10,
+            "unit": "minutes",
+            "hint1": "'No more than' means the final total must be 34 or less.",
+            "hint2": "34 − 24 = 10, so x can be at most 10.",
+            "meaning": "The player can play at most 10 more minutes."
+        },
         {
             "title": "Target Scoring Average",
             "kind": "Equation",
@@ -1811,6 +1917,59 @@ EQUATION_CASES = {
         },
     ],
     "MLB": [
+
+        {
+            "title": "Runs Per Inning",
+            "kind": "Equation",
+            "story": "A team scored x total runs evenly across 3 scoring innings, averaging 4 runs in each of those innings.",
+            "question": "How many total runs were scored in those innings?",
+            "models": ["x / 3 = 4", "3x = 4", "x + 3 = 4", "4 / x = 3"],
+            "correct_model": "x / 3 = 4",
+            "answer": 12,
+            "unit": "runs",
+            "hint1": "The total is split equally among 3 innings.",
+            "hint2": "x ÷ 3 = 4, so x = 12.",
+            "meaning": "The team scored 12 runs across those innings."
+        },
+        {
+            "title": "Extra-Base Hit Points",
+            "kind": "Equation",
+            "story": "In a classroom scoring game, a player already has 14 points. Each double is worth 2 more points. The target is 24 points.",
+            "question": "How many doubles are needed?",
+            "models": ["14 + 2x = 24", "14 + x = 24", "2x = 24", "24 + 2x = 14"],
+            "correct_model": "14 + 2x = 24",
+            "answer": 5,
+            "unit": "doubles",
+            "hint1": "Start at 14, then add 2 for each double.",
+            "hint2": "14 + 2x = 24 → subtract 14, then divide by 2.",
+            "meaning": "The player needs 5 doubles."
+        },
+        {
+            "title": "Pitch Count Drop",
+            "kind": "Equation",
+            "story": "A pitcher threw 92 pitches in one start and then threw x fewer pitches in the next start, finishing with 78.",
+            "question": "How many fewer pitches were thrown?",
+            "models": ["92 - x = 78", "92 + x = 78", "78 - x = 92", "92x = 78"],
+            "correct_model": "92 - x = 78",
+            "answer": 14,
+            "unit": "pitches",
+            "hint1": "The second total is lower than the first.",
+            "hint2": "92 − x = 78, so x = 14.",
+            "meaning": "The pitcher threw 14 fewer pitches."
+        },
+        {
+            "title": "Concession Budget",
+            "kind": "Inequality",
+            "story": "A student has $35 at a baseball game and already spent $11. Each snack costs $6.",
+            "question": "What is the greatest number of snacks the student can still buy?",
+            "models": ["11 + 6x ≤ 35", "11 + 6x ≥ 35", "6 + 11x ≤ 35", "35 + 6x ≤ 11"],
+            "correct_model": "11 + 6x ≤ 35",
+            "answer": 4,
+            "unit": "snacks",
+            "hint1": "The total spending cannot exceed $35.",
+            "hint2": "35 − 11 = 24, then 24 ÷ 6 = 4.",
+            "meaning": "The student can buy at most 4 snacks."
+        },
         {
             "title": "Batting Practice Groups",
             "kind": "Equation",
@@ -1839,6 +1998,59 @@ EQUATION_CASES = {
         },
     ],
     "NHL": [
+
+        {
+            "title": "Goals Per Period",
+            "kind": "Equation",
+            "story": "A team scored x total goals evenly across 3 periods at a rate of 2 goals per period.",
+            "question": "How many total goals were scored?",
+            "models": ["x / 3 = 2", "3x = 2", "x + 3 = 2", "2 / x = 3"],
+            "correct_model": "x / 3 = 2",
+            "answer": 6,
+            "unit": "goals",
+            "hint1": "The total is split across 3 equal periods.",
+            "hint2": "x ÷ 3 = 2, so x = 6.",
+            "meaning": "The team scored 6 total goals."
+        },
+        {
+            "title": "Power-Play Comeback",
+            "kind": "Equation",
+            "story": "A team has 2 goals. Each successful power play adds 1 goal. The team wants to finish with exactly 5 goals.",
+            "question": "How many successful power plays are needed?",
+            "models": ["2 + x = 5", "2x = 5", "5 + x = 2", "2 - x = 5"],
+            "correct_model": "2 + x = 5",
+            "answer": 3,
+            "unit": "power-play goals",
+            "hint1": "What must be added to 2 to reach 5?",
+            "hint2": "5 − 2 = 3.",
+            "meaning": "The team needs 3 more power-play goals."
+        },
+        {
+            "title": "Ice Time Reduced",
+            "kind": "Equation",
+            "story": "A player usually logs 24 minutes of ice time. In one game the coach reduces that by x minutes, leaving 18 minutes.",
+            "question": "How many minutes were removed?",
+            "models": ["24 - x = 18", "24 + x = 18", "18 - x = 24", "24x = 18"],
+            "correct_model": "24 - x = 18",
+            "answer": 6,
+            "unit": "minutes",
+            "hint1": "The amount starts at 24 and decreases.",
+            "hint2": "24 − x = 18, so x = 6.",
+            "meaning": "The player's ice time was reduced by 6 minutes."
+        },
+        {
+            "title": "Equipment Budget",
+            "kind": "Inequality",
+            "story": "A team has $260 for practice pucks after already spending $80 on cones. Each puck pack costs $30.",
+            "question": "What is the greatest number of puck packs the team can buy?",
+            "models": ["80 + 30x ≤ 260", "80 + 30x ≥ 260", "30 + 80x ≤ 260", "260 + 30x ≤ 80"],
+            "correct_model": "80 + 30x ≤ 260",
+            "answer": 6,
+            "unit": "puck packs",
+            "hint1": "The total spending cannot be more than $260.",
+            "hint2": "260 − 80 = 180, then 180 ÷ 30 = 6.",
+            "meaning": "The team can buy at most 6 puck packs."
+        },
         {
             "title": "Penalty Minutes Drop",
             "kind": "Equation",
@@ -1867,6 +2079,59 @@ EQUATION_CASES = {
         },
     ],
     "Soccer": [
+
+        {
+            "title": "Goals Per Match",
+            "kind": "Equation",
+            "story": "A club scored x total goals across 5 matches at an average of 3 goals per match.",
+            "question": "How many total goals were scored?",
+            "models": ["x / 5 = 3", "5x = 3", "x + 5 = 3", "3 / x = 5"],
+            "correct_model": "x / 5 = 3",
+            "answer": 15,
+            "unit": "goals",
+            "hint1": "The total is split equally across 5 matches.",
+            "hint2": "x ÷ 5 = 3, so x = 15.",
+            "meaning": "The club scored 15 total goals."
+        },
+        {
+            "title": "Penalty Kick Practice",
+            "kind": "Equation",
+            "story": "A player has already made 12 penalty kicks in practice. Each new round adds 3 made kicks. The target is 24.",
+            "question": "How many new rounds are needed?",
+            "models": ["12 + 3x = 24", "12 + x = 24", "3x = 24", "24 + 3x = 12"],
+            "correct_model": "12 + 3x = 24",
+            "answer": 4,
+            "unit": "rounds",
+            "hint1": "Start at 12 and add 3 for each new round.",
+            "hint2": "12 + 3x = 24 → subtract 12, then divide by 3.",
+            "meaning": "The player needs 4 more practice rounds."
+        },
+        {
+            "title": "Possession Drop",
+            "kind": "Equation",
+            "story": "A team had 61% possession in one match and x percentage points less in the next match, finishing at 54%.",
+            "question": "How many percentage points did possession decrease?",
+            "models": ["61 - x = 54", "61 + x = 54", "54 - x = 61", "61x = 54"],
+            "correct_model": "61 - x = 54",
+            "answer": 7,
+            "unit": "percentage points",
+            "hint1": "The second value is lower than the first.",
+            "hint2": "61 − x = 54, so x = 7.",
+            "meaning": "Possession decreased by 7 percentage points."
+        },
+        {
+            "title": "Practice Ball Budget",
+            "kind": "Inequality",
+            "story": "A team has $300 for equipment. It already spent $84 on cones. Each soccer ball costs $27.",
+            "question": "What is the greatest number of soccer balls the team can buy?",
+            "models": ["84 + 27x ≤ 300", "84 + 27x ≥ 300", "27 + 84x ≤ 300", "300 + 27x ≤ 84"],
+            "correct_model": "84 + 27x ≤ 300",
+            "answer": 8,
+            "unit": "soccer balls",
+            "hint1": "The total cost cannot exceed $300.",
+            "hint2": "300 − 84 = 216, then 216 ÷ 27 = 8.",
+            "meaning": "The team can buy at most 8 soccer balls."
+        },
         {
             "title": "Training Sessions",
             "kind": "Equation",
@@ -1895,6 +2160,59 @@ EQUATION_CASES = {
         },
     ],
     "Formula 1": [
+
+        {
+            "title": "Points Per Race",
+            "kind": "Equation",
+            "story": "A driver earned x total points across 6 races at an average of 18 points per race.",
+            "question": "How many total points did the driver earn?",
+            "models": ["x / 6 = 18", "6x = 18", "x + 6 = 18", "18 / x = 6"],
+            "correct_model": "x / 6 = 18",
+            "answer": 108,
+            "unit": "points",
+            "hint1": "The total is spread across 6 races.",
+            "hint2": "x ÷ 6 = 18, so x = 108.",
+            "meaning": "The driver earned 108 total points."
+        },
+        {
+            "title": "Sprint Points Chase",
+            "kind": "Equation",
+            "story": "A driver has 74 points. Each sprint win in this classroom model adds 8 points. The target is 98 points.",
+            "question": "How many sprint wins are needed?",
+            "models": ["74 + 8x = 98", "74 + x = 98", "8x = 98", "98 + 8x = 74"],
+            "correct_model": "74 + 8x = 98",
+            "answer": 3,
+            "unit": "sprint wins",
+            "hint1": "Start at 74 and add 8 for each win.",
+            "hint2": "74 + 8x = 98 → subtract 74, then divide by 8.",
+            "meaning": "The driver needs 3 sprint wins."
+        },
+        {
+            "title": "Lap Time Improvement",
+            "kind": "Equation",
+            "story": "A driver's lap time was 92 seconds, then improved by x seconds to 87 seconds.",
+            "question": "How many seconds faster was the new lap?",
+            "models": ["92 - x = 87", "92 + x = 87", "87 - x = 92", "92x = 87"],
+            "correct_model": "92 - x = 87",
+            "answer": 5,
+            "unit": "seconds",
+            "hint1": "A faster lap means the time decreased.",
+            "hint2": "92 − x = 87, so x = 5.",
+            "meaning": "The new lap was 5 seconds faster."
+        },
+        {
+            "title": "Merchandise Budget",
+            "kind": "Inequality",
+            "story": "A fan has $250. After spending $70 on a ticket, each team shirt costs $45.",
+            "question": "What is the greatest number of shirts the fan can buy?",
+            "models": ["70 + 45x ≤ 250", "70 + 45x ≥ 250", "45 + 70x ≤ 250", "250 + 45x ≤ 70"],
+            "correct_model": "70 + 45x ≤ 250",
+            "answer": 4,
+            "unit": "shirts",
+            "hint1": "The total cost cannot be more than $250.",
+            "hint2": "250 − 70 = 180, and 180 ÷ 45 = 4.",
+            "meaning": "The fan can buy at most 4 shirts."
+        },
         {
             "title": "Pit Stop Average",
             "kind": "Equation",
@@ -1946,9 +2264,23 @@ def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided")
         )
     case_options = EQUATION_CASES[eq_sport]
     labels = {f"{c['kind']} · {c['title']}": c for c in case_options}
+
+    # Reset the chosen problem if the sport changes.
+    sport_state_key = "eq_last_sport"
+    if st.session_state.get(sport_state_key) != eq_sport:
+        st.session_state[sport_state_key] = eq_sport
+        st.session_state.pop("eq_case", None)
+
     with c2:
         case_label = st.selectbox("Problem", list(labels), key="eq_case")
-    case = labels[case_label]
+
+    if st.button("🎲 Give Me a Different Problem", key="eq_new_problem", use_container_width=True):
+        choices = [label for label in labels if label != st.session_state.get("eq_case")]
+        if choices:
+            st.session_state.eq_case = random.choice(choices)
+            st.rerun()
+
+    case = labels[st.session_state.get("eq_case", case_label)]
 
     case_id = clean_filename(f"{eq_sport}_{case['title']}")
 
