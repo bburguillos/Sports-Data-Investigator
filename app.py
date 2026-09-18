@@ -3069,9 +3069,12 @@ def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided",
 
     if st.button("Check My Model", key=f"eq_model_check_{case_id}", use_container_width=True):
         if model_choice == case["correct_model"]:
+            record_math_event(st.session_state.get("math_generated_question"), "Equation model", True, detail=model_choice)
             st.success("✅ Correct model.")
             st.session_state[model_attempt_key] = 0
         else:
+            mistake = diagnose_equation_mistake("model", case, model_choice)
+            record_math_event(st.session_state.get("math_generated_question"), "Equation model", False, mistake=mistake, used_hint=True, detail=model_choice)
             st.session_state[model_attempt_key] += 1
             if st.session_state[model_attempt_key] == 1:
                 if case["kind"] == "Inequality":
@@ -3096,9 +3099,12 @@ def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided",
 
     if st.button("Check My Solution", key=f"eq_answer_check_{case_id}", use_container_width=True):
         if answer is not None and math.isclose(answer, float(case["answer"]), abs_tol=0.1):
+            record_math_event(st.session_state.get("math_generated_question"), "Solve equation/inequality", True, detail=answer_raw)
             st.success(f"✅ Correct. x = {fmt(float(case['answer']))} {case['unit']}.")
             st.session_state[answer_attempt_key] = 0
         else:
+            mistake = diagnose_equation_mistake("answer", case, answer)
+            record_math_event(st.session_state.get("math_generated_question"), "Solve equation/inequality", False, mistake=mistake, used_hint=True, detail=answer_raw)
             st.session_state[answer_attempt_key] += 1
             if st.session_state[answer_attempt_key] == 1:
                 st.info(case["hint1"])
@@ -3134,8 +3140,11 @@ def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided",
 
     if st.button("Check My Interpretation", key=f"eq_interpret_check_{case_id}", use_container_width=True):
         if interpretation == case["meaning"]:
+            record_math_event(st.session_state.get("math_generated_question"), "Interpret solution", True, detail=interpretation)
             st.success("✅ Yes — that correctly explains the answer in context.")
         else:
+            mistake = diagnose_equation_mistake("interpret", case, interpretation)
+            record_math_event(st.session_state.get("math_generated_question"), "Interpret solution", False, mistake=mistake, used_hint=True, detail=interpretation)
             st.info("Go back to what x represents and connect the solution to the original question.")
 
     # Step 5: written reasoning.
@@ -3498,9 +3507,12 @@ def probability_engine(sport_filter="Any Sport", difficulty="Guided", generated_
 
     if st.button("Check My Probability", key=f"prob_ratio_check_{case_id}", use_container_width=True):
         if probability_ratio_correct(ratio_raw):
+            record_math_event(st.session_state.get("math_generated_question"), "Probability fraction", True, detail=ratio_raw)
             st.success("✅ Correct. Equivalent fractions are accepted.")
             st.session_state[ratio_attempt_key] = 0
         else:
+            mistake = diagnose_probability_mistake("fraction", successes, trials, future, raw=ratio_raw)
+            record_math_event(st.session_state.get("math_generated_question"), "Probability fraction", False, mistake=mistake, used_hint=True, detail=ratio_raw)
             st.session_state[ratio_attempt_key] += 1
             if st.session_state[ratio_attempt_key] == 1:
                 st.info("Experimental probability = successful outcomes ÷ total trials.")
@@ -3521,8 +3533,11 @@ def probability_engine(sport_filter="Any Sport", difficulty="Guided", generated_
 
     if st.button("Check My Decimal", key=f"prob_dec_check_{case_id}", use_container_width=True):
         if dec is not None and math.isclose(dec, true_decimal, abs_tol=0.01):
+            record_math_event(st.session_state.get("math_generated_question"), "Probability decimal", True, detail=dec_raw)
             st.success(f"✅ Correct — about {true_decimal:.2f}.")
         else:
+            mistake = diagnose_probability_mistake("decimal", successes, trials, future, value=dec)
+            record_math_event(st.session_state.get("math_generated_question"), "Probability decimal", False, mistake=mistake, used_hint=True, detail=dec_raw)
             if difficulty == "Guided":
                 st.info("Divide the number of successful outcomes by the total number of trials.")
             else:
@@ -3538,8 +3553,11 @@ def probability_engine(sport_filter="Any Sport", difficulty="Guided", generated_
 
     if st.button("Check My Percent", key=f"prob_pct_check_{case_id}", use_container_width=True):
         if pct is not None and math.isclose(pct, true_percent, abs_tol=0.5):
+            record_math_event(st.session_state.get("math_generated_question"), "Probability percent", True, detail=pct_raw)
             st.success(f"✅ Correct — about {true_percent:.1f}%.")
         else:
+            mistake = diagnose_probability_mistake("percent", successes, trials, future, value=pct)
+            record_math_event(st.session_state.get("math_generated_question"), "Probability percent", False, mistake=mistake, used_hint=True, detail=pct_raw)
             st.info("Convert the decimal to a percent. Think about multiplying by 100.")
 
     st.markdown("### Step 4 · Make a prediction")
@@ -3557,8 +3575,11 @@ def probability_engine(sport_filter="Any Sport", difficulty="Guided", generated_
     if st.button("Check My Prediction", key=f"prob_pred_check_{case_id}", use_container_width=True):
         tol = max(0.5, abs(true_prediction) * 0.02)
         if pred is not None and math.isclose(pred, true_prediction, abs_tol=tol):
+            record_math_event(st.session_state.get("math_generated_question"), "Probability prediction", True, detail=pred_raw)
             st.success(f"✅ Reasonable prediction — about {true_prediction:.1f}.")
         else:
+            mistake = diagnose_probability_mistake("prediction", successes, trials, future, value=pred)
+            record_math_event(st.session_state.get("math_generated_question"), "Probability prediction", False, mistake=mistake, used_hint=True, detail=pred_raw)
             if difficulty == "Guided":
                 st.info("Use your probability from Step 2 with the new number of trials.")
             else:
@@ -4113,8 +4134,11 @@ def percent_engine(sport_filter="Any Sport", difficulty="Guided", generated_spor
 
     if st.button("Check My Plan", key=f"pct_model_check_{case_id}", use_container_width=True):
         if model == correct_option:
+            record_math_event(st.session_state.get("math_generated_question"), "Percent plan", True, detail=model)
             st.success("✅ Good plan.")
         else:
+            mistake = diagnose_percent_mistake("plan", case, choice=model)
+            record_math_event(st.session_state.get("math_generated_question"), "Percent plan", False, mistake=mistake, used_hint=True, detail=model)
             st.info("Look at what the question is asking you to find and try again.")
 
     st.markdown("### Step 2 · Calculate")
@@ -4132,6 +4156,7 @@ def percent_engine(sport_filter="Any Sport", difficulty="Guided", generated_spor
     if st.button("Check My Answer", key=f"pct_answer_check_{case_id}", use_container_width=True):
         tolerance = max(0.1, abs(answer) * 0.01)
         if student is not None and math.isclose(student, answer, abs_tol=tolerance):
+            record_math_event(st.session_state.get("math_generated_question"), "Percent calculation", True, detail=raw)
             if case["kind"] == "Percent Change":
                 direction = "increase" if answer > 0 else "decrease" if answer < 0 else "no change"
                 st.success(f"✅ Correct — {abs(answer):.1f}% {direction}.")
@@ -4143,6 +4168,8 @@ def percent_engine(sport_filter="Any Sport", difficulty="Guided", generated_spor
                 st.success(f"✅ Correct — {answer:.1f} {case.get('unit','')}.")
             st.session_state[attempts_key] = 0
         else:
+            mistake = diagnose_percent_mistake("answer", case, value=student)
+            record_math_event(st.session_state.get("math_generated_question"), "Percent calculation", False, mistake=mistake, used_hint=True, detail=raw)
             st.session_state[attempts_key] += 1
             if st.session_state[attempts_key] == 1:
                 st.info(case["hint1"])
@@ -4160,8 +4187,11 @@ def percent_engine(sport_filter="Any Sport", difficulty="Guided", generated_spor
         if st.button("Check Direction", key=f"pct_direction_check_{case_id}", use_container_width=True):
             expected = "Increase" if answer > 0 else "Decrease" if answer < 0 else "No Change"
             if direction_choice == expected:
+                record_math_event(st.session_state.get("math_generated_question"), "Percent-change direction", True, detail=direction_choice)
                 st.success("✅ Correct.")
             else:
+                mistake = diagnose_percent_mistake("direction", case, choice=direction_choice)
+                record_math_event(st.session_state.get("math_generated_question"), "Percent-change direction", False, mistake=mistake, used_hint=True, detail=direction_choice)
                 st.info("Look at whether the new value is larger or smaller than the old value.")
 
     st.markdown("### Final · Explain what your answer means")
@@ -4682,8 +4712,11 @@ def rational_numbers_engine(sport_filter="Any Sport", difficulty="Guided", gener
 
     if st.button("Check My Sign", key=f"ratnum_sign_check_{case_id}", use_container_width=True):
         if sign_choice == expected_sign:
+            record_math_event(st.session_state.get("math_generated_question"), "Predict sign", True, detail=sign_choice)
             st.success("✅ Correct.")
         else:
+            mistake = diagnose_rational_mistake("sign", case, sign_choice)
+            record_math_event(st.session_state.get("math_generated_question"), "Predict sign", False, mistake=mistake, used_hint=True, detail=sign_choice)
             st.info("Think about whether the situation ends above, below, or exactly at zero.")
 
     st.markdown("### Step 2 · Write the numerical expression")
@@ -4742,8 +4775,11 @@ def rational_numbers_engine(sport_filter="Any Sport", difficulty="Guided", gener
 
     if st.button("Check My Expression", key=f"ratnum_expr_check_{case_id}", use_container_width=True):
         if expr_choice == case["expression"]:
+            record_math_event(st.session_state.get("math_generated_question"), "Signed expression", True, detail=expr_choice)
             st.success("✅ Correct expression.")
         else:
+            mistake = diagnose_rational_mistake("expression", case, expr_choice)
+            record_math_event(st.session_state.get("math_generated_question"), "Signed expression", False, mistake=mistake, used_hint=True, detail=expr_choice)
             st.info("Match the direction of each change in the story to a positive or negative value.")
 
     st.markdown("### Step 3 · Calculate")
@@ -4761,9 +4797,12 @@ def rational_numbers_engine(sport_filter="Any Sport", difficulty="Guided", gener
     if st.button("Check My Answer", key=f"ratnum_answer_check_{case_id}", use_container_width=True):
         tolerance = 0.001 if abs(correct) < 1 else 0.05
         if student is not None and math.isclose(student, correct, abs_tol=tolerance):
+            record_math_event(st.session_state.get("math_generated_question"), "Rational-number calculation", True, detail=raw)
             st.success(f"✅ Correct — {fmt(correct)} {case['unit']}.")
             st.session_state[attempts_key] = 0
         else:
+            mistake = diagnose_rational_mistake("answer", case, student)
+            record_math_event(st.session_state.get("math_generated_question"), "Rational-number calculation", False, mistake=mistake, used_hint=True, detail=raw)
             st.session_state[attempts_key] += 1
             if st.session_state[attempts_key] == 1:
                 st.info(case["hint1"])
@@ -5000,8 +5039,11 @@ def geometry_engine(sport_filter="Any Sport", difficulty="Guided", generated_spo
 
     if st.button("Check My Plan", key=f"geo_plan_check_{case_id}", use_container_width=True):
         if plan == correct_plan:
+            record_math_event(st.session_state.get("math_generated_question"), "Geometry plan", True, detail=plan)
             st.success("✅ Correct plan.")
         else:
+            mistake = diagnose_geometry_mistake("plan", case, choice=plan)
+            record_math_event(st.session_state.get("math_generated_question"), "Geometry plan", False, mistake=mistake, used_hint=True, detail=plan)
             if difficulty == "Guided":
                 st.info("Think about what the question asks you to measure: around, inside, space, scale, or angle.")
             else:
@@ -5025,12 +5067,15 @@ def geometry_engine(sport_filter="Any Sport", difficulty="Guided", generated_spo
     if st.button("Check My Answer", key=f"geo_answer_check_{case_id}", use_container_width=True):
         tol = geometry_tolerance(case)
         if student is not None and math.isclose(student, correct, abs_tol=tol):
+            record_math_event(st.session_state.get("math_generated_question"), "Geometry calculation", True, detail=raw)
             if case["shape"] in ("circle_area", "circumference_d"):
                 st.success(f"✅ Correct — your rounded answer is within the accepted range. Using π gives about **{correct:.2f} {case['unit']}**.")
             else:
                 st.success(f"✅ Correct — {fmt(correct)} {case['unit']}.")
             st.session_state[attempts_key] = 0
         else:
+            mistake = diagnose_geometry_mistake("answer", case, value=student)
+            record_math_event(st.session_state.get("math_generated_question"), "Geometry calculation", False, mistake=mistake, used_hint=True, detail=raw)
             st.session_state[attempts_key] += 1
             if st.session_state[attempts_key] == 1:
                 if case["shape"] == "circle_area":
@@ -5088,8 +5133,11 @@ def geometry_engine(sport_filter="Any Sport", difficulty="Guided", generated_spo
 
     if st.button("Check My Unit", key=f"geo_unit_check_{case_id}", use_container_width=True):
         if unit_choice == case["unit"]:
+            record_math_event(st.session_state.get("math_generated_question"), "Geometry units", True, detail=unit_choice)
             st.success("✅ Correct unit.")
         else:
+            mistake = diagnose_geometry_mistake("unit", case, choice=unit_choice)
+            record_math_event(st.session_state.get("math_generated_question"), "Geometry units", False, mistake=mistake, used_hint=True, detail=unit_choice)
             st.info("Think about whether you measured length, area, volume, or an angle.")
 
     st.markdown("### Final · Explain your reasoning")
@@ -5275,8 +5323,11 @@ def statistics_engine(sport_filter="Any Sport", difficulty="Guided", generated_s
             if ratio_ans is not None:
                 ok = math.isclose(ratio_ans, true_prop, abs_tol=0.01) or math.isclose(ratio_ans, true_prop*100, abs_tol=0.5)
             if ok:
+                record_math_event(st.session_state.get("math_generated_question"), "Sample proportion", True, detail=ratio_raw)
                 st.success(f"✅ Correct — about {true_prop:.2f}, or {true_prop*100:.1f}%.")
             else:
+                mistake = diagnose_statistics_mistake("sample_prop", case, value=ratio_ans)
+                record_math_event(st.session_state.get("math_generated_question"), "Sample proportion", False, mistake=mistake, used_hint=True, detail=ratio_raw)
                 st.info("Divide the number with the response by the sample size.")
 
         st.markdown("### Step 2 · Predict the larger population")
@@ -5285,8 +5336,11 @@ def statistics_engine(sport_filter="Any Sport", difficulty="Guided", generated_s
         true_pred = true_prop*case["population"]
         if st.button("Check My Prediction", key=f"stats_answer_check_{cid}", use_container_width=True):
             if pred is not None and math.isclose(pred,true_pred,abs_tol=max(1,0.03*true_pred)):
+                record_math_event(st.session_state.get("math_generated_question"), "Population prediction", True, detail=pred_raw)
                 st.success(f"✅ Reasonable prediction — about {true_pred:.0f}.")
             else:
+                mistake = diagnose_statistics_mistake("prediction", case, value=pred)
+                record_math_event(st.session_state.get("math_generated_question"), "Population prediction", False, mistake=mistake, used_hint=True, detail=pred_raw)
                 st.info("Use the sample proportion and apply it to the larger population.")
 
     elif mode == "bias":
@@ -5298,8 +5352,11 @@ def statistics_engine(sport_filter="Any Sport", difficulty="Guided", generated_s
         choice=st.radio("How would you classify the sample?",st.session_state[order_key],key=f"stats_bias_{cid}")
         if st.button("Check My Choice",key=f"stats_bias_check_{cid}",use_container_width=True):
             if choice==case["correct"]:
+                record_math_event(st.session_state.get("math_generated_question"), "Sampling bias", True, detail=choice)
                 st.success("✅ Correct.")
             else:
+                mistake = diagnose_statistics_mistake("bias", case, choice=choice)
+                record_math_event(st.session_state.get("math_generated_question"), "Sampling bias", False, mistake=mistake, used_hint=True, detail=choice)
                 st.info("Ask whether everyone in the population had a fair chance to be selected.")
 
     elif mode == "compare_means":
@@ -5312,14 +5369,22 @@ def statistics_engine(sport_filter="Any Sport", difficulty="Guided", generated_s
         a_num=parse_student_number(ans_a); b_num=parse_student_number(ans_b)
         if st.button("Check Means",key=f"stats_means_check_{cid}",use_container_width=True):
             if a_num is not None and b_num is not None and math.isclose(a_num,mean_a,abs_tol=.1) and math.isclose(b_num,mean_b,abs_tol=.1):
+                record_math_event(st.session_state.get("math_generated_question"), "Compare means calculation", True, detail=f"A={ans_a}, B={ans_b}")
                 st.success("✅ Both means are correct.")
             else:
+                mistake = diagnose_statistics_mistake("means", case, value=a_num, value2=b_num)
+                record_math_event(st.session_state.get("math_generated_question"), "Compare means calculation", False, mistake=mistake, used_hint=True, detail=f"A={ans_a}, B={ans_b}")
                 st.info("Add each sample and divide by the number of values.")
         higher="A" if mean_a>mean_b else "B" if mean_b>mean_a else "Same"
         comp=st.radio("Which sample has the higher mean?",["A","B","Same"],horizontal=True,key=f"stats_compare_{cid}")
         if st.button("Check Comparison",key=f"stats_compare_check_{cid}",use_container_width=True):
-            if comp==higher: st.success("✅ Correct.")
-            else: st.info("Compare the two means you calculated.")
+            if comp==higher:
+                record_math_event(st.session_state.get("math_generated_question"), "Compare sample means", True, detail=comp)
+                st.success("✅ Correct.")
+            else:
+                mistake = diagnose_statistics_mistake("mean_compare", case, choice=comp)
+                record_math_event(st.session_state.get("math_generated_question"), "Compare sample means", False, mistake=mistake, used_hint=True, detail=comp)
+                st.info("Compare the two means you calculated.")
 
     elif mode == "range":
         st.markdown("### Step 1 · Compare spread")
@@ -5331,14 +5396,22 @@ def statistics_engine(sport_filter="Any Sport", difficulty="Guided", generated_s
         ra_num=parse_student_number(ra); rb_num=parse_student_number(rb)
         if st.button("Check Ranges",key=f"stats_ranges_check_{cid}",use_container_width=True):
             if ra_num is not None and rb_num is not None and math.isclose(ra_num,range_a,abs_tol=.1) and math.isclose(rb_num,range_b,abs_tol=.1):
+                record_math_event(st.session_state.get("math_generated_question"), "Range calculation", True, detail=f"A={ra}, B={rb}")
                 st.success("✅ Both ranges are correct.")
             else:
+                mistake = diagnose_statistics_mistake("ranges", case, value=ra_num, value2=rb_num)
+                record_math_event(st.session_state.get("math_generated_question"), "Range calculation", False, mistake=mistake, used_hint=True, detail=f"A={ra}, B={rb}")
                 st.info("Range = maximum − minimum.")
         consistent="A" if range_a<range_b else "B" if range_b<range_a else "Same"
         comp=st.radio("Which sample is more consistent?",["A","B","Same"],horizontal=True,key=f"stats_consistent_{cid}")
         if st.button("Check Consistency",key=f"stats_consistent_check_{cid}",use_container_width=True):
-            if comp==consistent: st.success("✅ Correct — smaller range means less spread.")
-            else: st.info("The smaller range indicates more consistency.")
+            if comp==consistent:
+                record_math_event(st.session_state.get("math_generated_question"), "Interpret consistency", True, detail=comp)
+                st.success("✅ Correct — smaller range means less spread.")
+            else:
+                mistake = diagnose_statistics_mistake("consistency", case, choice=comp)
+                record_math_event(st.session_state.get("math_generated_question"), "Interpret consistency", False, mistake=mistake, used_hint=True, detail=comp)
+                st.info("The smaller range indicates more consistency.")
 
     elif mode == "claim":
         st.markdown("### Step 1 · Evaluate the claim")
@@ -5350,8 +5423,11 @@ def statistics_engine(sport_filter="Any Sport", difficulty="Guided", generated_s
         ],key=f"stats_claim_{cid}")
         if st.button("Check Claim",key=f"stats_claim_check_{cid}",use_container_width=True):
             if answer.startswith("The sample supports"):
+                record_math_event(st.session_state.get("math_generated_question"), "Evaluate sample claim", True, detail=answer)
                 st.success(f"✅ Good reasoning. The condition occurred in about {pct*100:.1f}% of the sample.")
             else:
+                mistake = diagnose_statistics_mistake("claim", case, choice=answer)
+                record_math_event(st.session_state.get("math_generated_question"), "Evaluate sample claim", False, mistake=mistake, used_hint=True, detail=answer)
                 st.info("A sample can provide evidence, but it does not guarantee every future result.")
 
     elif mode == "method":
@@ -5367,8 +5443,13 @@ def statistics_engine(sport_filter="Any Sport", difficulty="Guided", generated_s
             vals=list(dict.fromkeys(distractors)); random.shuffle(vals); st.session_state[order_key]=vals
         choice=st.radio("Which method is best?",st.session_state[order_key],key=f"stats_method_{cid}")
         if st.button("Check Sampling Method",key=f"stats_method_check_{cid}",use_container_width=True):
-            if choice==case["correct"]: st.success("✅ Correct.")
-            else: st.info("A representative sample should give the full population a fair chance to be included.")
+            if choice==case["correct"]:
+                record_math_event(st.session_state.get("math_generated_question"), "Sampling method", True, detail=choice)
+                st.success("✅ Correct.")
+            else:
+                mistake = diagnose_statistics_mistake("method", case, choice=choice)
+                record_math_event(st.session_state.get("math_generated_question"), "Sampling method", False, mistake=mistake, used_hint=True, detail=choice)
+                st.info("A representative sample should give the full population a fair chance to be included.")
 
     st.markdown("### Final · Explain your reasoning")
     st.text_area(
@@ -5874,8 +5955,11 @@ def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_
         choice=st.radio("Choose the expression that matches the sports situation.",st.session_state[order_key],key=f"expr_choice_{cid}")
         if st.button("Check My Expression",key=f"expr_choice_check_{cid}",use_container_width=True):
             if normalize_expression_text(choice)==normalize_expression_text(correct):
+                record_math_event(st.session_state.get("math_generated_question"), "Choose algebraic expression", True, detail=choice)
                 st.success("✅ Correct.")
             else:
+                mistake = diagnose_expression_mistake("choice", case, choice)
+                record_math_event(st.session_state.get("math_generated_question"), "Choose algebraic expression", False, mistake=mistake, used_hint=True, detail=choice)
                 if difficulty=="Guided":
                     st.info(
                         f"Use the meaning of x: {clean_card_text(case.get('variable_meaning',''))}. "
@@ -5894,8 +5978,11 @@ def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_
                 parts=correct.split("+")
                 alt="+".join(reversed(parts))
             if student==correct or student==alt:
+                record_math_event(st.session_state.get("math_generated_question"), "Write algebraic expression", True, detail=raw)
                 st.success("✅ Correct.")
             else:
+                mistake = diagnose_expression_mistake("write", case, raw)
+                record_math_event(st.session_state.get("math_generated_question"), "Write algebraic expression", False, mistake=mistake, used_hint=True, detail=raw)
                 if difficulty=="Guided":
                     st.info(
                         f"Remember: {clean_card_text(case.get('variable_meaning',''))}. "
@@ -5911,8 +5998,11 @@ def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_
         ans=parse_student_number(raw)
         if st.button("Check My Value",key=f"expr_answer_check_{cid}",use_container_width=True):
             if ans is not None and math.isclose(ans,float(case["answer"]),abs_tol=.05):
+                record_math_event(st.session_state.get("math_generated_question"), "Evaluate expression", True, detail=raw)
                 st.success(f"✅ Correct — the sports total is {fmt(float(case['answer']))}.")
             else:
+                mistake = diagnose_expression_mistake("evaluate", case, ans)
+                record_math_event(st.session_state.get("math_generated_question"), "Evaluate expression", False, mistake=mistake, used_hint=True, detail=raw)
                 if difficulty=="Guided":
                     st.info(
                         f"Substitute x = {case['x']} into the sports formula first, "
@@ -5927,8 +6017,11 @@ def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_
         raw=st.text_input("Simplified sports expression",key=f"expr_written_{cid}",placeholder="Simplify the expression")
         if st.button("Check My Simplified Expression",key=f"expr_written_check_{cid}",use_container_width=True):
             if normalize_expression_text(raw)==normalize_expression_text(case["correct"]):
+                record_math_event(st.session_state.get("math_generated_question"), "Combine like terms", True, detail=raw)
                 st.success("✅ Correct.")
             else:
+                mistake = diagnose_expression_mistake("write", case, raw)
+                record_math_event(st.session_state.get("math_generated_question"), "Combine like terms", False, mistake=mistake, used_hint=True, detail=raw)
                 if difficulty=="Guided":
                     st.info("The x-terms represent the same type of sports quantity, so those coefficients can be combined.")
                 else:
@@ -6311,8 +6404,11 @@ def fractions_engine(sport_filter="Any Sport", difficulty="Guided", generated_sp
     op = st.radio("What should you do first?", st.session_state[order_key], key=f"frac_op_{cid}")
     if st.button("Check My Plan", key=f"frac_op_check_{cid}", use_container_width=True):
         if op == correct_op:
+            record_math_event(st.session_state.get("math_generated_question"), "Fraction operation", True, detail=op)
             st.success("✅ Correct plan.")
         else:
+            mistake = diagnose_fraction_mistake("plan", case, choice=op)
+            record_math_event(st.session_state.get("math_generated_question"), "Fraction operation", False, mistake=mistake, used_hint=True, detail=op)
             if difficulty == "Guided":
                 st.info(case.get("hint1","Think about what the fractions represent."))
             else:
@@ -6338,12 +6434,15 @@ def fractions_engine(sport_filter="Any Sport", difficulty="Guided", generated_sp
     if st.button("Check My Answer", key=f"frac_answer_check_{cid}", use_container_width=True):
         tol = 0.01 if abs(correct) < 10 else max(0.1,abs(correct)*0.01)
         if ans is not None and math.isclose(ans,correct,abs_tol=tol):
+            record_math_event(st.session_state.get("math_generated_question"), "Fraction calculation", True, detail=raw)
             exact = Fraction(correct).limit_denominator(100)
             if mode in ("add","subtract","multiply"):
                 st.success(f"✅ Correct — {_fraction_text(exact)} (about {correct:.3f} as a decimal).")
             else:
                 st.success(f"✅ Correct — {fmt(correct)}.")
         else:
+            mistake = diagnose_fraction_mistake("answer", case, value=ans)
+            record_math_event(st.session_state.get("math_generated_question"), "Fraction calculation", False, mistake=mistake, used_hint=True, detail=raw)
             if difficulty == "Guided":
                 st.info(case.get("hint1","Check how the fractions are related."))
                 st.caption(case.get("hint2",""))
@@ -8398,6 +8497,311 @@ def analyze_ratio_mistake(stage, case, **answers):
     except Exception:
         pass
     return "Check the setup and calculation"
+
+
+def diagnose_equation_mistake(stage, case, value=None):
+    """Return a classroom-friendly misconception label for equations/inequalities."""
+    if stage == "model":
+        chosen = str(value or "")
+        correct = str(case.get("correct_model",""))
+        if case.get("kind") == "Inequality":
+            if ("≥" in correct and "≤" in chosen) or ("≤" in correct and "≥" in chosen):
+                return "Inequality symbol was reversed"
+            if "x" in chosen and any(op in chosen for op in ["+", "-", "x", "÷", "/"]):
+                return "The inequality operation does not match the situation"
+            return "Inequality model needs attention"
+        return "Equation model uses the wrong operation or structure"
+
+    if stage == "answer":
+        ans = value
+        correct = float(case.get("answer",0))
+        if ans is None:
+            return "No numerical solution was entered"
+        if math.isclose(abs(ans), abs(correct), abs_tol=.1) and not math.isclose(ans, correct, abs_tol=.1):
+            return "Sign error while solving"
+        return "Inverse operation or arithmetic error"
+
+    if stage == "interpret":
+        return "Solution was not connected back to what x represents"
+
+    return "Equation reasoning needs attention"
+
+
+def diagnose_probability_mistake(stage, successes, trials, future, value=None, raw=""):
+    true_dec = successes / trials
+    true_pct = true_dec * 100
+    true_pred = true_dec * future
+
+    if stage == "fraction":
+        compact = str(raw).strip().replace(" ","").replace(":","/").replace("÷","/")
+        if "/" in compact:
+            try:
+                a,b = compact.split("/",1)
+                a=float(Fraction(a)); b=float(Fraction(b))
+                if b and math.isclose(a/b, trials/successes, rel_tol=1e-9, abs_tol=1e-9):
+                    return "Successes and total trials were reversed"
+            except Exception:
+                pass
+        return "Experimental probability fraction is set up incorrectly"
+
+    if stage == "decimal":
+        if value is None:
+            return "No decimal probability was entered"
+        if math.isclose(value, true_pct, abs_tol=.5):
+            return "Percent was entered instead of a decimal"
+        if math.isclose(value, trials/successes if successes else -999, abs_tol=.01):
+            return "Probability division was reversed"
+        return "Fraction-to-decimal conversion error"
+
+    if stage == "percent":
+        if value is None:
+            return "No percent was entered"
+        if math.isclose(value, true_dec, abs_tol=.01):
+            return "Decimal was entered without multiplying by 100"
+        return "Decimal-to-percent conversion error"
+
+    if stage == "prediction":
+        if value is None:
+            return "No prediction was entered"
+        if math.isclose(value, true_dec, abs_tol=.01):
+            return "Used the probability but did not scale to the new number of trials"
+        if math.isclose(value, true_pct, abs_tol=.5):
+            return "Used the percent itself instead of predicting a count"
+        return "Probability was not scaled correctly to the new number of trials"
+
+    return "Probability reasoning needs attention"
+
+
+def diagnose_percent_mistake(stage, case, value=None, choice=""):
+    kind = case.get("kind")
+    correct = float(case.get("answer",0))
+
+    if stage == "plan":
+        if kind == "Percent Change" and "new" in str(choice).lower() and "old" in str(choice).lower():
+            return "Percent-change formula used the wrong base value"
+        if kind == "Percent" and "whole ÷ part" in str(choice):
+            return "Part and whole were reversed"
+        if kind == "Discount":
+            return "Discount amount and final sale price were confused"
+        return "The selected percent relationship does not match the question"
+
+    if stage == "answer":
+        ans = value
+        if ans is None:
+            return "No numerical percent answer was entered"
+
+        if kind == "Percent":
+            part, whole = float(case.get("part",0)), float(case.get("whole",1))
+            dec = part/whole
+            if math.isclose(ans, dec, abs_tol=.01):
+                return "Decimal was found correctly but was not multiplied by 100"
+
+        if kind == "Percent Change":
+            old, new = float(case.get("old",0)), float(case.get("new",0))
+            if old:
+                dec = (new-old)/old
+                if math.isclose(ans, dec, abs_tol=.01):
+                    return "Percent change was left as a decimal instead of a percent"
+            if new:
+                wrong_base = (new-old)/new*100
+                if math.isclose(ans, wrong_base, abs_tol=max(.1,abs(wrong_base)*.01)):
+                    return "New value was used as the denominator instead of the original value"
+            if math.isclose(ans, -correct, abs_tol=max(.1,abs(correct)*.01)):
+                return "Increase/decrease sign was reversed"
+
+        if kind == "Percent Of":
+            pct, base = float(case.get("percent",0)), float(case.get("base",0))
+            if math.isclose(ans, pct*base, abs_tol=.1):
+                return "Percent was used as a whole number instead of converting it to a decimal"
+
+        if kind == "Discount":
+            pct, base = float(case.get("percent",0)), float(case.get("base",0))
+            discount = pct/100*base
+            if math.isclose(ans, discount, abs_tol=.1):
+                return "Discount amount was found, but it was not subtracted from the original price"
+
+        return "Percent calculation needs attention"
+
+    if stage == "direction":
+        return "Increase/decrease direction was reversed"
+
+    return "Percent reasoning needs attention"
+
+
+def diagnose_rational_mistake(stage, case, value=None):
+    correct = float(case.get("answer",0))
+    if stage == "sign":
+        return "Positive/negative direction was misread"
+    if stage == "expression":
+        return "A gain/loss sign or operation was represented incorrectly"
+    if stage == "answer":
+        if value is None:
+            return "No numerical answer was entered"
+        if math.isclose(abs(value), abs(correct), abs_tol=.05) and not math.isclose(value, correct, abs_tol=.05):
+            return "Magnitude is correct, but the sign is wrong"
+        return "Signed-number arithmetic error"
+    if stage == "interpret":
+        return "The sign was not interpreted correctly in the sports context"
+    return "Rational-number reasoning needs attention"
+
+
+def diagnose_geometry_mistake(stage, case, value=None, choice=""):
+    shape = case.get("shape")
+    if stage == "plan":
+        chosen = str(choice)
+        if shape == "circle_area" and chosen in ("πd","2πr"):
+            return "Circumference formula was chosen instead of circle area"
+        if shape == "circumference_d" and chosen == "πr²":
+            return "Circle-area formula was chosen instead of circumference"
+        if shape == "rectangle" and "2(" in chosen:
+            return "Perimeter was chosen instead of area"
+        if shape == "volume" and chosen == "length × width":
+            return "Area was used instead of three-dimensional volume"
+        if shape == "supplement" and "90" in chosen:
+            return "Complementary and supplementary angles were confused"
+        if shape == "complement" and "180" in chosen:
+            return "Complementary and supplementary angles were confused"
+        return "Geometry formula/plan does not match the measurement requested"
+
+    if stage == "answer":
+        ans = value
+        correct = float(case.get("answer",0))
+        if ans is None:
+            return "No numerical geometry answer was entered"
+        if shape == "circle_area":
+            r=float(case.get("a",0))
+            wrong = math.pi*(2*r)**2
+            if math.isclose(ans, wrong, abs_tol=max(.5,wrong*.02)):
+                return "Diameter was used as the radius in the circle-area formula"
+        if shape == "circumference_d":
+            d=float(case.get("a",0))
+            wrong=2*math.pi*d
+            if math.isclose(ans, wrong, abs_tol=max(.5,wrong*.02)):
+                return "Diameter was doubled before using πd"
+        return "Geometry calculation or substitution error"
+
+    if stage == "unit":
+        unit = str(case.get("unit","")).lower()
+        if "square" in unit:
+            return "Area requires square units"
+        if "cubic" in unit:
+            return "Volume requires cubic units"
+        if "degree" in unit:
+            return "Angle measurements require degrees"
+        return "Unit type does not match the measurement"
+
+    return "Geometry reasoning needs attention"
+
+
+def diagnose_statistics_mistake(stage, case, value=None, value2=None, choice=""):
+    mode = case.get("mode")
+    if stage == "sample_prop":
+        ans=value
+        if ans is None:
+            return "No sample proportion was entered"
+        true_prop=case["success"]/case["sample"]
+        if math.isclose(ans, case["sample"]/case["success"] if case["success"] else -999, abs_tol=.01):
+            return "Successes and sample size were reversed"
+        return "Sample proportion was calculated incorrectly"
+
+    if stage == "prediction":
+        ans=value
+        true_prop=case["success"]/case["sample"]
+        if ans is not None and (math.isclose(ans,true_prop,abs_tol=.01) or math.isclose(ans,true_prop*100,abs_tol=.5)):
+            return "Sample proportion was found but not scaled to the population"
+        return "Sample proportion was not applied correctly to the population"
+
+    if stage == "bias":
+        if str(choice) == "Representative":
+            return "A biased or convenience sample was treated as representative"
+        return "Sampling bias was not identified correctly"
+
+    if stage == "means":
+        return "Mean calculation error: add all values, then divide by the number of values"
+    if stage == "mean_compare":
+        return "The two sample means were compared incorrectly"
+    if stage == "ranges":
+        return "Range calculation error: maximum minus minimum"
+    if stage == "consistency":
+        return "Spread was interpreted backwards; smaller range means more consistency"
+    if stage == "claim":
+        if "always" in str(choice).lower() or "prove" in str(choice).lower():
+            return "A sample was treated as proof instead of evidence"
+        return "The conclusion does not match what the sample can support"
+    if stage == "method":
+        text=str(choice).lower()
+        if "easiest" in text:
+            return "Convenience sampling can create bias"
+        if "agree" in text:
+            return "Selecting only people who agree creates bias"
+        if "volunteer" in text:
+            return "Voluntary-response sampling may not represent the population"
+        return "Sampling method is not representative"
+    return "Statistics reasoning needs attention"
+
+
+def diagnose_expression_mistake(stage, case, value=None):
+    mode=case.get("mode")
+    if stage == "choice":
+        if mode == "distribute":
+            return "Distributive property was not applied to every term"
+        if mode == "equivalent":
+            return "The selected expression is not algebraically equivalent"
+        if mode == "translate":
+            return "A sports quantity was matched to the wrong term or operation"
+        return "Expression choice does not match the sports situation"
+    if stage == "write":
+        if mode == "combine":
+            return "Like terms were not combined correctly"
+        return "Variable term and fixed amount were not represented correctly"
+    if stage == "evaluate":
+        ans=value
+        correct=float(case.get("answer",0))
+        if ans is None:
+            return "No numerical value was entered"
+        if "x" in str(case.get("expression","")).lower() and math.isclose(ans,float(case.get("x",0)),abs_tol=.05):
+            return "x was identified, but it was not substituted into the full expression"
+        return "Substitution or arithmetic error"
+    return "Algebraic reasoning needs attention"
+
+
+def diagnose_fraction_mistake(stage, case, value=None, choice=""):
+    mode=case.get("mode")
+    if stage == "plan":
+        chosen=str(choice)
+        expected={
+            "fraction_of":"Multiply","add":"Add","subtract":"Subtract",
+            "multiply":"Multiply","divide":"Divide","convert":"Divide numerator by denominator"
+        }.get(mode,"")
+        if chosen != expected:
+            return f"Operation mismatch: this situation requires {expected.lower()}"
+        return "Fraction operation needs attention"
+
+    if stage == "answer":
+        ans=value
+        correct=float(case.get("answer",0))
+        if ans is None:
+            return "No fraction/decimal answer was entered"
+        try:
+            if mode=="divide":
+                f1=float(case.get("f1",0)); f2=float(case.get("f2",1))
+                wrong=f1*f2
+                if math.isclose(ans,wrong,abs_tol=.01):
+                    return "Fractions were multiplied instead of divided"
+            if mode=="multiply":
+                f1=float(case.get("f1",0)); f2=float(case.get("f2",1))
+                if f2 and math.isclose(ans,f1/f2,abs_tol=.01):
+                    return "Fractions were divided instead of multiplied"
+            if mode=="convert":
+                fr=float(case.get("fraction",0))
+                if fr and math.isclose(ans,1/fr,abs_tol=.01):
+                    return "Numerator and denominator were reversed during conversion"
+        except Exception:
+            pass
+        return "Fraction calculation or simplification error"
+
+    return "Fraction reasoning needs attention"
+
 
 def render_math_game_status(generated):
     s = math_perf_summary(generated)
