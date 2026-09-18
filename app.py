@@ -3,6 +3,7 @@ import streamlit as st
 import json
 import math
 import random
+import copy
 from fractions import Fraction
 import uuid
 import base64
@@ -1752,7 +1753,7 @@ RATE_CASES = {
 def rate_tolerance(correct):
     return max(0.1, abs(correct) * 0.015)
 
-def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_athlete=None):
+def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_athlete=None, generated_case=None):
     st.markdown('<div class="step">7th Grade Math Lab · Ratios, Rates & Proportions</div>', unsafe_allow_html=True)
     st.subheader("🏁 Sports Rate Lab")
     st.write(
@@ -1760,7 +1761,10 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
         "Try each step first — the app gives stronger help only after repeated mistakes."
     )
 
-    if generated_sport and generated_athlete:
+    if generated_case is not None and generated_sport:
+        sport = generated_sport
+        athlete = generated_athlete or generated_case.get("title", "Generated Scenario")
+    elif generated_sport and generated_athlete:
         sport = generated_sport
         athlete = generated_athlete
     else:
@@ -1783,7 +1787,7 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
                 key="rate_athlete"
             )
 
-    case = RATE_CASES[sport][athlete]
+    case = generated_case if generated_case is not None else RATE_CASES[sport][athlete]
     total = float(case["total"])
     games = float(case["games"])
     target_games = float(case["projection_games"])
@@ -2494,7 +2498,7 @@ EQUATION_CASES = {
     ],
 }
 
-def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None):
+def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None, generated_case=None):
     st.markdown('<div class="step">7th Grade Math Lab · Equations & Inequalities</div>', unsafe_allow_html=True)
     st.subheader("⚖️ Sports Equation Lab")
     st.write(
@@ -2502,7 +2506,10 @@ def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided",
         "Try first — stronger hints appear only after repeated mistakes."
     )
 
-    if generated_sport and generated_title:
+    if generated_case is not None and generated_sport:
+        eq_sport = generated_sport
+        case = generated_case
+    elif generated_sport and generated_title:
         eq_sport = generated_sport
         case_options = EQUATION_CASES[eq_sport]
         matches = [c for c in case_options if c["title"] == generated_title]
@@ -2905,14 +2912,17 @@ PROBABILITY_CASES = {
     ],
 }
 
-def probability_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None):
+def probability_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None, generated_case=None):
     st.markdown('<div class="step">7th Grade Math Lab · Probability</div>', unsafe_allow_html=True)
     st.subheader("🎲 Sports Probability Lab")
     st.write(
         "Use experimental results to find probability, convert between forms, and make a prediction."
     )
 
-    if generated_sport and generated_title:
+    if generated_case is not None and generated_sport:
+        sport = generated_sport
+        case = generated_case
+    elif generated_sport and generated_title:
         sport = generated_sport
         matches = [c for c in PROBABILITY_CASES[sport] if c["title"] == generated_title]
         if not matches:
@@ -3464,14 +3474,17 @@ PERCENT_CASES = {
     ],
 }
 
-def percent_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None):
+def percent_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None, generated_case=None):
     st.markdown('<div class="step">7th Grade Math Lab · Percent & Percent Change</div>', unsafe_allow_html=True)
     st.subheader("📈 Sports Percent Lab")
     st.write(
         "Work with percent, percent of a number, discounts, and percent change in sports situations."
     )
 
-    if generated_sport and generated_title:
+    if generated_case is not None and generated_sport:
+        sport = generated_sport
+        case = generated_case
+    elif generated_sport and generated_title:
         sport = generated_sport
         matches = [c for c in PERCENT_CASES[sport] if c["title"] == generated_title]
         if not matches:
@@ -4019,14 +4032,17 @@ RATIONAL_CASES = {
     ],
 }
 
-def rational_numbers_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None):
+def rational_numbers_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None, generated_case=None):
     st.markdown('<div class="step">7th Grade Math Lab · Rational Numbers</div>', unsafe_allow_html=True)
     st.subheader("➕➖ Sports Rational Numbers Lab")
     st.write(
         "Use positive and negative numbers, decimals, and differences to describe changes in sports."
     )
 
-    if generated_sport and generated_title:
+    if generated_case is not None and generated_sport:
+        sport = generated_sport
+        case = generated_case
+    elif generated_sport and generated_title:
         sport = generated_sport
         matches = [c for c in RATIONAL_CASES[sport] if c["title"] == generated_title]
         if not matches:
@@ -4272,14 +4288,17 @@ def geometry_tolerance(case):
         return 0.1
     return max(0.25, abs(answer) * 0.005)
 
-def geometry_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None):
+def geometry_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None, generated_case=None):
     st.markdown('<div class="step">7th Grade Math Lab · Geometry</div>', unsafe_allow_html=True)
     st.subheader("📐 Sports Geometry Lab")
     st.write(
         "Use sports spaces, equipment, diagrams, circles, angles, area, and volume to solve geometry problems."
     )
 
-    if generated_sport and generated_title:
+    if generated_case is not None and generated_sport:
+        sport = generated_sport
+        case = generated_case
+    elif generated_sport and generated_title:
         sport = generated_sport
         matches = [c for c in GEOMETRY_CASES[sport] if c["title"] == generated_title]
         if not matches:
@@ -5855,6 +5874,423 @@ if branch == "Sports Math Challenge":
     st.caption("Sports Math Challenge · multi-skill reasoning · 8 starter investigations")
     st.stop()
 
+
+# =========================================================
+# DYNAMIC MATH LAB NUMBER GENERATOR
+# Each generated question keeps a familiar sports template
+# but creates fresh numbers so the practice bank does not
+# "run out" after students cycle through the scenarios.
+# =========================================================
+
+SPORT_CONTEXT = {
+    "NFL": {
+        "item": "yards", "attempt": "plays", "score": "points",
+        "object": "football", "place": "field"
+    },
+    "NBA": {
+        "item": "points", "attempt": "shots", "score": "points",
+        "object": "basketball", "place": "court"
+    },
+    "MLB": {
+        "item": "runs", "attempt": "at-bats", "score": "runs",
+        "object": "baseball", "place": "field"
+    },
+    "NHL": {
+        "item": "shots", "attempt": "shot attempts", "score": "goals",
+        "object": "puck", "place": "rink"
+    },
+    "Soccer": {
+        "item": "goals", "attempt": "shots", "score": "goals",
+        "object": "soccer ball", "place": "field"
+    },
+    "Formula 1": {
+        "item": "points", "attempt": "races", "score": "points",
+        "object": "race car", "place": "track"
+    },
+}
+
+def _different_from_previous(value, previous_value):
+    return previous_value is None or value != previous_value
+
+def _clean_int(value):
+    return int(round(float(value)))
+
+def make_dynamic_ratio_case(sport, template, previous=None):
+    """Fresh numbers for a ratio/rate/proportion template."""
+    case = copy.deepcopy(template)
+    denominator_label = case.get("denominator_label", "games")
+    projection_label = case.get("projection_label", denominator_label)
+    unit = case["unit"]
+    total_label = case.get("total_label", case.get("label", "total"))
+
+    # Build friendly exact/near-exact rates with varied denominators.
+    den_choices = [6, 8, 10, 12, 15, 16, 18, 20, 24, 25, 30, 40, 50, 60, 75, 80, 90, 100]
+    den = random.choice(den_choices)
+    rate_choices = [0.4, 0.5, 0.6, 0.75, 0.8, 1.2, 1.5, 1.8, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 15, 20]
+    rate = random.choice(rate_choices)
+    total = round(den * rate, 2)
+
+    # Avoid implausibly tiny/huge values for common sport units.
+    if "yards" in unit and "carry" not in unit:
+        den = random.choice([8, 10, 12, 16, 17])
+        rate = random.choice([180, 220, 240, 260, 280, 300, 320])
+        total = den * rate
+    elif "yards per carry" in unit:
+        den = random.choice([120, 150, 180, 200, 240, 280])
+        rate = random.choice([3.5, 4.0, 4.5, 5.0, 5.5, 6.0])
+        total = round(den * rate, 1)
+    elif "passes per minute" in unit:
+        den = random.choice([60, 75, 90])
+        rate = random.choice([0.4, 0.5, 0.6, 0.7, 0.8])
+        total = round(den * rate)
+    elif "points per race" in unit:
+        den = random.choice([8, 10, 12, 15, 18, 20])
+        rate = random.choice([8, 10, 12, 15, 18, 20, 22])
+        total = den * rate
+
+    target = random.choice([x for x in [10, 12, 15, 20, 24, 25, 30, 40, 50, 60, 75, 100, 120, 150, 200] if x != den])
+
+    case["total"] = total
+    case["games"] = den
+    case["projection_games"] = target
+    case["story"] = (
+        f"In this {sport} practice scenario, there are **{fmt(float(total))} {total_label}** "
+        f"over **{fmt(float(den))} {denominator_label}**."
+    )
+    case["dynamic_id"] = f"{total}|{den}|{target}"
+    return case
+
+def make_dynamic_equation_case(sport, template, previous=None):
+    """Fresh equation/inequality numbers and multiple-choice models."""
+    ctx = SPORT_CONTEXT[sport]
+    case = copy.deepcopy(template)
+    kind = case["kind"]
+
+    if kind == "Inequality":
+        subtype = random.choice(["at_least", "at_most", "cost"])
+        if subtype == "at_least":
+            start = random.randint(20, 90)
+            needed = random.randint(8, 35)
+            target = start + needed
+            case.update({
+                "story": f"A {sport} team already has {start} {ctx['score']}. It needs at least {target} {ctx['score']} to reach its goal.",
+                "question": f"What is the minimum number of additional {ctx['score']} needed?",
+                "models": [f"{start} + x ≥ {target}", f"{start} + x ≤ {target}", f"{start}x ≥ {target}", f"{target} + x ≥ {start}"],
+                "correct_model": f"{start} + x ≥ {target}",
+                "answer": needed,
+                "unit": ctx["score"],
+                "hint1": f"'At least {target}' means {target} or more.",
+                "hint2": f"{target} − {start} = {needed}, so x must be at least {needed}.",
+                "meaning": f"The team needs at least {needed} more {ctx['score']}."
+            })
+        elif subtype == "at_most":
+            start = random.randint(10, 40)
+            extra = random.randint(6, 25)
+            maximum = start + extra
+            case.update({
+                "story": f"A player has already completed {start} {ctx['attempt']}. The limit is no more than {maximum}.",
+                "question": f"What is the greatest number of additional {ctx['attempt']} allowed?",
+                "models": [f"{start} + x ≤ {maximum}", f"{start} + x ≥ {maximum}", f"{start}x ≤ {maximum}", f"{maximum} + x ≤ {start}"],
+                "correct_model": f"{start} + x ≤ {maximum}",
+                "answer": extra,
+                "unit": ctx["attempt"],
+                "hint1": "'No more than' means the total must stay at or below the limit.",
+                "hint2": f"{maximum} − {start} = {extra}.",
+                "meaning": f"The player can complete at most {extra} more {ctx['attempt']}."
+            })
+        else:
+            fixed = random.choice([40, 50, 60, 75, 80, 100, 120, 140])
+            each = random.choice([5, 6, 8, 10, 12, 15, 20, 25])
+            count = random.randint(3, 8)
+            budget = fixed + each * count
+            case.update({
+                "story": f"A {sport} activity has a fixed cost of ${fixed}. Each participant costs ${each}. The total budget is ${budget}.",
+                "question": "What is the greatest number of participants the budget can cover?",
+                "models": [f"{fixed} + {each}x ≤ {budget}", f"{fixed} + {each}x ≥ {budget}", f"{each} + {fixed}x ≤ {budget}", f"{budget} + {each}x ≤ {fixed}"],
+                "correct_model": f"{fixed} + {each}x ≤ {budget}",
+                "answer": count,
+                "unit": "participants",
+                "hint1": "The total cost cannot exceed the budget.",
+                "hint2": f"{budget} − {fixed} = {each*count}; then divide by {each}.",
+                "meaning": f"The budget can cover at most {count} participants."
+            })
+    else:
+        subtype = random.choice(["addition", "subtraction", "multiplication", "division", "two_step"])
+        if subtype == "addition":
+            start = random.randint(15, 80)
+            x = random.randint(6, 30)
+            target = start + x
+            case.update({
+                "story": f"A {sport} player has {start} {ctx['item']} and wants exactly {target}.",
+                "question": f"How many more {ctx['item']} are needed?",
+                "models": [f"{start} + x = {target}", f"{start} - x = {target}", f"{start}x = {target}", f"{target} + x = {start}"],
+                "correct_model": f"{start} + x = {target}", "answer": x, "unit": ctx["item"],
+                "hint1": f"What must be added to {start} to reach {target}?",
+                "hint2": f"{target} − {start} = {x}.",
+                "meaning": f"The player needs {x} more {ctx['item']}."
+            })
+        elif subtype == "subtraction":
+            start = random.randint(20, 90)
+            x = random.randint(5, min(25, start-1))
+            end = start - x
+            case.update({
+                "story": f"A {sport} value starts at {start} and is reduced by x to finish at {end}.",
+                "question": "How much was the value reduced?",
+                "models": [f"{start} - x = {end}", f"{start} + x = {end}", f"{end} - x = {start}", f"{start}x = {end}"],
+                "correct_model": f"{start} - x = {end}", "answer": x, "unit": ctx["item"],
+                "hint1": "The starting value becomes smaller by x.",
+                "hint2": f"{start} − x = {end}, so x = {x}.",
+                "meaning": f"The value was reduced by {x} {ctx['item']}."
+            })
+        elif subtype == "multiplication":
+            multiplier = random.randint(3, 9)
+            x = random.randint(2, 14)
+            total = multiplier * x
+            case.update({
+                "story": f"A {sport} drill has {multiplier} equal rounds. Each round has x successful results, for {total} total.",
+                "question": "How many successful results are in each round?",
+                "models": [f"{multiplier}x = {total}", f"x + {multiplier} = {total}", f"{total}x = {multiplier}", f"x - {multiplier} = {total}"],
+                "correct_model": f"{multiplier}x = {total}", "answer": x, "unit": "results per round",
+                "hint1": f"{multiplier} equal groups make a total of {total}.",
+                "hint2": f"{multiplier}x = {total}; divide by {multiplier}.",
+                "meaning": f"Each round has {x} successful results."
+            })
+        elif subtype == "division":
+            groups = random.randint(3, 8)
+            per = random.randint(3, 15)
+            total = groups * per
+            case.update({
+                "story": f"A {sport} team divides {total} practice items equally among {groups} stations.",
+                "question": "How many items go to each station?",
+                "models": [f"x / {groups} = {per}", f"{groups}x = {total}", f"x + {groups} = {total}", f"{total} - x = {groups}"],
+                "correct_model": f"{groups}x = {total}", "answer": per, "unit": "items per station",
+                "hint1": f"There are {groups} equal groups totaling {total}.",
+                "hint2": f"{groups}x = {total}; divide by {groups}.",
+                "meaning": f"Each station gets {per} items."
+            })
+        else:
+            start = random.randint(10, 60)
+            each = random.choice([2, 3, 4, 5, 6, 7])
+            x = random.randint(2, 9)
+            target = start + each * x
+            case.update({
+                "story": f"A {sport} team starts with {start} {ctx['score']}. Each successful play adds {each} {ctx['score']}. The target is {target}.",
+                "question": "How many successful plays are needed?",
+                "models": [f"{start} + {each}x = {target}", f"{start} + x = {target}", f"{each}x = {target}", f"{target} + {each}x = {start}"],
+                "correct_model": f"{start} + {each}x = {target}", "answer": x, "unit": "successful plays",
+                "hint1": f"Start at {start}, then add {each} for each successful play.",
+                "hint2": f"{start} + {each}x = {target}; subtract {start}, then divide by {each}.",
+                "meaning": f"The team needs {x} successful plays."
+            })
+
+    case["dynamic_id"] = f"{case['correct_model']}|{case['answer']}"
+    return case
+
+def make_dynamic_probability_case(sport, template, previous=None):
+    case = copy.deepcopy(template)
+    trials = random.choice([20, 24, 25, 30, 32, 36, 40, 50, 60, 75, 80, 90, 100])
+    simple_fraction = random.choice([(1,2),(3,4),(2,5),(3,5),(4,5),(1,4),(3,10),(7,10),(9,10),(2,3),(5,6)])
+    successes = round(trials * simple_fraction[0] / simple_fraction[1])
+    # Make sure successes/trials is valid and useful.
+    successes = max(1, min(trials-1, successes))
+    future = random.choice([x for x in [40,50,60,75,80,100,120,150,200] if x != trials])
+    case["successes"] = successes
+    case["trials"] = trials
+    case["future"] = future
+    case["story"] = f"In a {sport} sample, **{successes} of {trials} {case['trial_label']}** resulted in **{case['event']}**."
+    case["dynamic_id"] = f"{successes}|{trials}|{future}"
+    return case
+
+def make_dynamic_percent_case(sport, template, previous=None):
+    case = copy.deepcopy(template)
+    kind = case["kind"]
+
+    if kind == "Percent":
+        whole = random.choice([20, 24, 25, 30, 32, 40, 50, 60, 75, 80, 100])
+        pct = random.choice([20,25,30,40,50,60,70,75,80,90])
+        part = whole * pct / 100
+        if abs(part-round(part)) > 1e-9:
+            # choose a clean whole for that percent
+            whole = 100
+            part = pct
+        part = int(round(part))
+        case.update({
+            "part": part, "whole": whole, "answer": float(pct),
+            "story": f"In a {sport} sample, {part} of {whole} attempts were successful.",
+            "question": "What percent of the attempts were successful?",
+            "hint1": "Use successful outcomes as the part and total attempts as the whole.",
+            "hint2": f"{part} ÷ {whole} × 100 = {pct}%."
+        })
+    elif kind == "Percent Change":
+        old = random.choice([20, 24, 25, 30, 40, 50, 60, 75, 80, 100, 120, 150, 200])
+        pct = random.choice([10,20,25,30,40,50])
+        direction = random.choice(["increase","decrease"])
+        change = old * pct / 100
+        new = old + change if direction == "increase" else old - change
+        if abs(new-round(new)) < 1e-9:
+            new = int(round(new))
+        answer = pct if direction == "increase" else -pct
+        case.update({
+            "old": old, "new": new, "answer": float(answer), "direction": direction,
+            "story": f"A {sport} statistic changes from {fmt(float(old))} to {fmt(float(new))}.",
+            "question": "What was the percent change?",
+            "hint1": "Find new − old, then compare that change with the original amount.",
+            "hint2": f"{fmt(float(new))} − {fmt(float(old))} = {fmt(float(new-old))}; divide by {old} and multiply by 100."
+        })
+    elif kind == "Percent Of":
+        pct = random.choice([10,12,15,20,25,30,35,40])
+        base = random.choice([80,100,120,150,180,200,240,300,350,400,500,600])
+        ans = base * pct / 100
+        case.update({
+            "percent": pct, "base": base, "answer": float(ans),
+            "story": f"A {sport} fundraiser collects ${base}. **{pct}%** is set aside for the program.",
+            "question": "How much money is set aside?",
+            "unit": "dollars",
+            "hint1": f"Find {pct}% of {base}.",
+            "hint2": f"{pct/100:.2f} × {base} = {fmt(float(ans))}."
+        })
+    else:  # Discount
+        pct = random.choice([10,15,20,25,30,35,40,50])
+        base = random.choice([40,50,60,80,90,100,120,150,200])
+        discount = base * pct / 100
+        ans = base - discount
+        case.update({
+            "percent": pct, "base": base, "answer": float(ans),
+            "story": f"A {sport} item costs ${base} and is discounted by **{pct}%**.",
+            "question": "What is the sale price?",
+            "unit": "dollars",
+            "hint1": f"Find {pct}% of ${base}, then subtract the discount.",
+            "hint2": f"{pct/100:.2f} × {base} = {fmt(float(discount))}; ${base} − ${fmt(float(discount))} = ${fmt(float(ans))}."
+        })
+    case["dynamic_id"] = f"{kind}|{case.get('answer')}"
+    return case
+
+def make_dynamic_rational_case(sport, template, previous=None):
+    case = copy.deepcopy(template)
+    kind = case["kind"]
+
+    # Preserve the mathematical flavor of the template, but refresh values.
+    if "Decimal" in kind:
+        a = round(random.uniform(1.5, 9.5), 1)
+        delta = round(random.uniform(0.4, 3.5), 1)
+        if "Addition" in kind:
+            b = -delta
+            answer = round(a + b, 1)
+            expr = f"{a} + ({b})"
+            story = f"A {sport} metric starts at +{a} and changes by {b}."
+        else:
+            new = round(a - delta, 1)
+            answer = round(new - a, 1) if "Subtraction" in kind else round(abs(a-new),1)
+            if "Difference" in kind:
+                high, low = max(a,new), min(a,new)
+                answer = round(high-low,1)
+                expr = f"{high} - {low}"
+                story = f"Two {sport} values are {high} and {low}."
+            else:
+                expr = f"{new} - {a}"
+                story = f"A {sport} metric changes from {a} to {new}."
+    elif "Addition" in kind:
+        a = random.randint(3, 20)
+        b = random.randint(a+1, a+15)
+        answer = a - b
+        expr = f"{a} + (-{b})"
+        story = f"A {sport} team is at +{a}, then has a change of −{b}."
+    elif "Difference" in kind and "Signed" not in kind:
+        low = random.randint(3, 20)
+        high = low + random.randint(2, 15)
+        answer = high - low
+        expr = f"{high} - {low}"
+        story = f"Two {sport} values are {high} and {low}."
+    else:
+        scored = random.randint(1, 15)
+        allowed = scored + random.randint(1, 10)
+        answer = scored - allowed
+        expr = f"{scored} - {allowed}"
+        story = f"A {sport} team records {scored} for and {allowed} against."
+
+    case["story"] = story
+    case["expression"] = expr
+    case["answer"] = answer
+    case["question"] = "What is the resulting signed value or difference?"
+    case["hint1"] = "Pay attention to which values represent gains and which represent losses."
+    case["hint2"] = f"{expr} = {fmt(float(answer))}."
+    case["dynamic_id"] = f"{expr}|{answer}"
+    return case
+
+def make_dynamic_geometry_case(sport, template, previous=None):
+    case = copy.deepcopy(template)
+    shape = case["shape"]
+    place = SPORT_CONTEXT[sport]["place"]
+
+    if shape == "circle_area":
+        r = random.randint(3, 20)
+        case.update({
+            "a": r, "answer": math.pi*r*r,
+            "story": f"A circular {sport} training area has a radius of {r} units.",
+            "question": "What is the area of the circle?"
+        })
+    elif shape == "circumference_d":
+        d = random.randint(4, 24)
+        case.update({
+            "a": d, "answer": math.pi*d,
+            "story": f"A circular {sport} marker has a diameter of {d} units.",
+            "question": "What is its circumference?"
+        })
+    elif shape == "rectangle":
+        a = random.randint(5, 30); b = random.randint(3, 20)
+        case.update({
+            "a": a, "b": b, "answer": a*b,
+            "story": f"A rectangular section of the {place} is {a} units by {b} units.",
+            "question": "What is its area?"
+        })
+    elif shape == "volume":
+        a = random.randint(2, 8); b = random.randint(2, 6); c = random.choice([1.5,2,2.5,3,4])
+        case.update({
+            "a": a, "b": b, "c": c, "answer": a*b*c,
+            "story": f"A {sport} equipment box measures {a} units by {b} units by {c} units.",
+            "question": "What is its volume?"
+        })
+    elif shape == "scale":
+        scale = random.choice([5,8,10,12,15,20,25,50,100,200])
+        drawing = random.choice([2.5,3,3.5,4,4.5,5,5.5,6,7,8])
+        case.update({
+            "a": scale, "b": drawing, "answer": scale*drawing,
+            "story": f"On a {sport} diagram, 1 drawing unit represents {scale} real units. A route measures {drawing} drawing units.",
+            "question": "How long is the route in real units?"
+        })
+    elif shape == "supplement":
+        angle = random.randint(25, 155)
+        case.update({
+            "a": angle, "answer": 180-angle,
+            "story": f"Two adjacent angles in a {sport} diagram form a straight line. One angle is {angle}°.",
+            "question": "What is the other angle?"
+        })
+    else:
+        angle = random.randint(15, 75)
+        case.update({
+            "a": angle, "answer": 90-angle,
+            "story": f"Two angles in a {sport} diagram are complementary. One angle is {angle}°.",
+            "question": "What is the other angle?"
+        })
+    case["dynamic_id"] = f"{shape}|{case.get('a')}|{case.get('b')}|{case.get('c')}"
+    return case
+
+def make_dynamic_math_case(topic, sport, template, previous_case=None):
+    """Create a fresh numeric version of the selected question template."""
+    if topic == "Ratios, Rates & Proportions":
+        return make_dynamic_ratio_case(sport, template, previous_case)
+    if topic == "Equations & Inequalities":
+        return make_dynamic_equation_case(sport, template, previous_case)
+    if topic == "Probability":
+        return make_dynamic_probability_case(sport, template, previous_case)
+    if topic == "Percent & Percent Change":
+        return make_dynamic_percent_case(sport, template, previous_case)
+    if topic == "Rational Numbers":
+        return make_dynamic_rational_case(sport, template, previous_case)
+    if topic == "Geometry":
+        return make_dynamic_geometry_case(sport, template, previous_case)
+    return copy.deepcopy(template)
+
 if branch == "7th Grade Math Lab":
     st.markdown("""
     <div class="card">
@@ -5946,72 +6382,75 @@ if branch == "7th Grade Math Lab":
             actual_sport = random.choice(list(RATE_CASES))
 
         previous = st.session_state.get("math_generated_question")
+        previous_case = previous.get("case") if previous else None
 
+        # Pick a wording/template, avoiding the immediately previous template when possible.
         if topic == "Equations & Inequalities":
             options = EQUATION_CASES[actual_sport]
-            if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
-                options = [c for c in options if c["title"] != previous.get("title")] or options
-            selected = random.choice(options)
+            previous_title = previous.get("title") if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport else None
+            choices = [c for c in options if c["title"] != previous_title] or options
+            template = random.choice(choices)
+            fresh_case = make_dynamic_math_case(topic, actual_sport, template, previous_case)
             generated = {
-                "topic": topic,
-                "sport": actual_sport,
+                "topic": topic, "sport": actual_sport,
                 "difficulty": config.get("difficulty", "Guided"),
-                "title": selected["title"],
+                "title": template["title"], "case": fresh_case
             }
         elif topic == "Probability":
             options = PROBABILITY_CASES[actual_sport]
-            if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
-                options = [c for c in options if c["title"] != previous.get("title")] or options
-            selected = random.choice(options)
+            previous_title = previous.get("title") if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport else None
+            choices = [c for c in options if c["title"] != previous_title] or options
+            template = random.choice(choices)
+            fresh_case = make_dynamic_math_case(topic, actual_sport, template, previous_case)
             generated = {
-                "topic": topic,
-                "sport": actual_sport,
+                "topic": topic, "sport": actual_sport,
                 "difficulty": config.get("difficulty", "Guided"),
-                "title": selected["title"],
+                "title": template["title"], "case": fresh_case
             }
         elif topic == "Percent & Percent Change":
             options = PERCENT_CASES[actual_sport]
-            if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
-                options = [c for c in options if c["title"] != previous.get("title")] or options
-            selected = random.choice(options)
+            previous_title = previous.get("title") if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport else None
+            choices = [c for c in options if c["title"] != previous_title] or options
+            template = random.choice(choices)
+            fresh_case = make_dynamic_math_case(topic, actual_sport, template, previous_case)
             generated = {
-                "topic": topic,
-                "sport": actual_sport,
+                "topic": topic, "sport": actual_sport,
                 "difficulty": config.get("difficulty", "Guided"),
-                "title": selected["title"],
+                "title": template["title"], "case": fresh_case
             }
         elif topic == "Rational Numbers":
             options = RATIONAL_CASES[actual_sport]
-            if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
-                options = [c for c in options if c["title"] != previous.get("title")] or options
-            selected = random.choice(options)
+            previous_title = previous.get("title") if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport else None
+            choices = [c for c in options if c["title"] != previous_title] or options
+            template = random.choice(choices)
+            fresh_case = make_dynamic_math_case(topic, actual_sport, template, previous_case)
             generated = {
-                "topic": topic,
-                "sport": actual_sport,
+                "topic": topic, "sport": actual_sport,
                 "difficulty": config.get("difficulty", "Guided"),
-                "title": selected["title"],
+                "title": template["title"], "case": fresh_case
             }
         elif topic == "Geometry":
             options = GEOMETRY_CASES[actual_sport]
-            if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
-                options = [c for c in options if c["title"] != previous.get("title")] or options
-            selected = random.choice(options)
+            previous_title = previous.get("title") if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport else None
+            choices = [c for c in options if c["title"] != previous_title] or options
+            template = random.choice(choices)
+            fresh_case = make_dynamic_math_case(topic, actual_sport, template, previous_case)
             generated = {
-                "topic": topic,
-                "sport": actual_sport,
+                "topic": topic, "sport": actual_sport,
                 "difficulty": config.get("difficulty", "Guided"),
-                "title": selected["title"],
+                "title": template["title"], "case": fresh_case
             }
         else:
-            athletes = list(RATE_CASES[actual_sport])
-            if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
-                athletes = [a for a in athletes if a != previous.get("athlete")] or athletes
-            selected_athlete = random.choice(athletes)
+            labels = list(RATE_CASES[actual_sport])
+            previous_label = previous.get("athlete") if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport else None
+            choices = [label for label in labels if label != previous_label] or labels
+            selected_label = random.choice(choices)
+            template = RATE_CASES[actual_sport][selected_label]
+            fresh_case = make_dynamic_math_case(topic, actual_sport, template, previous_case)
             generated = {
-                "topic": topic,
-                "sport": actual_sport,
+                "topic": topic, "sport": actual_sport,
                 "difficulty": config.get("difficulty", "Guided"),
-                "athlete": selected_athlete,
+                "athlete": selected_label, "case": fresh_case
             }
 
         # Clear answer/check state from the prior Math Lab problem.
@@ -6037,6 +6476,7 @@ if branch == "7th Grade Math Lab":
         st.session_state["math_generated_question"] = generated
 
     st.markdown("### 2 · Generate your question")
+    st.caption("Each click creates fresh numbers. A familiar question type may return later, but the values will change.")
     if valid_config:
         button_label = (
             "🎲 Generate Question"
@@ -6078,42 +6518,48 @@ if branch == "7th Grade Math Lab":
                 generated["sport"],
                 generated["difficulty"],
                 generated_sport=generated["sport"],
-                generated_title=generated["title"]
+                generated_title=generated["title"],
+                generated_case=generated.get("case")
             )
         elif generated["topic"] == "Probability":
             probability_engine(
                 generated["sport"],
                 generated["difficulty"],
                 generated_sport=generated["sport"],
-                generated_title=generated["title"]
+                generated_title=generated["title"],
+                generated_case=generated.get("case")
             )
         elif generated["topic"] == "Percent & Percent Change":
             percent_engine(
                 generated["sport"],
                 generated["difficulty"],
                 generated_sport=generated["sport"],
-                generated_title=generated["title"]
+                generated_title=generated["title"],
+                generated_case=generated.get("case")
             )
         elif generated["topic"] == "Rational Numbers":
             rational_numbers_engine(
                 generated["sport"],
                 generated["difficulty"],
                 generated_sport=generated["sport"],
-                generated_title=generated["title"]
+                generated_title=generated["title"],
+                generated_case=generated.get("case")
             )
         elif generated["topic"] == "Geometry":
             geometry_engine(
                 generated["sport"],
                 generated["difficulty"],
                 generated_sport=generated["sport"],
-                generated_title=generated["title"]
+                generated_title=generated["title"],
+                generated_case=generated.get("case")
             )
         else:
             ratios_rates_engine(
                 generated["sport"],
                 generated["difficulty"],
                 generated_sport=generated["sport"],
-                generated_athlete=generated["athlete"]
+                generated_athlete=generated["athlete"],
+                generated_case=generated.get("case")
             )
     else:
         st.caption("No practice question has been generated yet.")
