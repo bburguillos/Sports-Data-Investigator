@@ -1927,41 +1927,101 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
                 )
 
     # -----------------------------
-    # STEP 2 — Unit rate; no formula shown first
+    # STEP 2 — Simplified fraction, then decimal/whole-number unit rate
     # -----------------------------
-    st.markdown("### Step 2 · Find the unit rate")
+    st.markdown("### Step 2 · Find the rate in two forms")
     st.write(
-        f"What is the **{case['unit']}**?"
+        f"First simplify **{fmt(total)} {case['total_label']} for {fmt(games)} {denominator_label}** "
+        "as a fraction. Then convert that rate to a decimal or whole number."
     )
-    rate_raw = st.text_input(
-        "Unit rate",
+
+    # Exact simplified fraction for the original comparison (example: 6/15 -> 2/5).
+    true_fraction = Fraction(str(total)) / Fraction(str(games))
+    true_fraction = true_fraction.limit_denominator(1000)
+
+    frac_col1, frac_col2 = st.columns(2)
+    with frac_col1:
+        rate_num_raw = st.text_input(
+            "Simplified numerator",
+            key="rate_fraction_numerator",
+            placeholder="Top number"
+        )
+    with frac_col2:
+        rate_den_raw = st.text_input(
+            "Simplified denominator",
+            key="rate_fraction_denominator",
+            placeholder="Bottom number"
+        )
+
+    st.caption(
+        f"Fraction form compares {case['total_label']} to {denominator_label}. "
+        f"Example format: 2 / 5."
+    )
+
+    rate_decimal_raw = st.text_input(
+        f"Convert to a decimal or whole-number rate per 1 {denominator_label.rstrip('s')}",
         key="rate_unit_answer",
-        placeholder="Type your answer"
+        placeholder="Example: 0.4"
     )
-    rate_ans = parse_student_number(rate_raw)
+
+    rate_num = parse_student_number(rate_num_raw)
+    rate_den = parse_student_number(rate_den_raw)
+    rate_ans = parse_student_number(rate_decimal_raw)
 
     if "rate_attempts" not in st.session_state:
         st.session_state.rate_attempts = 0
 
-    if st.button("Check My Unit Rate", use_container_width=True):
-        if rate_ans is not None and math.isclose(
-            rate_ans, true_rate, abs_tol=rate_tolerance(true_rate)
-        ):
+    if st.button("Check My Rate", use_container_width=True):
+        fraction_ok = (
+            rate_num is not None
+            and rate_den is not None
+            and not math.isclose(rate_den, 0.0, abs_tol=1e-12)
+            and math.isclose(
+                rate_num / rate_den,
+                float(true_fraction),
+                rel_tol=1e-9,
+                abs_tol=1e-9
+            )
+        )
+        decimal_ok = (
+            rate_ans is not None
+            and math.isclose(
+                rate_ans, true_rate, abs_tol=rate_tolerance(true_rate)
+            )
+        )
+
+        if fraction_ok and decimal_ok:
             st.success(
-                f"✅ Correct — or close enough. About **{true_rate:.2f} {case['unit']}**."
+                f"✅ Correct. The simplified fraction is "
+                f"**{true_fraction.numerator}/{true_fraction.denominator}**, "
+                f"and the unit rate is about **{true_rate:.2f} {case['unit']}** "
+                f"(per 1 {denominator_label.rstrip('s')})."
             )
             st.session_state.rate_attempts = 0
         else:
             st.session_state.rate_attempts += 1
-            if st.session_state.rate_attempts == 1:
+
+            if not fraction_ok and not decimal_ok:
                 st.info(
-                    f"A unit rate tells the amount for **1 {denominator_label.rstrip('s')}**. "
-                    "Think about which operation turns the denominator into 1."
+                    "Check both parts: simplify the original ratio first, "
+                    "then divide the numerator by the denominator to get the rate per 1."
+                )
+            elif not fraction_ok:
+                st.info(
+                    "Your decimal/whole-number rate looks good. "
+                    "Now check whether the numerator and denominator form an equivalent simplified fraction."
                 )
             else:
+                st.info(
+                    "Your fraction is correct. Now divide the numerator by the denominator "
+                    f"to write the rate per 1 {denominator_label.rstrip('s')}."
+                )
+
+            if st.session_state.rate_attempts >= 2:
                 st.warning(
-                    f"Now use **{fmt(total)} ÷ {fmt(games)}**. "
-                    f"That gives about **{true_rate:.2f}**."
+                    f"Simplified fraction: **{true_fraction.numerator}/{true_fraction.denominator}**. "
+                    f"Then calculate {true_fraction.numerator} ÷ {true_fraction.denominator} "
+                    f"= about **{true_rate:.2f}**."
                 )
 
     # -----------------------------
@@ -7861,7 +7921,9 @@ def math_lab_answer_summary(generated):
     if topic == "Ratios, Rates & Proportions":
         rows = [
             ("Ratio", st.session_state.get("rate_ratio", "")),
-            ("Unit rate", st.session_state.get("rate_unit_answer", "")),
+            ("Simplified rate numerator", st.session_state.get("rate_fraction_numerator", "")),
+            ("Simplified rate denominator", st.session_state.get("rate_fraction_denominator", "")),
+            ("Decimal/whole-number unit rate", st.session_state.get("rate_unit_answer", "")),
             ("Proportion setup", st.session_state.get("rate_proportion_setup", "")),
             ("Prediction", st.session_state.get("rate_projection", "")),
             ("Proportional?", st.session_state.get("rate_proportional", "")),
@@ -7947,12 +8009,29 @@ def math_lab_core_answer_correct(generated):
             total = float(case["total"])
             games = float(case["games"])
             target = float(case["projection_games"])
+            rate_num = parse_student_number(st.session_state.get("rate_fraction_numerator", ""))
+            rate_den = parse_student_number(st.session_state.get("rate_fraction_denominator", ""))
             rate = parse_student_number(st.session_state.get("rate_unit_answer", ""))
             pred = parse_student_number(st.session_state.get("rate_projection", ""))
             true_rate = total / games
             true_pred = true_rate * target
+            true_fraction = (Fraction(str(total)) / Fraction(str(games))).limit_denominator(1000)
+
+            fraction_ok = (
+                rate_num is not None
+                and rate_den is not None
+                and not math.isclose(rate_den, 0.0, abs_tol=1e-12)
+                and math.isclose(
+                    rate_num / rate_den,
+                    float(true_fraction),
+                    rel_tol=1e-9,
+                    abs_tol=1e-9
+                )
+            )
+
             return (
-                rate is not None
+                fraction_ok
+                and rate is not None
                 and math.isclose(rate, true_rate, abs_tol=rate_tolerance(true_rate))
                 and pred is not None
                 and math.isclose(pred, true_pred, abs_tol=max(0.5, abs(true_pred) * 0.02))
@@ -8411,6 +8490,7 @@ if branch == "7th Grade Math Lab":
         # Clear answer/check state from the prior Math Lab problem.
         clear_prefixes = (
             "rate_", "ratio_", "projection_",
+            "rate_fraction_numerator", "rate_fraction_denominator",
             "eq_unknown_", "eq_model_", "eq_answer_", "eq_interpret_",
             "eq_reasoning_", "eq_model_attempts_", "eq_answer_attempts_",
             "eq_model_order_", "eq_interpret_order_",
