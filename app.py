@@ -8984,7 +8984,7 @@ def scouting_report_data(generated):
     return {"summary":s, "strengths":strengths, "work_on":work_on, "common":common, "note":note}
 
 def build_teacher_quick_report_pdf(player_name, student_name, class_period, generated, completion_id):
-    buffer = io.BytesIO()
+    buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle(
