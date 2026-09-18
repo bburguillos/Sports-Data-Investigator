@@ -1703,6 +1703,332 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided"):
     )
 
 
+# =========================================================
+# SPORTS MATH CHALLENGE — MULTI-SKILL HIGHER-LEVEL THINKING
+# =========================================================
+CHALLENGE_CASES = [
+    {
+        "id": "nba_average_target",
+        "level": "Level 1 · Connect Two Skills",
+        "sport": "NBA",
+        "title": "Raise the Average",
+        "story": "A player scored 18, 24, 31, 27, and 20 points in five games. After Game 6, the player wants a 25-point average.",
+        "parts": [
+            {
+                "prompt": "How many total points were scored in the first five games?",
+                "answer": 120,
+                "tol": 0.1,
+                "hint1": "Add all five game totals.",
+                "hint2": "18 + 24 + 31 + 27 + 20 = 120."
+            },
+            {
+                "prompt": "How many total points are needed after six games to average 25 points per game?",
+                "answer": 150,
+                "tol": 0.1,
+                "hint1": "Think: average × number of games.",
+                "hint2": "25 × 6 = 150."
+            },
+            {
+                "prompt": "How many points must the player score in Game 6?",
+                "answer": 30,
+                "tol": 0.1,
+                "hint1": "Compare the total needed with the current total.",
+                "hint2": "150 − 120 = 30."
+            },
+        ],
+        "reflection": "Explain why scoring 30 points in Game 6 would produce exactly a 25-point average."
+    },
+    {
+        "id": "nfl_rate_percent",
+        "level": "Level 2 · Multi-Step Investigation",
+        "sport": "NFL",
+        "title": "Which Season Was More Productive?",
+        "story": "A quarterback threw for 3,600 yards in 12 games one season and 4,250 yards in 15 games the next season.",
+        "parts": [
+            {
+                "prompt": "What was the passing-yards-per-game rate in the first season?",
+                "answer": 300,
+                "tol": 0.5,
+                "hint1": "Find the amount for 1 game.",
+                "hint2": "3,600 ÷ 12 = 300."
+            },
+            {
+                "prompt": "What was the passing-yards-per-game rate in the second season?",
+                "answer": 283.3333333,
+                "tol": 0.6,
+                "hint1": "Again, find the amount for 1 game.",
+                "hint2": "4,250 ÷ 15 ≈ 283.33."
+            },
+            {
+                "prompt": "By about what percent did the yards-per-game rate change from Season 1 to Season 2? Enter a negative percent for a decrease.",
+                "answer": -5.5555556,
+                "tol": 0.6,
+                "hint1": "Use the change divided by the old rate, then multiply by 100.",
+                "hint2": "(283.33 − 300) ÷ 300 × 100 ≈ −5.56%."
+            },
+        ],
+        "reflection": "The second season had more total yards. Explain why the first season still had the better yards-per-game rate."
+    },
+    {
+        "id": "mlb_probability_projection",
+        "level": "Level 1 · Connect Two Skills",
+        "sport": "MLB",
+        "title": "Home Run Projection",
+        "story": "A hitter recorded a home run in 8 of 20 games.",
+        "parts": [
+            {
+                "prompt": "What is the experimental probability of a home run in a game as a decimal?",
+                "answer": 0.4,
+                "tol": 0.01,
+                "hint1": "Use successes ÷ total trials.",
+                "hint2": "8 ÷ 20 = 0.40."
+            },
+            {
+                "prompt": "What is that probability as a percent?",
+                "answer": 40,
+                "tol": 0.2,
+                "hint1": "Convert the decimal to a percent.",
+                "hint2": "0.40 × 100 = 40%."
+            },
+            {
+                "prompt": "At the same rate, about how many of the next 50 games would you predict include a home run?",
+                "answer": 20,
+                "tol": 0.5,
+                "hint1": "Use the probability with 50 games.",
+                "hint2": "0.40 × 50 = 20."
+            },
+        ],
+        "reflection": "Why is 20 a prediction rather than a guarantee?"
+    },
+    {
+        "id": "nhl_mean_outlier",
+        "level": "Level 2 · Multi-Step Investigation",
+        "sport": "NHL",
+        "title": "The Outlier Game",
+        "story": "A hockey player recorded 2, 3, 2, 4, 3, and 10 shots on goal across six games.",
+        "parts": [
+            {
+                "prompt": "What is the mean number of shots per game?",
+                "answer": 4,
+                "tol": 0.1,
+                "hint1": "Add all six values and divide by 6.",
+                "hint2": "24 ÷ 6 = 4."
+            },
+            {
+                "prompt": "What is the median number of shots per game?",
+                "answer": 3,
+                "tol": 0.1,
+                "hint1": "Order the values and find the middle.",
+                "hint2": "2, 2, 3, 3, 4, 10 → median = 3."
+            },
+            {
+                "prompt": "If the 10-shot game were removed, what would the new mean be?",
+                "answer": 2.8,
+                "tol": 0.1,
+                "hint1": "Remove 10 from the total and divide by 5.",
+                "hint2": "14 ÷ 5 = 2.8."
+            },
+        ],
+        "reflection": "Which measure, mean or median, better describes a typical game here? Defend your answer."
+    },
+    {
+        "id": "soccer_ticket_budget",
+        "level": "Level 2 · Multi-Step Investigation",
+        "sport": "Soccer",
+        "title": "Team Trip Budget",
+        "story": "A class trip to a soccer match costs $28 per student plus a one-time $120 bus fee. The class has a $960 budget.",
+        "parts": [
+            {
+                "prompt": "After paying the bus fee, how much money remains for student tickets?",
+                "answer": 840,
+                "tol": 0.1,
+                "hint1": "Subtract the fixed cost from the budget.",
+                "hint2": "960 − 120 = 840."
+            },
+            {
+                "prompt": "What is the greatest whole number of students who can attend?",
+                "answer": 30,
+                "tol": 0.1,
+                "hint1": "Divide the money available for tickets by the price per ticket.",
+                "hint2": "840 ÷ 28 = 30."
+            },
+            {
+                "prompt": "How much would the trip cost for 27 students?",
+                "answer": 876,
+                "tol": 0.1,
+                "hint1": "Ticket cost plus the one-time bus fee.",
+                "hint2": "27 × 28 + 120 = 876."
+            },
+        ],
+        "reflection": "Write an inequality that could represent the budget situation and explain what the variable means."
+    },
+    {
+        "id": "f1_points_rate",
+        "level": "Level 3 · Open Challenge",
+        "sport": "Formula 1",
+        "title": "Championship Pace",
+        "story": "Driver A earned 168 points in 8 races. Driver B earned 195 points in 10 races.",
+        "parts": [
+            {
+                "prompt": "What is Driver A's points-per-race rate?",
+                "answer": 21,
+                "tol": 0.1,
+                "hint1": "Find points for 1 race.",
+                "hint2": "168 ÷ 8 = 21."
+            },
+            {
+                "prompt": "What is Driver B's points-per-race rate?",
+                "answer": 19.5,
+                "tol": 0.1,
+                "hint1": "Find points for 1 race.",
+                "hint2": "195 ÷ 10 = 19.5."
+            },
+            {
+                "prompt": "If both rates continued for 20 races, how many more points would Driver A be projected to score than Driver B?",
+                "answer": 30,
+                "tol": 0.5,
+                "hint1": "Project each driver's total over 20 races, then compare.",
+                "hint2": "A: 21×20=420; B: 19.5×20=390; difference = 30."
+            },
+        ],
+        "reflection": "Driver B currently has more total points. Explain why Driver A can still be on the stronger pace."
+    },
+    {
+        "id": "nba_discount_ticket",
+        "level": "Level 1 · Connect Two Skills",
+        "sport": "NBA",
+        "title": "Ticket Discount",
+        "story": "A basketball ticket costs $80. A school group receives a 15% discount, then pays a $6 service fee per ticket.",
+        "parts": [
+            {
+                "prompt": "How much money is the 15% discount?",
+                "answer": 12,
+                "tol": 0.1,
+                "hint1": "Find 15% of 80.",
+                "hint2": "0.15 × 80 = 12."
+            },
+            {
+                "prompt": "What is the discounted ticket price before the service fee?",
+                "answer": 68,
+                "tol": 0.1,
+                "hint1": "Subtract the discount from the original price.",
+                "hint2": "80 − 12 = 68."
+            },
+            {
+                "prompt": "What is the final cost for 5 tickets after the fee is added to each ticket?",
+                "answer": 370,
+                "tol": 0.1,
+                "hint1": "Add the $6 fee to one discounted ticket, then multiply by 5.",
+                "hint2": "(68 + 6) × 5 = 370."
+            },
+        ],
+        "reflection": "Explain why taking 15% off the final group total would not give the same answer."
+    },
+    {
+        "id": "mlb_compare_samples",
+        "level": "Level 3 · Open Challenge",
+        "sport": "MLB",
+        "title": "Can We Trust the Sample?",
+        "story": "Player A had 9 hits in a 20-at-bat sample. Later, over 100 at-bats, the same player had 31 hits.",
+        "parts": [
+            {
+                "prompt": "What was the hit rate in the 20-at-bat sample as a percent?",
+                "answer": 45,
+                "tol": 0.2,
+                "hint1": "Hits ÷ at-bats × 100.",
+                "hint2": "9 ÷ 20 × 100 = 45%."
+            },
+            {
+                "prompt": "What was the hit rate over 100 at-bats as a percent?",
+                "answer": 31,
+                "tol": 0.2,
+                "hint1": "Hits ÷ at-bats × 100.",
+                "hint2": "31 ÷ 100 × 100 = 31%."
+            },
+            {
+                "prompt": "How many percentage points apart are the two rates?",
+                "answer": 14,
+                "tol": 0.2,
+                "hint1": "Subtract the smaller percent from the larger.",
+                "hint2": "45 − 31 = 14 percentage points."
+            },
+        ],
+        "reflection": "Which sample would you trust more for predicting future performance, and why?"
+    },
+]
+
+def challenge_lab_engine(level_filter="Any Level", sport_filter="Any Sport"):
+    st.markdown('<div class="step">Sports Math Challenge · Multi-Skill Reasoning</div>', unsafe_allow_html=True)
+    st.subheader("🧠 Sports Math Challenge")
+    st.write(
+        "These problems do not tell you which math skill to use. "
+        "Figure out what information matters, choose a strategy, and defend your reasoning."
+    )
+
+    cases = CHALLENGE_CASES
+    if level_filter != "Any Level":
+        cases = [c for c in cases if c["level"] == level_filter]
+    if sport_filter != "Any Sport":
+        cases = [c for c in cases if c["sport"] == sport_filter]
+
+    if not cases:
+        st.info("No challenge matches those filters yet.")
+        return
+
+    choices = {f"{c['sport']} · {c['title']}": c for c in cases}
+    selected_label = st.selectbox("Choose a challenge", list(choices), key="challenge_choice")
+    case = choices[selected_label]
+
+    st.markdown(f"""
+    <div class="card">
+      <div class="step">{SPORT_ICONS.get(case['sport'],'')} {case['sport']} · {case['level']}</div>
+      <h2>{case['title']}</h2>
+      <p><b>Situation:</b> {case['story']}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    plan = st.text_area(
+        "Before calculating, what do you think you need to figure out?",
+        key=f"challenge_plan_{case['id']}",
+        placeholder="Describe your plan. You do not need to name a formula."
+    )
+
+    for i, part in enumerate(case["parts"], start=1):
+        st.markdown(f"### Part {i}")
+        st.write(part["prompt"])
+        raw = st.text_input(
+            f"Answer for Part {i}",
+            key=f"challenge_{case['id']}_{i}",
+            placeholder="Type your answer"
+        )
+        ans = parse_student_number(raw)
+        attempt_key = f"challenge_attempts_{case['id']}_{i}"
+        if attempt_key not in st.session_state:
+            st.session_state[attempt_key] = 0
+
+        if st.button(
+            f"Check Part {i}",
+            key=f"challenge_check_{case['id']}_{i}",
+            use_container_width=True
+        ):
+            if ans is not None and math.isclose(ans, float(part["answer"]), abs_tol=float(part["tol"])):
+                st.success("✅ Correct — or within the accepted rounding range.")
+                st.session_state[attempt_key] = 0
+            else:
+                st.session_state[attempt_key] += 1
+                if st.session_state[attempt_key] == 1:
+                    st.info(part["hint1"])
+                else:
+                    st.warning(part["hint2"])
+
+    st.markdown("### Final Reasoning")
+    st.write(case["reflection"])
+    st.text_area(
+        "Your explanation",
+        key=f"challenge_reflection_{case['id']}",
+        placeholder="Use numbers from your work and explain your thinking."
+    )
+
 def clean_filename(text):
     safe = "".join(ch if ch.isalnum() else "_" for ch in str(text).strip())
     return "_".join(part for part in safe.split("_") if part) or "student"
@@ -2462,7 +2788,7 @@ if "app_branch" not in st.session_state:
 st.markdown("### Choose a learning path")
 branch = st.radio(
     "Choose a learning path",
-    ["Sports Data Investigations", "7th Grade Math Lab", "Teacher Assignment Builder"],
+    ["Sports Data Investigations", "7th Grade Math Lab", "Sports Math Challenge", "Teacher Assignment Builder"],
     key="app_branch",
     horizontal=True,
     label_visibility="collapsed"
@@ -2477,19 +2803,102 @@ if branch == "Teacher Assignment Builder":
     </div>
     """, unsafe_allow_html=True)
 
-    topic = st.selectbox("Topic", ["Ratios, Rates & Proportions"], key="teacher_topic")
+    assignment_type = st.selectbox(
+        "Assignment type",
+        ["Ratios, Rates & Proportions", "Sports Math Challenge"],
+        key="teacher_topic"
+    )
     count = st.selectbox("Activities required", [1,2,3], key="teacher_count")
     sport_limit = st.selectbox("Allowed sport", ["Any Sport"] + list(RATE_CASES), key="teacher_sport")
-    difficulty = st.selectbox("Difficulty", ["Guided","Independent"], key="teacher_difficulty")
+
+    if assignment_type == "Ratios, Rates & Proportions":
+        difficulty = st.selectbox("Difficulty", ["Guided","Independent"], key="teacher_difficulty")
+        challenge_level = "Any Level"
+    else:
+        difficulty = "Independent"
+        challenge_level = st.selectbox(
+            "Challenge level",
+            ["Any Level", "Level 1 · Connect Two Skills", "Level 2 · Multi-Step Investigation", "Level 3 · Open Challenge"],
+            key="teacher_challenge_level"
+        )
+
     require_pdf = st.checkbox("Require PDF submission report", value=True, key="teacher_pdf")
 
     assignment_code = encode_assignment({
-        "v":1, "topic":topic, "count":count, "sport":sport_limit,
-        "difficulty":difficulty, "pdf":require_pdf
+        "v":1,
+        "topic":assignment_type,
+        "count":count,
+        "sport":sport_limit,
+        "difficulty":difficulty,
+        "challenge_level":challenge_level,
+        "pdf":require_pdf
     })
     st.markdown("### Assignment Code")
     st.code(assignment_code, language=None)
-    st.caption("Post this code in Google Classroom. Students paste it into Math Lab. No database or teacher account is needed.")
+    st.caption("Post this code in Google Classroom. Students open the matching branch and paste it there. No database or teacher account is needed.")
+    st.stop()
+
+if branch == "Sports Math Challenge":
+    st.markdown("""
+    <div class="card">
+      <div class="step">Sports Math Challenge</div>
+      <h2>One problem. Several math ideas.</h2>
+      <p>Decide what math matters, solve the problem in pieces, and explain why your answer makes sense.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    challenge_entry = st.radio(
+        "How are you entering?",
+        ["Free Explore", "I Have an Assignment Code"],
+        horizontal=True,
+        key="challenge_entry"
+    )
+
+    challenge_config = {
+        "topic":"Sports Math Challenge",
+        "count":1,
+        "sport":"Any Sport",
+        "challenge_level":"Any Level"
+    }
+
+    if challenge_entry == "I Have an Assignment Code":
+        challenge_code_in = st.text_input(
+            "Assignment Code",
+            key="challenge_assignment_code",
+            placeholder="Paste code from your teacher"
+        )
+        if challenge_code_in.strip():
+            decoded = decode_assignment(challenge_code_in)
+            if decoded:
+                if decoded.get("topic") != "Sports Math Challenge":
+                    st.warning("That code is for a different branch of the app.")
+                else:
+                    challenge_config.update(decoded)
+                    st.success(
+                        f"Loaded: {challenge_config.get('challenge_level','Any Level')} · "
+                        f"{challenge_config.get('sport','Any Sport')}"
+                    )
+            else:
+                st.error("That assignment code could not be read.")
+
+    st.markdown("""
+    <div class="card">
+      <div class="step">Student Information</div>
+      <p><b>Enter this before beginning.</b></p>
+    </div>
+    """, unsafe_allow_html=True)
+    cx, cy = st.columns([2,1])
+    with cx:
+        st.text_input("Student Name", key="challenge_student_name", placeholder="First and last name")
+    with cy:
+        st.text_input("Class Period", key="challenge_class_period", placeholder="Example: 4E")
+
+    challenge_lab_engine(
+        level_filter=challenge_config.get("challenge_level","Any Level"),
+        sport_filter=challenge_config.get("sport","Any Sport")
+    )
+    st.markdown("---")
+    st.caption("Sports Math Challenge · multi-skill reasoning · 8 starter investigations")
     st.stop()
 
 if branch == "7th Grade Math Lab":
