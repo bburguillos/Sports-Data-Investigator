@@ -1532,7 +1532,14 @@ RATE_CASES = {
             "denominator_label": "attempts",
             "projection_label": "attempts"
         },
-    },
+    
+        'Pace Comparison': {'unit': 'units per game', 'total_label': 'total units', 'total': 84, 'games': 12, 'projection_games': 18, 'story': 'A NFL sample records 84 units over 12 games.', 'task_type': 'unit_rate', 'denominator_label': 'games', 'projection_label': 'games'},
+        'Per-Minute Pace': {'unit': 'units per minute', 'total_label': 'total units', 'total': 48, 'games': 24, 'projection_games': 40, 'story': 'A NFL athlete records 48 units over 24 minutes.', 'task_type': 'unit_rate', 'denominator_label': 'minutes', 'projection_label': 'minutes'},
+        'Per-Attempt Efficiency': {'unit': 'units per attempt', 'total_label': 'total units', 'total': 30, 'games': 15, 'projection_games': 25, 'story': 'A NFL athlete records 30 units over 15 attempts.', 'task_type': 'unit_rate', 'denominator_label': 'attempts', 'projection_label': 'attempts'},
+        'Missing-Value Proportion': {'unit': 'units per segment', 'total_label': 'total units', 'total': 45, 'games': 9, 'projection_games': 14, 'story': 'A NFL athlete records 45 units over 9 segments.', 'task_type': 'unit_rate', 'denominator_label': 'segments', 'projection_label': 'segments'},
+        'Short-to-Long Projection': {'unit': 'units per period', 'total_label': 'total units', 'total': 28, 'games': 7, 'projection_games': 20, 'story': 'A NFL athlete records 28 units over 7 periods.', 'task_type': 'unit_rate', 'denominator_label': 'periods', 'projection_label': 'periods'},
+        'Rate Conversion Challenge': {'unit': 'units per minute', 'total_label': 'total units', 'total': 90, 'games': 30, 'projection_games': 45, 'story': 'A NFL athlete records 90 units over 30 minutes.', 'task_type': 'unit_rate', 'denominator_label': 'minutes', 'projection_label': 'minutes'},
+},
     "NBA": {
         "Curry · Threes per Game": {
             "unit": "made 3-pointers per game", "total_label": "made 3-pointers",
@@ -1576,7 +1583,14 @@ RATE_CASES = {
             "denominator_label": "quarters",
             "projection_label": "quarters"
         },
-    },
+    
+        'Pace Comparison': {'unit': 'units per game', 'total_label': 'total units', 'total': 84, 'games': 12, 'projection_games': 18, 'story': 'A NBA sample records 84 units over 12 games.', 'task_type': 'unit_rate', 'denominator_label': 'games', 'projection_label': 'games'},
+        'Per-Minute Pace': {'unit': 'units per minute', 'total_label': 'total units', 'total': 48, 'games': 24, 'projection_games': 40, 'story': 'A NBA athlete records 48 units over 24 minutes.', 'task_type': 'unit_rate', 'denominator_label': 'minutes', 'projection_label': 'minutes'},
+        'Per-Attempt Efficiency': {'unit': 'units per attempt', 'total_label': 'total units', 'total': 30, 'games': 15, 'projection_games': 25, 'story': 'A NBA athlete records 30 units over 15 attempts.', 'task_type': 'unit_rate', 'denominator_label': 'attempts', 'projection_label': 'attempts'},
+        'Missing-Value Proportion': {'unit': 'units per segment', 'total_label': 'total units', 'total': 45, 'games': 9, 'projection_games': 14, 'story': 'A NBA athlete records 45 units over 9 segments.', 'task_type': 'unit_rate', 'denominator_label': 'segments', 'projection_label': 'segments'},
+        'Short-to-Long Projection': {'unit': 'units per period', 'total_label': 'total units', 'total': 28, 'games': 7, 'projection_games': 20, 'story': 'A NBA athlete records 28 units over 7 periods.', 'task_type': 'unit_rate', 'denominator_label': 'periods', 'projection_label': 'periods'},
+        'Rate Conversion Challenge': {'unit': 'units per minute', 'total_label': 'total units', 'total': 90, 'games': 30, 'projection_games': 45, 'story': 'A NBA athlete records 90 units over 30 minutes.', 'task_type': 'unit_rate', 'denominator_label': 'minutes', 'projection_label': 'minutes'},
+},
     "MLB": {
         "Judge · Home Runs per Game": {
             "unit": "home runs per game", "total_label": "home runs",
@@ -1620,7 +1634,14 @@ RATE_CASES = {
             "story": "A player stole 24 bases over 40 games.",
             "task_type": "unit_rate"
         },
-    },
+    
+        'Pace Comparison': {'unit': 'units per game', 'total_label': 'total units', 'total': 84, 'games': 12, 'projection_games': 18, 'story': 'A MLB sample records 84 units over 12 games.', 'task_type': 'unit_rate', 'denominator_label': 'games', 'projection_label': 'games'},
+        'Per-Minute Pace': {'unit': 'units per minute', 'total_label': 'total units', 'total': 48, 'games': 24, 'projection_games': 40, 'story': 'A MLB athlete records 48 units over 24 minutes.', 'task_type': 'unit_rate', 'denominator_label': 'minutes', 'projection_label': 'minutes'},
+        'Per-Attempt Efficiency': {'unit': 'units per attempt', 'total_label': 'total units', 'total': 30, 'games': 15, 'projection_games': 25, 'story': 'A MLB athlete records 30 units over 15 attempts.', 'task_type': 'unit_rate', 'denominator_label': 'attempts', 'projection_label': 'attempts'},
+        'Missing-Value Proportion': {'unit': 'units per segment', 'total_label': 'total units', 'total': 45, 'games': 9, 'projection_games': 14, 'story': 'A MLB athlete records 45 units over 9 segments.', 'task_type': 'unit_rate', 'denominator_label': 'segments', 'projection_label': 'segments'},
+        'Short-to-Long Projection': {'unit': 'units per period', 'total_label': 'total units', 'total': 28, 'games': 7, 'projection_games': 20, 'story': 'A MLB athlete records 28 units over 7 periods.', 'task_type': 'unit_rate', 'denominator_label': 'periods', 'projection_label': 'periods'},
+        'Rate Conversion Challenge': {'unit': 'units per minute', 'total_label': 'total units', 'total': 90, 'games': 30, 'projection_games': 45, 'story': 'A MLB athlete records 90 units over 30 minutes.', 'task_type': 'unit_rate', 'denominator_label': 'minutes', 'projection_label': 'minutes'},
+},
     "NHL": {
         "McDavid · Points per Game": {
             "unit": "points per game", "total_label": "points",
@@ -1662,7 +1683,14 @@ RATE_CASES = {
             "denominator_label": "power-play chances",
             "projection_label": "power-play chances"
         },
-    },
+    
+        'Pace Comparison': {'unit': 'units per game', 'total_label': 'total units', 'total': 84, 'games': 12, 'projection_games': 18, 'story': 'A NHL sample records 84 units over 12 games.', 'task_type': 'unit_rate', 'denominator_label': 'games', 'projection_label': 'games'},
+        'Per-Minute Pace': {'unit': 'units per minute', 'total_label': 'total units', 'total': 48, 'games': 24, 'projection_games': 40, 'story': 'A NHL athlete records 48 units over 24 minutes.', 'task_type': 'unit_rate', 'denominator_label': 'minutes', 'projection_label': 'minutes'},
+        'Per-Attempt Efficiency': {'unit': 'units per attempt', 'total_label': 'total units', 'total': 30, 'games': 15, 'projection_games': 25, 'story': 'A NHL athlete records 30 units over 15 attempts.', 'task_type': 'unit_rate', 'denominator_label': 'attempts', 'projection_label': 'attempts'},
+        'Missing-Value Proportion': {'unit': 'units per segment', 'total_label': 'total units', 'total': 45, 'games': 9, 'projection_games': 14, 'story': 'A NHL athlete records 45 units over 9 segments.', 'task_type': 'unit_rate', 'denominator_label': 'segments', 'projection_label': 'segments'},
+        'Short-to-Long Projection': {'unit': 'units per period', 'total_label': 'total units', 'total': 28, 'games': 7, 'projection_games': 20, 'story': 'A NHL athlete records 28 units over 7 periods.', 'task_type': 'unit_rate', 'denominator_label': 'periods', 'projection_label': 'periods'},
+        'Rate Conversion Challenge': {'unit': 'units per minute', 'total_label': 'total units', 'total': 90, 'games': 30, 'projection_games': 45, 'story': 'A NHL athlete records 90 units over 30 minutes.', 'task_type': 'unit_rate', 'denominator_label': 'minutes', 'projection_label': 'minutes'},
+},
     "Soccer": {
         "Messi · Goals per Match": {
             "unit": "goals per match", "total_label": "goals",
@@ -1704,7 +1732,14 @@ RATE_CASES = {
             "story": "A club earned 21 table points over 9 matches.",
             "task_type": "unit_rate"
         },
-    },
+    
+        'Pace Comparison': {'unit': 'units per game', 'total_label': 'total units', 'total': 84, 'games': 12, 'projection_games': 18, 'story': 'A Soccer sample records 84 units over 12 games.', 'task_type': 'unit_rate', 'denominator_label': 'games', 'projection_label': 'games'},
+        'Per-Minute Pace': {'unit': 'units per minute', 'total_label': 'total units', 'total': 48, 'games': 24, 'projection_games': 40, 'story': 'A Soccer athlete records 48 units over 24 minutes.', 'task_type': 'unit_rate', 'denominator_label': 'minutes', 'projection_label': 'minutes'},
+        'Per-Attempt Efficiency': {'unit': 'units per attempt', 'total_label': 'total units', 'total': 30, 'games': 15, 'projection_games': 25, 'story': 'A Soccer athlete records 30 units over 15 attempts.', 'task_type': 'unit_rate', 'denominator_label': 'attempts', 'projection_label': 'attempts'},
+        'Missing-Value Proportion': {'unit': 'units per segment', 'total_label': 'total units', 'total': 45, 'games': 9, 'projection_games': 14, 'story': 'A Soccer athlete records 45 units over 9 segments.', 'task_type': 'unit_rate', 'denominator_label': 'segments', 'projection_label': 'segments'},
+        'Short-to-Long Projection': {'unit': 'units per period', 'total_label': 'total units', 'total': 28, 'games': 7, 'projection_games': 20, 'story': 'A Soccer athlete records 28 units over 7 periods.', 'task_type': 'unit_rate', 'denominator_label': 'periods', 'projection_label': 'periods'},
+        'Rate Conversion Challenge': {'unit': 'units per minute', 'total_label': 'total units', 'total': 90, 'games': 30, 'projection_games': 45, 'story': 'A Soccer athlete records 90 units over 30 minutes.', 'task_type': 'unit_rate', 'denominator_label': 'minutes', 'projection_label': 'minutes'},
+},
     "Formula 1": {
         "Verstappen · Points per Race": {
             "unit": "championship points per race", "total_label": "championship points",
@@ -1748,7 +1783,14 @@ RATE_CASES = {
             "denominator_label": "sprints",
             "projection_label": "sprints"
         },
-    },
+    
+        'Pace Comparison': {'unit': 'units per game', 'total_label': 'total units', 'total': 84, 'games': 12, 'projection_games': 18, 'story': 'A Formula 1 sample records 84 units over 12 games.', 'task_type': 'unit_rate', 'denominator_label': 'games', 'projection_label': 'games'},
+        'Per-Minute Pace': {'unit': 'units per minute', 'total_label': 'total units', 'total': 48, 'games': 24, 'projection_games': 40, 'story': 'A Formula 1 athlete records 48 units over 24 minutes.', 'task_type': 'unit_rate', 'denominator_label': 'minutes', 'projection_label': 'minutes'},
+        'Per-Attempt Efficiency': {'unit': 'units per attempt', 'total_label': 'total units', 'total': 30, 'games': 15, 'projection_games': 25, 'story': 'A Formula 1 athlete records 30 units over 15 attempts.', 'task_type': 'unit_rate', 'denominator_label': 'attempts', 'projection_label': 'attempts'},
+        'Missing-Value Proportion': {'unit': 'units per segment', 'total_label': 'total units', 'total': 45, 'games': 9, 'projection_games': 14, 'story': 'A Formula 1 athlete records 45 units over 9 segments.', 'task_type': 'unit_rate', 'denominator_label': 'segments', 'projection_label': 'segments'},
+        'Short-to-Long Projection': {'unit': 'units per period', 'total_label': 'total units', 'total': 28, 'games': 7, 'projection_games': 20, 'story': 'A Formula 1 athlete records 28 units over 7 periods.', 'task_type': 'unit_rate', 'denominator_label': 'periods', 'projection_label': 'periods'},
+        'Rate Conversion Challenge': {'unit': 'units per minute', 'total_label': 'total units', 'total': 90, 'games': 30, 'projection_games': 45, 'story': 'A Formula 1 athlete records 90 units over 30 minutes.', 'task_type': 'unit_rate', 'denominator_label': 'minutes', 'projection_label': 'minutes'},
+},
 }
 
 def rate_tolerance(correct):
@@ -2091,7 +2133,14 @@ EQUATION_CASES = {
             "hint2": "118 − 94 = 24, so x must be at least 24.",
             "meaning": "The team needs 24 or more additional points."
         },
-    ],
+    
+        {'title': 'Target Total Equation', 'kind': 'Equation', 'story': 'A sports total starts at 10 and increases by 5 for each event until it reaches 35.', 'question': 'How many events are needed?', 'models': ['10 + 5x = 35', '10 + x = 35', '5x = 35', '35 + 5x = 10'], 'correct_model': '10 + 5x = 35', 'answer': 5, 'unit': 'events', 'hint1': 'Start with the known amount, then add equal groups.', 'hint2': 'Subtract 10, then divide by 5.', 'meaning': 'Five events are needed.'},
+        {'title': 'Reduction Equation', 'kind': 'Equation', 'story': 'A sports value starts at 40 and is reduced by x until it reaches 31.', 'question': 'What is x?', 'models': ['40 - x = 31', '40 + x = 31', '31 - x = 40', '40x = 31'], 'correct_model': '40 - x = 31', 'answer': 9, 'unit': 'units', 'hint1': 'The value decreases.', 'hint2': '40 − 31 = 9.', 'meaning': 'The reduction is 9 units.'},
+        {'title': 'Equal Groups Equation', 'kind': 'Equation', 'story': 'Six equal training groups contain 42 total reps.', 'question': 'How many reps are in each group?', 'models': ['6x = 42', '6 + x = 42', '42x = 6', 'x - 6 = 42'], 'correct_model': '6x = 42', 'answer': 7, 'unit': 'reps', 'hint1': 'Equal groups suggest multiplication.', 'hint2': '42 ÷ 6 = 7.', 'meaning': 'Each group contains 7 reps.'},
+        {'title': 'Maximum Limit Inequality', 'kind': 'Inequality', 'story': 'A team already used 18 units and can use no more than 40 total.', 'question': 'What is the greatest additional amount allowed?', 'models': ['18 + x ≤ 40', '18 + x ≥ 40', '18x ≤ 40', '40 + x ≤ 18'], 'correct_model': '18 + x ≤ 40', 'answer': 22, 'unit': 'units', 'hint1': "'No more than' means ≤.", 'hint2': '40 − 18 = 22.', 'meaning': 'At most 22 more units are allowed.'},
+        {'title': 'Minimum Goal Inequality', 'kind': 'Inequality', 'story': 'A player has 25 units and must reach at least 48.', 'question': 'What is the minimum additional amount needed?', 'models': ['25 + x ≥ 48', '25 + x ≤ 48', '25x ≥ 48', '48 + x ≥ 25'], 'correct_model': '25 + x ≥ 48', 'answer': 23, 'unit': 'units', 'hint1': "'At least' means ≥.", 'hint2': '48 − 25 = 23.', 'meaning': 'At least 23 more units are needed.'},
+        {'title': 'Budget Inequality', 'kind': 'Inequality', 'story': 'A sports event has a $60 fixed cost plus $8 per participant and a $124 budget.', 'question': 'What is the greatest number of participants?', 'models': ['60 + 8x ≤ 124', '60 + 8x ≥ 124', '8 + 60x ≤ 124', '124 + 8x ≤ 60'], 'correct_model': '60 + 8x ≤ 124', 'answer': 8, 'unit': 'participants', 'hint1': 'Total cost cannot exceed the budget.', 'hint2': '124 − 60 = 64, then 64 ÷ 8 = 8.', 'meaning': 'At most 8 participants fit the budget.'},
+],
     "NBA": [
 
         {
@@ -2172,7 +2221,14 @@ EQUATION_CASES = {
             "hint2": "52 + 3x = 70 → subtract 52, then divide by 3.",
             "meaning": "The team needs 6 more made three-pointers."
         },
-    ],
+    
+        {'title': 'Target Total Equation', 'kind': 'Equation', 'story': 'A sports total starts at 10 and increases by 5 for each event until it reaches 35.', 'question': 'How many events are needed?', 'models': ['10 + 5x = 35', '10 + x = 35', '5x = 35', '35 + 5x = 10'], 'correct_model': '10 + 5x = 35', 'answer': 5, 'unit': 'events', 'hint1': 'Start with the known amount, then add equal groups.', 'hint2': 'Subtract 10, then divide by 5.', 'meaning': 'Five events are needed.'},
+        {'title': 'Reduction Equation', 'kind': 'Equation', 'story': 'A sports value starts at 40 and is reduced by x until it reaches 31.', 'question': 'What is x?', 'models': ['40 - x = 31', '40 + x = 31', '31 - x = 40', '40x = 31'], 'correct_model': '40 - x = 31', 'answer': 9, 'unit': 'units', 'hint1': 'The value decreases.', 'hint2': '40 − 31 = 9.', 'meaning': 'The reduction is 9 units.'},
+        {'title': 'Equal Groups Equation', 'kind': 'Equation', 'story': 'Six equal training groups contain 42 total reps.', 'question': 'How many reps are in each group?', 'models': ['6x = 42', '6 + x = 42', '42x = 6', 'x - 6 = 42'], 'correct_model': '6x = 42', 'answer': 7, 'unit': 'reps', 'hint1': 'Equal groups suggest multiplication.', 'hint2': '42 ÷ 6 = 7.', 'meaning': 'Each group contains 7 reps.'},
+        {'title': 'Maximum Limit Inequality', 'kind': 'Inequality', 'story': 'A team already used 18 units and can use no more than 40 total.', 'question': 'What is the greatest additional amount allowed?', 'models': ['18 + x ≤ 40', '18 + x ≥ 40', '18x ≤ 40', '40 + x ≤ 18'], 'correct_model': '18 + x ≤ 40', 'answer': 22, 'unit': 'units', 'hint1': "'No more than' means ≤.", 'hint2': '40 − 18 = 22.', 'meaning': 'At most 22 more units are allowed.'},
+        {'title': 'Minimum Goal Inequality', 'kind': 'Inequality', 'story': 'A player has 25 units and must reach at least 48.', 'question': 'What is the minimum additional amount needed?', 'models': ['25 + x ≥ 48', '25 + x ≤ 48', '25x ≥ 48', '48 + x ≥ 25'], 'correct_model': '25 + x ≥ 48', 'answer': 23, 'unit': 'units', 'hint1': "'At least' means ≥.", 'hint2': '48 − 25 = 23.', 'meaning': 'At least 23 more units are needed.'},
+        {'title': 'Budget Inequality', 'kind': 'Inequality', 'story': 'A sports event has a $60 fixed cost plus $8 per participant and a $124 budget.', 'question': 'What is the greatest number of participants?', 'models': ['60 + 8x ≤ 124', '60 + 8x ≥ 124', '8 + 60x ≤ 124', '124 + 8x ≤ 60'], 'correct_model': '60 + 8x ≤ 124', 'answer': 8, 'unit': 'participants', 'hint1': 'Total cost cannot exceed the budget.', 'hint2': '124 − 60 = 64, then 64 ÷ 8 = 8.', 'meaning': 'At most 8 participants fit the budget.'},
+],
     "MLB": [
 
         {
@@ -2253,7 +2309,14 @@ EQUATION_CASES = {
             "hint2": "500 − 140 = 360, and 360 ÷ 18 = 20.",
             "meaning": "The class can buy at most 20 student tickets."
         },
-    ],
+    
+        {'title': 'Target Total Equation', 'kind': 'Equation', 'story': 'A sports total starts at 10 and increases by 5 for each event until it reaches 35.', 'question': 'How many events are needed?', 'models': ['10 + 5x = 35', '10 + x = 35', '5x = 35', '35 + 5x = 10'], 'correct_model': '10 + 5x = 35', 'answer': 5, 'unit': 'events', 'hint1': 'Start with the known amount, then add equal groups.', 'hint2': 'Subtract 10, then divide by 5.', 'meaning': 'Five events are needed.'},
+        {'title': 'Reduction Equation', 'kind': 'Equation', 'story': 'A sports value starts at 40 and is reduced by x until it reaches 31.', 'question': 'What is x?', 'models': ['40 - x = 31', '40 + x = 31', '31 - x = 40', '40x = 31'], 'correct_model': '40 - x = 31', 'answer': 9, 'unit': 'units', 'hint1': 'The value decreases.', 'hint2': '40 − 31 = 9.', 'meaning': 'The reduction is 9 units.'},
+        {'title': 'Equal Groups Equation', 'kind': 'Equation', 'story': 'Six equal training groups contain 42 total reps.', 'question': 'How many reps are in each group?', 'models': ['6x = 42', '6 + x = 42', '42x = 6', 'x - 6 = 42'], 'correct_model': '6x = 42', 'answer': 7, 'unit': 'reps', 'hint1': 'Equal groups suggest multiplication.', 'hint2': '42 ÷ 6 = 7.', 'meaning': 'Each group contains 7 reps.'},
+        {'title': 'Maximum Limit Inequality', 'kind': 'Inequality', 'story': 'A team already used 18 units and can use no more than 40 total.', 'question': 'What is the greatest additional amount allowed?', 'models': ['18 + x ≤ 40', '18 + x ≥ 40', '18x ≤ 40', '40 + x ≤ 18'], 'correct_model': '18 + x ≤ 40', 'answer': 22, 'unit': 'units', 'hint1': "'No more than' means ≤.", 'hint2': '40 − 18 = 22.', 'meaning': 'At most 22 more units are allowed.'},
+        {'title': 'Minimum Goal Inequality', 'kind': 'Inequality', 'story': 'A player has 25 units and must reach at least 48.', 'question': 'What is the minimum additional amount needed?', 'models': ['25 + x ≥ 48', '25 + x ≤ 48', '25x ≥ 48', '48 + x ≥ 25'], 'correct_model': '25 + x ≥ 48', 'answer': 23, 'unit': 'units', 'hint1': "'At least' means ≥.", 'hint2': '48 − 25 = 23.', 'meaning': 'At least 23 more units are needed.'},
+        {'title': 'Budget Inequality', 'kind': 'Inequality', 'story': 'A sports event has a $60 fixed cost plus $8 per participant and a $124 budget.', 'question': 'What is the greatest number of participants?', 'models': ['60 + 8x ≤ 124', '60 + 8x ≥ 124', '8 + 60x ≤ 124', '124 + 8x ≤ 60'], 'correct_model': '60 + 8x ≤ 124', 'answer': 8, 'unit': 'participants', 'hint1': 'Total cost cannot exceed the budget.', 'hint2': '124 − 60 = 64, then 64 ÷ 8 = 8.', 'meaning': 'At most 8 participants fit the budget.'},
+],
     "NHL": [
 
         {
@@ -2334,7 +2397,14 @@ EQUATION_CASES = {
             "hint2": "32 − 21 = 11, so x must be at least 11.",
             "meaning": "The team needs 11 or more third-period shots."
         },
-    ],
+    
+        {'title': 'Target Total Equation', 'kind': 'Equation', 'story': 'A sports total starts at 10 and increases by 5 for each event until it reaches 35.', 'question': 'How many events are needed?', 'models': ['10 + 5x = 35', '10 + x = 35', '5x = 35', '35 + 5x = 10'], 'correct_model': '10 + 5x = 35', 'answer': 5, 'unit': 'events', 'hint1': 'Start with the known amount, then add equal groups.', 'hint2': 'Subtract 10, then divide by 5.', 'meaning': 'Five events are needed.'},
+        {'title': 'Reduction Equation', 'kind': 'Equation', 'story': 'A sports value starts at 40 and is reduced by x until it reaches 31.', 'question': 'What is x?', 'models': ['40 - x = 31', '40 + x = 31', '31 - x = 40', '40x = 31'], 'correct_model': '40 - x = 31', 'answer': 9, 'unit': 'units', 'hint1': 'The value decreases.', 'hint2': '40 − 31 = 9.', 'meaning': 'The reduction is 9 units.'},
+        {'title': 'Equal Groups Equation', 'kind': 'Equation', 'story': 'Six equal training groups contain 42 total reps.', 'question': 'How many reps are in each group?', 'models': ['6x = 42', '6 + x = 42', '42x = 6', 'x - 6 = 42'], 'correct_model': '6x = 42', 'answer': 7, 'unit': 'reps', 'hint1': 'Equal groups suggest multiplication.', 'hint2': '42 ÷ 6 = 7.', 'meaning': 'Each group contains 7 reps.'},
+        {'title': 'Maximum Limit Inequality', 'kind': 'Inequality', 'story': 'A team already used 18 units and can use no more than 40 total.', 'question': 'What is the greatest additional amount allowed?', 'models': ['18 + x ≤ 40', '18 + x ≥ 40', '18x ≤ 40', '40 + x ≤ 18'], 'correct_model': '18 + x ≤ 40', 'answer': 22, 'unit': 'units', 'hint1': "'No more than' means ≤.", 'hint2': '40 − 18 = 22.', 'meaning': 'At most 22 more units are allowed.'},
+        {'title': 'Minimum Goal Inequality', 'kind': 'Inequality', 'story': 'A player has 25 units and must reach at least 48.', 'question': 'What is the minimum additional amount needed?', 'models': ['25 + x ≥ 48', '25 + x ≤ 48', '25x ≥ 48', '48 + x ≥ 25'], 'correct_model': '25 + x ≥ 48', 'answer': 23, 'unit': 'units', 'hint1': "'At least' means ≥.", 'hint2': '48 − 25 = 23.', 'meaning': 'At least 23 more units are needed.'},
+        {'title': 'Budget Inequality', 'kind': 'Inequality', 'story': 'A sports event has a $60 fixed cost plus $8 per participant and a $124 budget.', 'question': 'What is the greatest number of participants?', 'models': ['60 + 8x ≤ 124', '60 + 8x ≥ 124', '8 + 60x ≤ 124', '124 + 8x ≤ 60'], 'correct_model': '60 + 8x ≤ 124', 'answer': 8, 'unit': 'participants', 'hint1': 'Total cost cannot exceed the budget.', 'hint2': '124 − 60 = 64, then 64 ÷ 8 = 8.', 'meaning': 'At most 8 participants fit the budget.'},
+],
     "Soccer": [
 
         {
@@ -2415,7 +2485,14 @@ EQUATION_CASES = {
             "hint2": "16 − 7 = 9, and 9 ÷ 3 = 3.",
             "meaning": "The team needs at least 3 more wins."
         },
-    ],
+    
+        {'title': 'Target Total Equation', 'kind': 'Equation', 'story': 'A sports total starts at 10 and increases by 5 for each event until it reaches 35.', 'question': 'How many events are needed?', 'models': ['10 + 5x = 35', '10 + x = 35', '5x = 35', '35 + 5x = 10'], 'correct_model': '10 + 5x = 35', 'answer': 5, 'unit': 'events', 'hint1': 'Start with the known amount, then add equal groups.', 'hint2': 'Subtract 10, then divide by 5.', 'meaning': 'Five events are needed.'},
+        {'title': 'Reduction Equation', 'kind': 'Equation', 'story': 'A sports value starts at 40 and is reduced by x until it reaches 31.', 'question': 'What is x?', 'models': ['40 - x = 31', '40 + x = 31', '31 - x = 40', '40x = 31'], 'correct_model': '40 - x = 31', 'answer': 9, 'unit': 'units', 'hint1': 'The value decreases.', 'hint2': '40 − 31 = 9.', 'meaning': 'The reduction is 9 units.'},
+        {'title': 'Equal Groups Equation', 'kind': 'Equation', 'story': 'Six equal training groups contain 42 total reps.', 'question': 'How many reps are in each group?', 'models': ['6x = 42', '6 + x = 42', '42x = 6', 'x - 6 = 42'], 'correct_model': '6x = 42', 'answer': 7, 'unit': 'reps', 'hint1': 'Equal groups suggest multiplication.', 'hint2': '42 ÷ 6 = 7.', 'meaning': 'Each group contains 7 reps.'},
+        {'title': 'Maximum Limit Inequality', 'kind': 'Inequality', 'story': 'A team already used 18 units and can use no more than 40 total.', 'question': 'What is the greatest additional amount allowed?', 'models': ['18 + x ≤ 40', '18 + x ≥ 40', '18x ≤ 40', '40 + x ≤ 18'], 'correct_model': '18 + x ≤ 40', 'answer': 22, 'unit': 'units', 'hint1': "'No more than' means ≤.", 'hint2': '40 − 18 = 22.', 'meaning': 'At most 22 more units are allowed.'},
+        {'title': 'Minimum Goal Inequality', 'kind': 'Inequality', 'story': 'A player has 25 units and must reach at least 48.', 'question': 'What is the minimum additional amount needed?', 'models': ['25 + x ≥ 48', '25 + x ≤ 48', '25x ≥ 48', '48 + x ≥ 25'], 'correct_model': '25 + x ≥ 48', 'answer': 23, 'unit': 'units', 'hint1': "'At least' means ≥.", 'hint2': '48 − 25 = 23.', 'meaning': 'At least 23 more units are needed.'},
+        {'title': 'Budget Inequality', 'kind': 'Inequality', 'story': 'A sports event has a $60 fixed cost plus $8 per participant and a $124 budget.', 'question': 'What is the greatest number of participants?', 'models': ['60 + 8x ≤ 124', '60 + 8x ≥ 124', '8 + 60x ≤ 124', '124 + 8x ≤ 60'], 'correct_model': '60 + 8x ≤ 124', 'answer': 8, 'unit': 'participants', 'hint1': 'Total cost cannot exceed the budget.', 'hint2': '124 − 60 = 64, then 64 ÷ 8 = 8.', 'meaning': 'At most 8 participants fit the budget.'},
+],
     "Formula 1": [
 
         {
@@ -2496,7 +2573,14 @@ EQUATION_CASES = {
             "hint2": "420 − 180 = 240, and 240 ÷ 60 = 4.",
             "meaning": "The fan can buy at most 4 event tickets."
         },
-    ],
+    
+        {'title': 'Target Total Equation', 'kind': 'Equation', 'story': 'A sports total starts at 10 and increases by 5 for each event until it reaches 35.', 'question': 'How many events are needed?', 'models': ['10 + 5x = 35', '10 + x = 35', '5x = 35', '35 + 5x = 10'], 'correct_model': '10 + 5x = 35', 'answer': 5, 'unit': 'events', 'hint1': 'Start with the known amount, then add equal groups.', 'hint2': 'Subtract 10, then divide by 5.', 'meaning': 'Five events are needed.'},
+        {'title': 'Reduction Equation', 'kind': 'Equation', 'story': 'A sports value starts at 40 and is reduced by x until it reaches 31.', 'question': 'What is x?', 'models': ['40 - x = 31', '40 + x = 31', '31 - x = 40', '40x = 31'], 'correct_model': '40 - x = 31', 'answer': 9, 'unit': 'units', 'hint1': 'The value decreases.', 'hint2': '40 − 31 = 9.', 'meaning': 'The reduction is 9 units.'},
+        {'title': 'Equal Groups Equation', 'kind': 'Equation', 'story': 'Six equal training groups contain 42 total reps.', 'question': 'How many reps are in each group?', 'models': ['6x = 42', '6 + x = 42', '42x = 6', 'x - 6 = 42'], 'correct_model': '6x = 42', 'answer': 7, 'unit': 'reps', 'hint1': 'Equal groups suggest multiplication.', 'hint2': '42 ÷ 6 = 7.', 'meaning': 'Each group contains 7 reps.'},
+        {'title': 'Maximum Limit Inequality', 'kind': 'Inequality', 'story': 'A team already used 18 units and can use no more than 40 total.', 'question': 'What is the greatest additional amount allowed?', 'models': ['18 + x ≤ 40', '18 + x ≥ 40', '18x ≤ 40', '40 + x ≤ 18'], 'correct_model': '18 + x ≤ 40', 'answer': 22, 'unit': 'units', 'hint1': "'No more than' means ≤.", 'hint2': '40 − 18 = 22.', 'meaning': 'At most 22 more units are allowed.'},
+        {'title': 'Minimum Goal Inequality', 'kind': 'Inequality', 'story': 'A player has 25 units and must reach at least 48.', 'question': 'What is the minimum additional amount needed?', 'models': ['25 + x ≥ 48', '25 + x ≤ 48', '25x ≥ 48', '48 + x ≥ 25'], 'correct_model': '25 + x ≥ 48', 'answer': 23, 'unit': 'units', 'hint1': "'At least' means ≥.", 'hint2': '48 − 25 = 23.', 'meaning': 'At least 23 more units are needed.'},
+        {'title': 'Budget Inequality', 'kind': 'Inequality', 'story': 'A sports event has a $60 fixed cost plus $8 per participant and a $124 budget.', 'question': 'What is the greatest number of participants?', 'models': ['60 + 8x ≤ 124', '60 + 8x ≥ 124', '8 + 60x ≤ 124', '124 + 8x ≤ 60'], 'correct_model': '60 + 8x ≤ 124', 'answer': 8, 'unit': 'participants', 'hint1': 'Total cost cannot exceed the budget.', 'hint2': '124 − 60 = 64, then 64 ÷ 8 = 8.', 'meaning': 'At most 8 participants fit the budget.'},
+],
 }
 
 def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None, generated_case=None):
@@ -2720,7 +2804,14 @@ PROBABILITY_CASES = {
             "successes": 27, "trials": 50, "future": 100,
             "event": "heads", "trial_label": "coin tosses"
         },
-    ],
+    
+        {'title': 'Small Sample Prediction', 'story': 'A sports athlete succeeds 9 times in 15 attempts.', 'successes': 9, 'trials': 15, 'future': 60, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Large Sample Prediction', 'story': 'A sports athlete succeeds 24 times in 30 attempts.', 'successes': 24, 'trials': 30, 'future': 100, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Moderate Success Rate', 'story': 'A sports athlete succeeds 14 times in 20 attempts.', 'successes': 14, 'trials': 20, 'future': 50, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Rare Event Rate', 'story': 'A sports event happens 3 times in 20 attempts.', 'successes': 3, 'trials': 20, 'future': 80, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'High Success Rate', 'story': 'A sports athlete succeeds 18 times in 20 attempts.', 'successes': 18, 'trials': 20, 'future': 60, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Prediction Is Not Guaranteed', 'story': 'A sports athlete succeeds 7 times in 10 attempts.', 'successes': 7, 'trials': 10, 'future': 40, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+],
     "NBA": [
         {
             "title": "Free Throw Success",
@@ -2758,7 +2849,14 @@ PROBABILITY_CASES = {
             "successes": 3, "trials": 20, "future": 60,
             "event": "made half-court shots", "trial_label": "half-court attempts"
         },
-    ],
+    
+        {'title': 'Small Sample Prediction', 'story': 'A sports athlete succeeds 9 times in 15 attempts.', 'successes': 9, 'trials': 15, 'future': 60, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Large Sample Prediction', 'story': 'A sports athlete succeeds 24 times in 30 attempts.', 'successes': 24, 'trials': 30, 'future': 100, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Moderate Success Rate', 'story': 'A sports athlete succeeds 14 times in 20 attempts.', 'successes': 14, 'trials': 20, 'future': 50, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Rare Event Rate', 'story': 'A sports event happens 3 times in 20 attempts.', 'successes': 3, 'trials': 20, 'future': 80, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'High Success Rate', 'story': 'A sports athlete succeeds 18 times in 20 attempts.', 'successes': 18, 'trials': 20, 'future': 60, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Prediction Is Not Guaranteed', 'story': 'A sports athlete succeeds 7 times in 10 attempts.', 'successes': 7, 'trials': 10, 'future': 40, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+],
     "MLB": [
         {
             "title": "Hit Probability",
@@ -2796,7 +2894,14 @@ PROBABILITY_CASES = {
             "successes": 36, "trials": 60, "future": 100,
             "event": "strikes", "trial_label": "pitches"
         },
-    ],
+    
+        {'title': 'Small Sample Prediction', 'story': 'A sports athlete succeeds 9 times in 15 attempts.', 'successes': 9, 'trials': 15, 'future': 60, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Large Sample Prediction', 'story': 'A sports athlete succeeds 24 times in 30 attempts.', 'successes': 24, 'trials': 30, 'future': 100, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Moderate Success Rate', 'story': 'A sports athlete succeeds 14 times in 20 attempts.', 'successes': 14, 'trials': 20, 'future': 50, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Rare Event Rate', 'story': 'A sports event happens 3 times in 20 attempts.', 'successes': 3, 'trials': 20, 'future': 80, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'High Success Rate', 'story': 'A sports athlete succeeds 18 times in 20 attempts.', 'successes': 18, 'trials': 20, 'future': 60, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Prediction Is Not Guaranteed', 'story': 'A sports athlete succeeds 7 times in 10 attempts.', 'successes': 7, 'trials': 10, 'future': 40, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+],
     "NHL": [
         {
             "title": "Save Probability",
@@ -2834,7 +2939,14 @@ PROBABILITY_CASES = {
             "successes": 18, "trials": 30, "future": 60,
             "event": "shots on goal", "trial_label": "shot attempts"
         },
-    ],
+    
+        {'title': 'Small Sample Prediction', 'story': 'A sports athlete succeeds 9 times in 15 attempts.', 'successes': 9, 'trials': 15, 'future': 60, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Large Sample Prediction', 'story': 'A sports athlete succeeds 24 times in 30 attempts.', 'successes': 24, 'trials': 30, 'future': 100, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Moderate Success Rate', 'story': 'A sports athlete succeeds 14 times in 20 attempts.', 'successes': 14, 'trials': 20, 'future': 50, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Rare Event Rate', 'story': 'A sports event happens 3 times in 20 attempts.', 'successes': 3, 'trials': 20, 'future': 80, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'High Success Rate', 'story': 'A sports athlete succeeds 18 times in 20 attempts.', 'successes': 18, 'trials': 20, 'future': 60, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Prediction Is Not Guaranteed', 'story': 'A sports athlete succeeds 7 times in 10 attempts.', 'successes': 7, 'trials': 10, 'future': 40, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+],
     "Soccer": [
         {
             "title": "Penalty Kick Success",
@@ -2872,7 +2984,14 @@ PROBABILITY_CASES = {
             "successes": 27, "trials": 30, "future": 50,
             "event": "saves", "trial_label": "shots on target"
         },
-    ],
+    
+        {'title': 'Small Sample Prediction', 'story': 'A sports athlete succeeds 9 times in 15 attempts.', 'successes': 9, 'trials': 15, 'future': 60, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Large Sample Prediction', 'story': 'A sports athlete succeeds 24 times in 30 attempts.', 'successes': 24, 'trials': 30, 'future': 100, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Moderate Success Rate', 'story': 'A sports athlete succeeds 14 times in 20 attempts.', 'successes': 14, 'trials': 20, 'future': 50, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Rare Event Rate', 'story': 'A sports event happens 3 times in 20 attempts.', 'successes': 3, 'trials': 20, 'future': 80, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'High Success Rate', 'story': 'A sports athlete succeeds 18 times in 20 attempts.', 'successes': 18, 'trials': 20, 'future': 60, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Prediction Is Not Guaranteed', 'story': 'A sports athlete succeeds 7 times in 10 attempts.', 'successes': 7, 'trials': 10, 'future': 40, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+],
     "Formula 1": [
         {
             "title": "Podium Frequency",
@@ -2910,7 +3029,14 @@ PROBABILITY_CASES = {
             "successes": 4, "trials": 16, "future": 24,
             "event": "fastest laps", "trial_label": "races"
         },
-    ],
+    
+        {'title': 'Small Sample Prediction', 'story': 'A sports athlete succeeds 9 times in 15 attempts.', 'successes': 9, 'trials': 15, 'future': 60, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Large Sample Prediction', 'story': 'A sports athlete succeeds 24 times in 30 attempts.', 'successes': 24, 'trials': 30, 'future': 100, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Moderate Success Rate', 'story': 'A sports athlete succeeds 14 times in 20 attempts.', 'successes': 14, 'trials': 20, 'future': 50, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Rare Event Rate', 'story': 'A sports event happens 3 times in 20 attempts.', 'successes': 3, 'trials': 20, 'future': 80, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'High Success Rate', 'story': 'A sports athlete succeeds 18 times in 20 attempts.', 'successes': 18, 'trials': 20, 'future': 60, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+        {'title': 'Prediction Is Not Guaranteed', 'story': 'A sports athlete succeeds 7 times in 10 attempts.', 'successes': 7, 'trials': 10, 'future': 40, 'event': 'successful outcomes', 'trial_label': 'attempts'},
+],
 }
 
 def probability_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None, generated_case=None):
@@ -3132,7 +3258,14 @@ PERCENT_CASES = {
             "hint1": "First find 25% of $80, then subtract the discount.",
             "hint2": "0.25 × 80 = 20; 80 − 20 = 60."
         },
-    ],
+    
+        {'title': 'Second Success Percentage', 'kind': 'Percent', 'story': 'A sports sample has 18 successes in 24 attempts.', 'part': 18, 'whole': 24, 'question': 'What percent were successful?', 'answer': 75.0, 'unit': '%', 'hint1': 'Use part ÷ whole × 100.', 'hint2': '18 ÷ 24 × 100 = 75%.'},
+        {'title': 'Second Percent Increase', 'kind': 'Percent Change', 'story': 'A sports statistic rises from 40 to 50.', 'old': 40, 'new': 50, 'question': 'What is the percent change?', 'answer': 25.0, 'direction': 'increase', 'unit': '%', 'hint1': 'Find the change and divide by the original.', 'hint2': '10 ÷ 40 × 100 = 25%.'},
+        {'title': 'Second Percent Decrease', 'kind': 'Percent Change', 'story': 'A sports statistic drops from 80 to 60.', 'old': 80, 'new': 60, 'question': 'What is the percent change?', 'answer': -25.0, 'direction': 'decrease', 'unit': '%', 'hint1': 'Find new − old and divide by old.', 'hint2': '−20 ÷ 80 × 100 = −25%.'},
+        {'title': 'Second Percent Of', 'kind': 'Percent Of', 'story': 'Find 30% of a sports total of 200.', 'percent': 30, 'base': 200, 'question': 'How much is 30% of the total?', 'answer': 60.0, 'unit': 'units', 'hint1': 'Convert 30% to 0.30 and multiply.', 'hint2': '0.30 × 200 = 60.'},
+        {'title': 'Second Discount', 'kind': 'Discount', 'story': 'A sports item costs $100 and is discounted 20%.', 'percent': 20, 'base': 100, 'question': 'What is the sale price?', 'answer': 80.0, 'unit': 'dollars', 'hint1': 'Find the discount and subtract it.', 'hint2': '20% of 100 is 20, so the sale price is 80.'},
+        {'title': 'Goal Completion Percent', 'kind': 'Percent', 'story': 'A player completes 42 of 60 target actions.', 'part': 42, 'whole': 60, 'question': 'What percent of the goal was completed?', 'answer': 70.0, 'unit': '%', 'hint1': 'Use completed ÷ target × 100.', 'hint2': '42 ÷ 60 × 100 = 70%.'},
+],
     "NBA": [
         {
             "title": "Free Throw Percentage",
@@ -3200,7 +3333,14 @@ PERCENT_CASES = {
             "hint1": "Find the discount amount first, then subtract it.",
             "hint2": "0.30 × 90 = 27; 90 − 27 = 63."
         },
-    ],
+    
+        {'title': 'Second Success Percentage', 'kind': 'Percent', 'story': 'A sports sample has 18 successes in 24 attempts.', 'part': 18, 'whole': 24, 'question': 'What percent were successful?', 'answer': 75.0, 'unit': '%', 'hint1': 'Use part ÷ whole × 100.', 'hint2': '18 ÷ 24 × 100 = 75%.'},
+        {'title': 'Second Percent Increase', 'kind': 'Percent Change', 'story': 'A sports statistic rises from 40 to 50.', 'old': 40, 'new': 50, 'question': 'What is the percent change?', 'answer': 25.0, 'direction': 'increase', 'unit': '%', 'hint1': 'Find the change and divide by the original.', 'hint2': '10 ÷ 40 × 100 = 25%.'},
+        {'title': 'Second Percent Decrease', 'kind': 'Percent Change', 'story': 'A sports statistic drops from 80 to 60.', 'old': 80, 'new': 60, 'question': 'What is the percent change?', 'answer': -25.0, 'direction': 'decrease', 'unit': '%', 'hint1': 'Find new − old and divide by old.', 'hint2': '−20 ÷ 80 × 100 = −25%.'},
+        {'title': 'Second Percent Of', 'kind': 'Percent Of', 'story': 'Find 30% of a sports total of 200.', 'percent': 30, 'base': 200, 'question': 'How much is 30% of the total?', 'answer': 60.0, 'unit': 'units', 'hint1': 'Convert 30% to 0.30 and multiply.', 'hint2': '0.30 × 200 = 60.'},
+        {'title': 'Second Discount', 'kind': 'Discount', 'story': 'A sports item costs $100 and is discounted 20%.', 'percent': 20, 'base': 100, 'question': 'What is the sale price?', 'answer': 80.0, 'unit': 'dollars', 'hint1': 'Find the discount and subtract it.', 'hint2': '20% of 100 is 20, so the sale price is 80.'},
+        {'title': 'Goal Completion Percent', 'kind': 'Percent', 'story': 'A player completes 42 of 60 target actions.', 'part': 42, 'whole': 60, 'question': 'What percent of the goal was completed?', 'answer': 70.0, 'unit': '%', 'hint1': 'Use completed ÷ target × 100.', 'hint2': '42 ÷ 60 × 100 = 70%.'},
+],
     "MLB": [
         {
             "title": "Hit Percentage",
@@ -3268,7 +3408,14 @@ PERCENT_CASES = {
             "hint1": "Find 25% of 32 and subtract.",
             "hint2": "0.25 × 32 = 8; 32 − 8 = 24."
         },
-    ],
+    
+        {'title': 'Second Success Percentage', 'kind': 'Percent', 'story': 'A sports sample has 18 successes in 24 attempts.', 'part': 18, 'whole': 24, 'question': 'What percent were successful?', 'answer': 75.0, 'unit': '%', 'hint1': 'Use part ÷ whole × 100.', 'hint2': '18 ÷ 24 × 100 = 75%.'},
+        {'title': 'Second Percent Increase', 'kind': 'Percent Change', 'story': 'A sports statistic rises from 40 to 50.', 'old': 40, 'new': 50, 'question': 'What is the percent change?', 'answer': 25.0, 'direction': 'increase', 'unit': '%', 'hint1': 'Find the change and divide by the original.', 'hint2': '10 ÷ 40 × 100 = 25%.'},
+        {'title': 'Second Percent Decrease', 'kind': 'Percent Change', 'story': 'A sports statistic drops from 80 to 60.', 'old': 80, 'new': 60, 'question': 'What is the percent change?', 'answer': -25.0, 'direction': 'decrease', 'unit': '%', 'hint1': 'Find new − old and divide by old.', 'hint2': '−20 ÷ 80 × 100 = −25%.'},
+        {'title': 'Second Percent Of', 'kind': 'Percent Of', 'story': 'Find 30% of a sports total of 200.', 'percent': 30, 'base': 200, 'question': 'How much is 30% of the total?', 'answer': 60.0, 'unit': 'units', 'hint1': 'Convert 30% to 0.30 and multiply.', 'hint2': '0.30 × 200 = 60.'},
+        {'title': 'Second Discount', 'kind': 'Discount', 'story': 'A sports item costs $100 and is discounted 20%.', 'percent': 20, 'base': 100, 'question': 'What is the sale price?', 'answer': 80.0, 'unit': 'dollars', 'hint1': 'Find the discount and subtract it.', 'hint2': '20% of 100 is 20, so the sale price is 80.'},
+        {'title': 'Goal Completion Percent', 'kind': 'Percent', 'story': 'A player completes 42 of 60 target actions.', 'part': 42, 'whole': 60, 'question': 'What percent of the goal was completed?', 'answer': 70.0, 'unit': '%', 'hint1': 'Use completed ÷ target × 100.', 'hint2': '42 ÷ 60 × 100 = 70%.'},
+],
     "NHL": [
         {
             "title": "Save Percentage",
@@ -3336,7 +3483,14 @@ PERCENT_CASES = {
             "hint1": "Find the 20% discount, then subtract it.",
             "hint2": "0.20 × 120 = 24; 120 − 24 = 96."
         },
-    ],
+    
+        {'title': 'Second Success Percentage', 'kind': 'Percent', 'story': 'A sports sample has 18 successes in 24 attempts.', 'part': 18, 'whole': 24, 'question': 'What percent were successful?', 'answer': 75.0, 'unit': '%', 'hint1': 'Use part ÷ whole × 100.', 'hint2': '18 ÷ 24 × 100 = 75%.'},
+        {'title': 'Second Percent Increase', 'kind': 'Percent Change', 'story': 'A sports statistic rises from 40 to 50.', 'old': 40, 'new': 50, 'question': 'What is the percent change?', 'answer': 25.0, 'direction': 'increase', 'unit': '%', 'hint1': 'Find the change and divide by the original.', 'hint2': '10 ÷ 40 × 100 = 25%.'},
+        {'title': 'Second Percent Decrease', 'kind': 'Percent Change', 'story': 'A sports statistic drops from 80 to 60.', 'old': 80, 'new': 60, 'question': 'What is the percent change?', 'answer': -25.0, 'direction': 'decrease', 'unit': '%', 'hint1': 'Find new − old and divide by old.', 'hint2': '−20 ÷ 80 × 100 = −25%.'},
+        {'title': 'Second Percent Of', 'kind': 'Percent Of', 'story': 'Find 30% of a sports total of 200.', 'percent': 30, 'base': 200, 'question': 'How much is 30% of the total?', 'answer': 60.0, 'unit': 'units', 'hint1': 'Convert 30% to 0.30 and multiply.', 'hint2': '0.30 × 200 = 60.'},
+        {'title': 'Second Discount', 'kind': 'Discount', 'story': 'A sports item costs $100 and is discounted 20%.', 'percent': 20, 'base': 100, 'question': 'What is the sale price?', 'answer': 80.0, 'unit': 'dollars', 'hint1': 'Find the discount and subtract it.', 'hint2': '20% of 100 is 20, so the sale price is 80.'},
+        {'title': 'Goal Completion Percent', 'kind': 'Percent', 'story': 'A player completes 42 of 60 target actions.', 'part': 42, 'whole': 60, 'question': 'What percent of the goal was completed?', 'answer': 70.0, 'unit': '%', 'hint1': 'Use completed ÷ target × 100.', 'hint2': '42 ÷ 60 × 100 = 70%.'},
+],
     "Soccer": [
         {
             "title": "Pass Completion Percentage",
@@ -3404,7 +3558,14 @@ PERCENT_CASES = {
             "hint1": "Find the discount amount and subtract it.",
             "hint2": "0.35 × 40 = 14; 40 − 14 = 26."
         },
-    ],
+    
+        {'title': 'Second Success Percentage', 'kind': 'Percent', 'story': 'A sports sample has 18 successes in 24 attempts.', 'part': 18, 'whole': 24, 'question': 'What percent were successful?', 'answer': 75.0, 'unit': '%', 'hint1': 'Use part ÷ whole × 100.', 'hint2': '18 ÷ 24 × 100 = 75%.'},
+        {'title': 'Second Percent Increase', 'kind': 'Percent Change', 'story': 'A sports statistic rises from 40 to 50.', 'old': 40, 'new': 50, 'question': 'What is the percent change?', 'answer': 25.0, 'direction': 'increase', 'unit': '%', 'hint1': 'Find the change and divide by the original.', 'hint2': '10 ÷ 40 × 100 = 25%.'},
+        {'title': 'Second Percent Decrease', 'kind': 'Percent Change', 'story': 'A sports statistic drops from 80 to 60.', 'old': 80, 'new': 60, 'question': 'What is the percent change?', 'answer': -25.0, 'direction': 'decrease', 'unit': '%', 'hint1': 'Find new − old and divide by old.', 'hint2': '−20 ÷ 80 × 100 = −25%.'},
+        {'title': 'Second Percent Of', 'kind': 'Percent Of', 'story': 'Find 30% of a sports total of 200.', 'percent': 30, 'base': 200, 'question': 'How much is 30% of the total?', 'answer': 60.0, 'unit': 'units', 'hint1': 'Convert 30% to 0.30 and multiply.', 'hint2': '0.30 × 200 = 60.'},
+        {'title': 'Second Discount', 'kind': 'Discount', 'story': 'A sports item costs $100 and is discounted 20%.', 'percent': 20, 'base': 100, 'question': 'What is the sale price?', 'answer': 80.0, 'unit': 'dollars', 'hint1': 'Find the discount and subtract it.', 'hint2': '20% of 100 is 20, so the sale price is 80.'},
+        {'title': 'Goal Completion Percent', 'kind': 'Percent', 'story': 'A player completes 42 of 60 target actions.', 'part': 42, 'whole': 60, 'question': 'What percent of the goal was completed?', 'answer': 70.0, 'unit': '%', 'hint1': 'Use completed ÷ target × 100.', 'hint2': '42 ÷ 60 × 100 = 70%.'},
+],
     "Formula 1": [
         {
             "title": "Race Finish Percentage",
@@ -3472,7 +3633,14 @@ PERCENT_CASES = {
             "hint1": "Find 30% of 50 and subtract it.",
             "hint2": "0.30 × 50 = 15; 50 − 15 = 35."
         },
-    ],
+    
+        {'title': 'Second Success Percentage', 'kind': 'Percent', 'story': 'A sports sample has 18 successes in 24 attempts.', 'part': 18, 'whole': 24, 'question': 'What percent were successful?', 'answer': 75.0, 'unit': '%', 'hint1': 'Use part ÷ whole × 100.', 'hint2': '18 ÷ 24 × 100 = 75%.'},
+        {'title': 'Second Percent Increase', 'kind': 'Percent Change', 'story': 'A sports statistic rises from 40 to 50.', 'old': 40, 'new': 50, 'question': 'What is the percent change?', 'answer': 25.0, 'direction': 'increase', 'unit': '%', 'hint1': 'Find the change and divide by the original.', 'hint2': '10 ÷ 40 × 100 = 25%.'},
+        {'title': 'Second Percent Decrease', 'kind': 'Percent Change', 'story': 'A sports statistic drops from 80 to 60.', 'old': 80, 'new': 60, 'question': 'What is the percent change?', 'answer': -25.0, 'direction': 'decrease', 'unit': '%', 'hint1': 'Find new − old and divide by old.', 'hint2': '−20 ÷ 80 × 100 = −25%.'},
+        {'title': 'Second Percent Of', 'kind': 'Percent Of', 'story': 'Find 30% of a sports total of 200.', 'percent': 30, 'base': 200, 'question': 'How much is 30% of the total?', 'answer': 60.0, 'unit': 'units', 'hint1': 'Convert 30% to 0.30 and multiply.', 'hint2': '0.30 × 200 = 60.'},
+        {'title': 'Second Discount', 'kind': 'Discount', 'story': 'A sports item costs $100 and is discounted 20%.', 'percent': 20, 'base': 100, 'question': 'What is the sale price?', 'answer': 80.0, 'unit': 'dollars', 'hint1': 'Find the discount and subtract it.', 'hint2': '20% of 100 is 20, so the sale price is 80.'},
+        {'title': 'Goal Completion Percent', 'kind': 'Percent', 'story': 'A player completes 42 of 60 target actions.', 'part': 42, 'whole': 60, 'question': 'What percent of the goal was completed?', 'answer': 70.0, 'unit': '%', 'hint1': 'Use completed ÷ target × 100.', 'hint2': '42 ÷ 60 × 100 = 70%.'},
+],
 }
 
 def percent_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None, generated_case=None):
@@ -3690,7 +3858,14 @@ RATIONAL_CASES = {
             "hint1": "Change = new value − old value.",
             "hint2": "4.8 − 5.4 = −0.6."
         },
-    ],
+    
+        {'title': 'Second Signed Addition', 'kind': 'Integer Addition', 'story': 'A sports value gains 8, then loses 13.', 'expression': '8 + (-13)', 'answer': -5, 'unit': 'units', 'question': 'What is the net change?', 'hint1': 'A loss is negative.', 'hint2': '8 + (−13) = −5.'},
+        {'title': 'Second Signed Subtraction', 'kind': 'Integer Subtraction', 'story': 'Compare a sports value of 21 with a value of 29.', 'expression': '21 - 29', 'answer': -8, 'unit': 'units', 'question': 'What is the signed difference?', 'hint1': 'Subtract in the order shown.', 'hint2': '21 − 29 = −8.'},
+        {'title': 'Second Decimal Addition', 'kind': 'Decimal Addition', 'story': 'A sports metric changes by +4.6 and then −1.9.', 'expression': '4.6 + (-1.9)', 'answer': 2.7, 'unit': 'units', 'question': 'What is the final value?', 'hint1': 'Adding a negative is subtraction.', 'hint2': '4.6 − 1.9 = 2.7.'},
+        {'title': 'Second Decimal Difference', 'kind': 'Decimal Difference', 'story': 'Two sports measurements are 8.4 and 6.7.', 'expression': '8.4 - 6.7', 'answer': 1.7, 'unit': 'units', 'question': 'What is the difference?', 'hint1': 'Subtract the smaller from the larger.', 'hint2': '8.4 − 6.7 = 1.7.'},
+        {'title': 'Second Net Result', 'kind': 'Signed Difference', 'story': 'A team has 12 positive units and 17 negative units.', 'expression': '12 - 17', 'answer': -5, 'unit': 'units', 'question': 'What is the net result?', 'hint1': 'The negative amount is larger.', 'hint2': '12 − 17 = −5.'},
+        {'title': 'Multiple Signed Changes', 'kind': 'Integer Addition', 'story': 'A sports value changes by +6, −4, and +9.', 'expression': '6 + (-4) + 9', 'answer': 11, 'unit': 'units', 'question': 'What is the final value?', 'hint1': 'Work through the changes in order.', 'hint2': '6 − 4 + 9 = 11.'},
+],
     "NBA": [
         {
             "title": "Plus-Minus Swing",
@@ -3758,7 +3933,14 @@ RATIONAL_CASES = {
             "hint1": "Compare the two point values.",
             "hint2": "2 − 1 = 1."
         },
-    ],
+    
+        {'title': 'Second Signed Addition', 'kind': 'Integer Addition', 'story': 'A sports value gains 8, then loses 13.', 'expression': '8 + (-13)', 'answer': -5, 'unit': 'units', 'question': 'What is the net change?', 'hint1': 'A loss is negative.', 'hint2': '8 + (−13) = −5.'},
+        {'title': 'Second Signed Subtraction', 'kind': 'Integer Subtraction', 'story': 'Compare a sports value of 21 with a value of 29.', 'expression': '21 - 29', 'answer': -8, 'unit': 'units', 'question': 'What is the signed difference?', 'hint1': 'Subtract in the order shown.', 'hint2': '21 − 29 = −8.'},
+        {'title': 'Second Decimal Addition', 'kind': 'Decimal Addition', 'story': 'A sports metric changes by +4.6 and then −1.9.', 'expression': '4.6 + (-1.9)', 'answer': 2.7, 'unit': 'units', 'question': 'What is the final value?', 'hint1': 'Adding a negative is subtraction.', 'hint2': '4.6 − 1.9 = 2.7.'},
+        {'title': 'Second Decimal Difference', 'kind': 'Decimal Difference', 'story': 'Two sports measurements are 8.4 and 6.7.', 'expression': '8.4 - 6.7', 'answer': 1.7, 'unit': 'units', 'question': 'What is the difference?', 'hint1': 'Subtract the smaller from the larger.', 'hint2': '8.4 − 6.7 = 1.7.'},
+        {'title': 'Second Net Result', 'kind': 'Signed Difference', 'story': 'A team has 12 positive units and 17 negative units.', 'expression': '12 - 17', 'answer': -5, 'unit': 'units', 'question': 'What is the net result?', 'hint1': 'The negative amount is larger.', 'hint2': '12 − 17 = −5.'},
+        {'title': 'Multiple Signed Changes', 'kind': 'Integer Addition', 'story': 'A sports value changes by +6, −4, and +9.', 'expression': '6 + (-4) + 9', 'answer': 11, 'unit': 'units', 'question': 'What is the final value?', 'hint1': 'Work through the changes in order.', 'hint2': '6 − 4 + 9 = 11.'},
+],
     "MLB": [
         {
             "title": "Run Differential",
@@ -3826,7 +4008,14 @@ RATIONAL_CASES = {
             "hint1": "Forward movement is positive; backward movement reduces it.",
             "hint2": "3 − 1 = 2."
         },
-    ],
+    
+        {'title': 'Second Signed Addition', 'kind': 'Integer Addition', 'story': 'A sports value gains 8, then loses 13.', 'expression': '8 + (-13)', 'answer': -5, 'unit': 'units', 'question': 'What is the net change?', 'hint1': 'A loss is negative.', 'hint2': '8 + (−13) = −5.'},
+        {'title': 'Second Signed Subtraction', 'kind': 'Integer Subtraction', 'story': 'Compare a sports value of 21 with a value of 29.', 'expression': '21 - 29', 'answer': -8, 'unit': 'units', 'question': 'What is the signed difference?', 'hint1': 'Subtract in the order shown.', 'hint2': '21 − 29 = −8.'},
+        {'title': 'Second Decimal Addition', 'kind': 'Decimal Addition', 'story': 'A sports metric changes by +4.6 and then −1.9.', 'expression': '4.6 + (-1.9)', 'answer': 2.7, 'unit': 'units', 'question': 'What is the final value?', 'hint1': 'Adding a negative is subtraction.', 'hint2': '4.6 − 1.9 = 2.7.'},
+        {'title': 'Second Decimal Difference', 'kind': 'Decimal Difference', 'story': 'Two sports measurements are 8.4 and 6.7.', 'expression': '8.4 - 6.7', 'answer': 1.7, 'unit': 'units', 'question': 'What is the difference?', 'hint1': 'Subtract the smaller from the larger.', 'hint2': '8.4 − 6.7 = 1.7.'},
+        {'title': 'Second Net Result', 'kind': 'Signed Difference', 'story': 'A team has 12 positive units and 17 negative units.', 'expression': '12 - 17', 'answer': -5, 'unit': 'units', 'question': 'What is the net result?', 'hint1': 'The negative amount is larger.', 'hint2': '12 − 17 = −5.'},
+        {'title': 'Multiple Signed Changes', 'kind': 'Integer Addition', 'story': 'A sports value changes by +6, −4, and +9.', 'expression': '6 + (-4) + 9', 'answer': 11, 'unit': 'units', 'question': 'What is the final value?', 'hint1': 'Work through the changes in order.', 'hint2': '6 − 4 + 9 = 11.'},
+],
     "NHL": [
         {
             "title": "Plus-Minus Total",
@@ -3894,7 +4083,14 @@ RATIONAL_CASES = {
             "hint1": "Subtract the smaller time from the larger.",
             "hint2": "21.5 − 18.75 = 2.75."
         },
-    ],
+    
+        {'title': 'Second Signed Addition', 'kind': 'Integer Addition', 'story': 'A sports value gains 8, then loses 13.', 'expression': '8 + (-13)', 'answer': -5, 'unit': 'units', 'question': 'What is the net change?', 'hint1': 'A loss is negative.', 'hint2': '8 + (−13) = −5.'},
+        {'title': 'Second Signed Subtraction', 'kind': 'Integer Subtraction', 'story': 'Compare a sports value of 21 with a value of 29.', 'expression': '21 - 29', 'answer': -8, 'unit': 'units', 'question': 'What is the signed difference?', 'hint1': 'Subtract in the order shown.', 'hint2': '21 − 29 = −8.'},
+        {'title': 'Second Decimal Addition', 'kind': 'Decimal Addition', 'story': 'A sports metric changes by +4.6 and then −1.9.', 'expression': '4.6 + (-1.9)', 'answer': 2.7, 'unit': 'units', 'question': 'What is the final value?', 'hint1': 'Adding a negative is subtraction.', 'hint2': '4.6 − 1.9 = 2.7.'},
+        {'title': 'Second Decimal Difference', 'kind': 'Decimal Difference', 'story': 'Two sports measurements are 8.4 and 6.7.', 'expression': '8.4 - 6.7', 'answer': 1.7, 'unit': 'units', 'question': 'What is the difference?', 'hint1': 'Subtract the smaller from the larger.', 'hint2': '8.4 − 6.7 = 1.7.'},
+        {'title': 'Second Net Result', 'kind': 'Signed Difference', 'story': 'A team has 12 positive units and 17 negative units.', 'expression': '12 - 17', 'answer': -5, 'unit': 'units', 'question': 'What is the net result?', 'hint1': 'The negative amount is larger.', 'hint2': '12 − 17 = −5.'},
+        {'title': 'Multiple Signed Changes', 'kind': 'Integer Addition', 'story': 'A sports value changes by +6, −4, and +9.', 'expression': '6 + (-4) + 9', 'answer': 11, 'unit': 'units', 'question': 'What is the final value?', 'hint1': 'Work through the changes in order.', 'hint2': '6 − 4 + 9 = 11.'},
+],
     "Soccer": [
         {
             "title": "Goal Differential",
@@ -3962,7 +4158,14 @@ RATIONAL_CASES = {
             "hint1": "Subtract the smaller rating from the larger.",
             "hint2": "8.2 − 6.9 = 1.3."
         },
-    ],
+    
+        {'title': 'Second Signed Addition', 'kind': 'Integer Addition', 'story': 'A sports value gains 8, then loses 13.', 'expression': '8 + (-13)', 'answer': -5, 'unit': 'units', 'question': 'What is the net change?', 'hint1': 'A loss is negative.', 'hint2': '8 + (−13) = −5.'},
+        {'title': 'Second Signed Subtraction', 'kind': 'Integer Subtraction', 'story': 'Compare a sports value of 21 with a value of 29.', 'expression': '21 - 29', 'answer': -8, 'unit': 'units', 'question': 'What is the signed difference?', 'hint1': 'Subtract in the order shown.', 'hint2': '21 − 29 = −8.'},
+        {'title': 'Second Decimal Addition', 'kind': 'Decimal Addition', 'story': 'A sports metric changes by +4.6 and then −1.9.', 'expression': '4.6 + (-1.9)', 'answer': 2.7, 'unit': 'units', 'question': 'What is the final value?', 'hint1': 'Adding a negative is subtraction.', 'hint2': '4.6 − 1.9 = 2.7.'},
+        {'title': 'Second Decimal Difference', 'kind': 'Decimal Difference', 'story': 'Two sports measurements are 8.4 and 6.7.', 'expression': '8.4 - 6.7', 'answer': 1.7, 'unit': 'units', 'question': 'What is the difference?', 'hint1': 'Subtract the smaller from the larger.', 'hint2': '8.4 − 6.7 = 1.7.'},
+        {'title': 'Second Net Result', 'kind': 'Signed Difference', 'story': 'A team has 12 positive units and 17 negative units.', 'expression': '12 - 17', 'answer': -5, 'unit': 'units', 'question': 'What is the net result?', 'hint1': 'The negative amount is larger.', 'hint2': '12 − 17 = −5.'},
+        {'title': 'Multiple Signed Changes', 'kind': 'Integer Addition', 'story': 'A sports value changes by +6, −4, and +9.', 'expression': '6 + (-4) + 9', 'answer': 11, 'unit': 'units', 'question': 'What is the final value?', 'hint1': 'Work through the changes in order.', 'hint2': '6 − 4 + 9 = 11.'},
+],
     "Formula 1": [
         {
             "title": "Grid Position Change",
@@ -4030,7 +4233,14 @@ RATIONAL_CASES = {
             "hint1": "Subtract the shorter time from the longer.",
             "hint2": "3.1 − 2.4 = 0.7."
         },
-    ],
+    
+        {'title': 'Second Signed Addition', 'kind': 'Integer Addition', 'story': 'A sports value gains 8, then loses 13.', 'expression': '8 + (-13)', 'answer': -5, 'unit': 'units', 'question': 'What is the net change?', 'hint1': 'A loss is negative.', 'hint2': '8 + (−13) = −5.'},
+        {'title': 'Second Signed Subtraction', 'kind': 'Integer Subtraction', 'story': 'Compare a sports value of 21 with a value of 29.', 'expression': '21 - 29', 'answer': -8, 'unit': 'units', 'question': 'What is the signed difference?', 'hint1': 'Subtract in the order shown.', 'hint2': '21 − 29 = −8.'},
+        {'title': 'Second Decimal Addition', 'kind': 'Decimal Addition', 'story': 'A sports metric changes by +4.6 and then −1.9.', 'expression': '4.6 + (-1.9)', 'answer': 2.7, 'unit': 'units', 'question': 'What is the final value?', 'hint1': 'Adding a negative is subtraction.', 'hint2': '4.6 − 1.9 = 2.7.'},
+        {'title': 'Second Decimal Difference', 'kind': 'Decimal Difference', 'story': 'Two sports measurements are 8.4 and 6.7.', 'expression': '8.4 - 6.7', 'answer': 1.7, 'unit': 'units', 'question': 'What is the difference?', 'hint1': 'Subtract the smaller from the larger.', 'hint2': '8.4 − 6.7 = 1.7.'},
+        {'title': 'Second Net Result', 'kind': 'Signed Difference', 'story': 'A team has 12 positive units and 17 negative units.', 'expression': '12 - 17', 'answer': -5, 'unit': 'units', 'question': 'What is the net result?', 'hint1': 'The negative amount is larger.', 'hint2': '12 − 17 = −5.'},
+        {'title': 'Multiple Signed Changes', 'kind': 'Integer Addition', 'story': 'A sports value changes by +6, −4, and +9.', 'expression': '6 + (-4) + 9', 'answer': 11, 'unit': 'units', 'question': 'What is the final value?', 'hint1': 'Work through the changes in order.', 'hint2': '6 − 4 + 9 = 11.'},
+],
 }
 
 def rational_numbers_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None, generated_case=None):
@@ -4235,7 +4445,14 @@ GEOMETRY_CASES = {
         {"title":"Equipment Box","kind":"Volume","story":"An equipment box is 4 feet long, 3 feet wide, and 2 feet high.","question":"What is its volume?","shape":"volume","a":4,"b":3,"c":2,"answer":24,"unit":"cubic feet"},
         {"title":"Play Diagram Scale","kind":"Scale Drawing","story":"On a play diagram, 1 inch represents 5 yards. A route measures 7 inches on the diagram.","question":"How long is the real route?","shape":"scale","a":5,"b":7,"answer":35,"unit":"yards"},
         {"title":"Sideline Angle","kind":"Angle Relationship","story":"Two adjacent angles form a straight line. One angle measures 68°.","question":"What is the other angle?","shape":"supplement","a":68,"answer":112,"unit":"degrees"},
-    ],
+    
+        {'title': 'Second Circle Area', 'kind': 'Circle Area', 'story': 'A circular sports zone has a radius of 11 units.', 'question': 'What is its area?', 'shape': 'circle_area', 'a': 11, 'answer': 380.132711084365, 'unit': 'square units'},
+        {'title': 'Second Circumference', 'kind': 'Circumference', 'story': 'A circular sports marker has a diameter of 14 units.', 'question': 'What is its circumference?', 'shape': 'circumference_d', 'a': 14, 'answer': 43.982297150257104, 'unit': 'units'},
+        {'title': 'Second Rectangle Area', 'kind': 'Rectangle Area', 'story': 'A rectangular sports zone is 20 units by 8 units.', 'question': 'What is its area?', 'shape': 'rectangle', 'a': 20, 'b': 8, 'answer': 160, 'unit': 'square units'},
+        {'title': 'Second Volume', 'kind': 'Volume', 'story': 'A sports storage box measures 6 by 4 by 3 units.', 'question': 'What is its volume?', 'shape': 'volume', 'a': 6, 'b': 4, 'c': 3, 'answer': 72, 'unit': 'cubic units'},
+        {'title': 'Second Scale Drawing', 'kind': 'Scale Drawing', 'story': 'On a sports diagram, 1 unit represents 15 real units and a route measures 6 drawing units.', 'question': 'What is the real distance?', 'shape': 'scale', 'a': 15, 'b': 6, 'answer': 90, 'unit': 'units'},
+        {'title': 'Second Angle Relationship', 'kind': 'Angle Relationship', 'story': 'Two angles in a sports diagram are complementary.', 'question': 'What is the missing angle?', 'shape': 'complement', 'a': 34, 'answer': 56, 'unit': 'degrees'},
+],
     "NBA": [
         {"title":"Center-Court Circle","kind":"Circle Area","story":"A circular center-court design has a radius of 6 feet.","question":"What is the area of the circle?","shape":"circle_area","a":6,"answer":math.pi*6**2,"unit":"square feet"},
         {"title":"Training Hoop","kind":"Circumference","story":"A circular training target has a diameter of 3 feet.","question":"What is its circumference?","shape":"circumference_d","a":3,"answer":math.pi*3,"unit":"feet"},
@@ -4243,7 +4460,14 @@ GEOMETRY_CASES = {
         {"title":"Ball Storage Crate","kind":"Volume","story":"A basketball storage crate is 5 feet long, 2 feet wide, and 3 feet high.","question":"What is its volume?","shape":"volume","a":5,"b":2,"c":3,"answer":30,"unit":"cubic feet"},
         {"title":"Court Diagram Scale","kind":"Scale Drawing","story":"On a court diagram, 1 inch represents 8 feet. A passing lane is 4.5 inches long.","question":"How long is it on the real court?","shape":"scale","a":8,"b":4.5,"answer":36,"unit":"feet"},
         {"title":"Passing Angle","kind":"Angle Relationship","story":"Two angles are complementary. One angle is 37°.","question":"What is the other angle?","shape":"complement","a":37,"answer":53,"unit":"degrees"},
-    ],
+    
+        {'title': 'Second Circle Area', 'kind': 'Circle Area', 'story': 'A circular sports zone has a radius of 11 units.', 'question': 'What is its area?', 'shape': 'circle_area', 'a': 11, 'answer': 380.132711084365, 'unit': 'square units'},
+        {'title': 'Second Circumference', 'kind': 'Circumference', 'story': 'A circular sports marker has a diameter of 14 units.', 'question': 'What is its circumference?', 'shape': 'circumference_d', 'a': 14, 'answer': 43.982297150257104, 'unit': 'units'},
+        {'title': 'Second Rectangle Area', 'kind': 'Rectangle Area', 'story': 'A rectangular sports zone is 20 units by 8 units.', 'question': 'What is its area?', 'shape': 'rectangle', 'a': 20, 'b': 8, 'answer': 160, 'unit': 'square units'},
+        {'title': 'Second Volume', 'kind': 'Volume', 'story': 'A sports storage box measures 6 by 4 by 3 units.', 'question': 'What is its volume?', 'shape': 'volume', 'a': 6, 'b': 4, 'c': 3, 'answer': 72, 'unit': 'cubic units'},
+        {'title': 'Second Scale Drawing', 'kind': 'Scale Drawing', 'story': 'On a sports diagram, 1 unit represents 15 real units and a route measures 6 drawing units.', 'question': 'What is the real distance?', 'shape': 'scale', 'a': 15, 'b': 6, 'answer': 90, 'unit': 'units'},
+        {'title': 'Second Angle Relationship', 'kind': 'Angle Relationship', 'story': 'Two angles in a sports diagram are complementary.', 'question': 'What is the missing angle?', 'shape': 'complement', 'a': 34, 'answer': 56, 'unit': 'degrees'},
+],
     "MLB": [
         {"title":"On-Deck Circle","kind":"Circle Area","story":"An on-deck training circle has a radius of 5 feet.","question":"What is its area?","shape":"circle_area","a":5,"answer":math.pi*5**2,"unit":"square feet"},
         {"title":"Batting Circle Edge","kind":"Circumference","story":"A circular batting-practice marker has a diameter of 10 feet.","question":"What is its circumference?","shape":"circumference_d","a":10,"answer":math.pi*10,"unit":"feet"},
@@ -4251,7 +4475,14 @@ GEOMETRY_CASES = {
         {"title":"Baseball Storage Bin","kind":"Volume","story":"A storage bin is 4 feet long, 2.5 feet wide, and 2 feet high.","question":"What is its volume?","shape":"volume","a":4,"b":2.5,"c":2,"answer":20,"unit":"cubic feet"},
         {"title":"Ballpark Map","kind":"Scale Drawing","story":"On a ballpark map, 1 inch represents 20 feet. A walkway measures 6 inches.","question":"How long is the real walkway?","shape":"scale","a":20,"b":6,"answer":120,"unit":"feet"},
         {"title":"Foul-Line Angle","kind":"Angle Relationship","story":"Two adjacent angles form a straight line. One angle is 74°.","question":"What is the other angle?","shape":"supplement","a":74,"answer":106,"unit":"degrees"},
-    ],
+    
+        {'title': 'Second Circle Area', 'kind': 'Circle Area', 'story': 'A circular sports zone has a radius of 11 units.', 'question': 'What is its area?', 'shape': 'circle_area', 'a': 11, 'answer': 380.132711084365, 'unit': 'square units'},
+        {'title': 'Second Circumference', 'kind': 'Circumference', 'story': 'A circular sports marker has a diameter of 14 units.', 'question': 'What is its circumference?', 'shape': 'circumference_d', 'a': 14, 'answer': 43.982297150257104, 'unit': 'units'},
+        {'title': 'Second Rectangle Area', 'kind': 'Rectangle Area', 'story': 'A rectangular sports zone is 20 units by 8 units.', 'question': 'What is its area?', 'shape': 'rectangle', 'a': 20, 'b': 8, 'answer': 160, 'unit': 'square units'},
+        {'title': 'Second Volume', 'kind': 'Volume', 'story': 'A sports storage box measures 6 by 4 by 3 units.', 'question': 'What is its volume?', 'shape': 'volume', 'a': 6, 'b': 4, 'c': 3, 'answer': 72, 'unit': 'cubic units'},
+        {'title': 'Second Scale Drawing', 'kind': 'Scale Drawing', 'story': 'On a sports diagram, 1 unit represents 15 real units and a route measures 6 drawing units.', 'question': 'What is the real distance?', 'shape': 'scale', 'a': 15, 'b': 6, 'answer': 90, 'unit': 'units'},
+        {'title': 'Second Angle Relationship', 'kind': 'Angle Relationship', 'story': 'Two angles in a sports diagram are complementary.', 'question': 'What is the missing angle?', 'shape': 'complement', 'a': 34, 'answer': 56, 'unit': 'degrees'},
+],
     "NHL": [
         {"title":"Faceoff Circle","kind":"Circle Area","story":"A practice faceoff circle has a radius of 15 feet.","question":"What is its area?","shape":"circle_area","a":15,"answer":math.pi*15**2,"unit":"square feet"},
         {"title":"Goal-Crease Arc","kind":"Circumference","story":"A circular training marking has a diameter of 8 feet.","question":"What is its circumference?","shape":"circumference_d","a":8,"answer":math.pi*8,"unit":"feet"},
@@ -4259,7 +4490,14 @@ GEOMETRY_CASES = {
         {"title":"Puck Storage Box","kind":"Volume","story":"A puck box is 3 feet long, 2 feet wide, and 1.5 feet high.","question":"What is its volume?","shape":"volume","a":3,"b":2,"c":1.5,"answer":9,"unit":"cubic feet"},
         {"title":"Rink Diagram Scale","kind":"Scale Drawing","story":"On a rink diagram, 1 inch represents 10 feet. A skating path measures 7.5 inches.","question":"How long is the real skating path?","shape":"scale","a":10,"b":7.5,"answer":75,"unit":"feet"},
         {"title":"Passing Lane Angle","kind":"Angle Relationship","story":"Two angles are complementary. One measures 42°.","question":"What is the other angle?","shape":"complement","a":42,"answer":48,"unit":"degrees"},
-    ],
+    
+        {'title': 'Second Circle Area', 'kind': 'Circle Area', 'story': 'A circular sports zone has a radius of 11 units.', 'question': 'What is its area?', 'shape': 'circle_area', 'a': 11, 'answer': 380.132711084365, 'unit': 'square units'},
+        {'title': 'Second Circumference', 'kind': 'Circumference', 'story': 'A circular sports marker has a diameter of 14 units.', 'question': 'What is its circumference?', 'shape': 'circumference_d', 'a': 14, 'answer': 43.982297150257104, 'unit': 'units'},
+        {'title': 'Second Rectangle Area', 'kind': 'Rectangle Area', 'story': 'A rectangular sports zone is 20 units by 8 units.', 'question': 'What is its area?', 'shape': 'rectangle', 'a': 20, 'b': 8, 'answer': 160, 'unit': 'square units'},
+        {'title': 'Second Volume', 'kind': 'Volume', 'story': 'A sports storage box measures 6 by 4 by 3 units.', 'question': 'What is its volume?', 'shape': 'volume', 'a': 6, 'b': 4, 'c': 3, 'answer': 72, 'unit': 'cubic units'},
+        {'title': 'Second Scale Drawing', 'kind': 'Scale Drawing', 'story': 'On a sports diagram, 1 unit represents 15 real units and a route measures 6 drawing units.', 'question': 'What is the real distance?', 'shape': 'scale', 'a': 15, 'b': 6, 'answer': 90, 'unit': 'units'},
+        {'title': 'Second Angle Relationship', 'kind': 'Angle Relationship', 'story': 'Two angles in a sports diagram are complementary.', 'question': 'What is the missing angle?', 'shape': 'complement', 'a': 34, 'answer': 56, 'unit': 'degrees'},
+],
     "Soccer": [
         {"title":"Center Circle","kind":"Circle Area","story":"A circular training area has a radius of 10 yards.","question":"What is its area?","shape":"circle_area","a":10,"answer":math.pi*10**2,"unit":"square yards"},
         {"title":"Training Circle Border","kind":"Circumference","story":"A circular drill area has a diameter of 18 yards.","question":"What is its circumference?","shape":"circumference_d","a":18,"answer":math.pi*18,"unit":"yards"},
@@ -4267,7 +4505,14 @@ GEOMETRY_CASES = {
         {"title":"Equipment Crate","kind":"Volume","story":"A soccer equipment crate is 5 feet long, 3 feet wide, and 2 feet high.","question":"What is its volume?","shape":"volume","a":5,"b":3,"c":2,"answer":30,"unit":"cubic feet"},
         {"title":"Field Diagram Scale","kind":"Scale Drawing","story":"On a field diagram, 1 inch represents 12 yards. A run measures 5.5 inches.","question":"How long is the actual run?","shape":"scale","a":12,"b":5.5,"answer":66,"unit":"yards"},
         {"title":"Corner-Kick Angle","kind":"Angle Relationship","story":"Two adjacent angles form a straight line. One angle measures 63°.","question":"What is the other angle?","shape":"supplement","a":63,"answer":117,"unit":"degrees"},
-    ],
+    
+        {'title': 'Second Circle Area', 'kind': 'Circle Area', 'story': 'A circular sports zone has a radius of 11 units.', 'question': 'What is its area?', 'shape': 'circle_area', 'a': 11, 'answer': 380.132711084365, 'unit': 'square units'},
+        {'title': 'Second Circumference', 'kind': 'Circumference', 'story': 'A circular sports marker has a diameter of 14 units.', 'question': 'What is its circumference?', 'shape': 'circumference_d', 'a': 14, 'answer': 43.982297150257104, 'unit': 'units'},
+        {'title': 'Second Rectangle Area', 'kind': 'Rectangle Area', 'story': 'A rectangular sports zone is 20 units by 8 units.', 'question': 'What is its area?', 'shape': 'rectangle', 'a': 20, 'b': 8, 'answer': 160, 'unit': 'square units'},
+        {'title': 'Second Volume', 'kind': 'Volume', 'story': 'A sports storage box measures 6 by 4 by 3 units.', 'question': 'What is its volume?', 'shape': 'volume', 'a': 6, 'b': 4, 'c': 3, 'answer': 72, 'unit': 'cubic units'},
+        {'title': 'Second Scale Drawing', 'kind': 'Scale Drawing', 'story': 'On a sports diagram, 1 unit represents 15 real units and a route measures 6 drawing units.', 'question': 'What is the real distance?', 'shape': 'scale', 'a': 15, 'b': 6, 'answer': 90, 'unit': 'units'},
+        {'title': 'Second Angle Relationship', 'kind': 'Angle Relationship', 'story': 'Two angles in a sports diagram are complementary.', 'question': 'What is the missing angle?', 'shape': 'complement', 'a': 34, 'answer': 56, 'unit': 'degrees'},
+],
     "Formula 1": [
         {"title":"Circular Test Pad","kind":"Circle Area","story":"A circular test pad has a radius of 20 meters.","question":"What is its area?","shape":"circle_area","a":20,"answer":math.pi*20**2,"unit":"square meters"},
         {"title":"Tire Training Ring","kind":"Circumference","story":"A circular training ring has a diameter of 2 meters.","question":"What is its circumference?","shape":"circumference_d","a":2,"answer":math.pi*2,"unit":"meters"},
@@ -4275,7 +4520,14 @@ GEOMETRY_CASES = {
         {"title":"Parts Container","kind":"Volume","story":"A parts container is 3 meters long, 2 meters wide, and 1.5 meters high.","question":"What is its volume?","shape":"volume","a":3,"b":2,"c":1.5,"answer":9,"unit":"cubic meters"},
         {"title":"Track Map Scale","kind":"Scale Drawing","story":"On a track map, 1 centimeter represents 200 meters. A straight measures 3.5 centimeters.","question":"How long is the real straight?","shape":"scale","a":200,"b":3.5,"answer":700,"unit":"meters"},
         {"title":"Turn Angle","kind":"Angle Relationship","story":"Two angles are complementary. One angle measures 28°.","question":"What is the other angle?","shape":"complement","a":28,"answer":62,"unit":"degrees"},
-    ],
+    
+        {'title': 'Second Circle Area', 'kind': 'Circle Area', 'story': 'A circular sports zone has a radius of 11 units.', 'question': 'What is its area?', 'shape': 'circle_area', 'a': 11, 'answer': 380.132711084365, 'unit': 'square units'},
+        {'title': 'Second Circumference', 'kind': 'Circumference', 'story': 'A circular sports marker has a diameter of 14 units.', 'question': 'What is its circumference?', 'shape': 'circumference_d', 'a': 14, 'answer': 43.982297150257104, 'unit': 'units'},
+        {'title': 'Second Rectangle Area', 'kind': 'Rectangle Area', 'story': 'A rectangular sports zone is 20 units by 8 units.', 'question': 'What is its area?', 'shape': 'rectangle', 'a': 20, 'b': 8, 'answer': 160, 'unit': 'square units'},
+        {'title': 'Second Volume', 'kind': 'Volume', 'story': 'A sports storage box measures 6 by 4 by 3 units.', 'question': 'What is its volume?', 'shape': 'volume', 'a': 6, 'b': 4, 'c': 3, 'answer': 72, 'unit': 'cubic units'},
+        {'title': 'Second Scale Drawing', 'kind': 'Scale Drawing', 'story': 'On a sports diagram, 1 unit represents 15 real units and a route measures 6 drawing units.', 'question': 'What is the real distance?', 'shape': 'scale', 'a': 15, 'b': 6, 'answer': 90, 'unit': 'units'},
+        {'title': 'Second Angle Relationship', 'kind': 'Angle Relationship', 'story': 'Two angles in a sports diagram are complementary.', 'question': 'What is the missing angle?', 'shape': 'complement', 'a': 34, 'answer': 56, 'unit': 'degrees'},
+],
 }
 
 def geometry_tolerance(case):
@@ -4474,7 +4726,14 @@ STATISTICS_CASES = {
         {"title":"Consistency Check","kind":"Spread","mode":"range","a":[17,20,21,19,23],"b":[10,18,24,28,20],"question":"Which sample is more consistent based on range?"},
         {"title":"Season Claim","kind":"Claim Check","mode":"claim","story":"A player scored 100+ rushing yards in 4 of 5 sampled games.","sample":5,"success":4,"question":"Does this sample support the claim that the player usually reaches 100 rushing yards?"},
         {"title":"Random Sample Method","kind":"Sampling Method","mode":"method","story":"A coach wants a fair sample of students' favorite NFL teams.","correct":"Randomly select students from the full class list","question":"Which method would be most representative?"}
-    ],
+    ,
+        {'title': 'Second Population Prediction', 'kind': 'Sampling', 'mode': 'sample', 'story': 'Use a random sports sample to estimate a larger population.', 'sample': 25, 'success': 15, 'population': 500, 'question': 'About how many in the larger group would you predict?'},
+        {'title': 'Convenience Sample Bias', 'kind': 'Sampling Bias', 'mode': 'bias', 'story': 'A sports survey asks only the easiest people to reach.', 'correct': 'Biased', 'question': 'Is this sample representative or biased?'},
+        {'title': 'Second Mean Comparison', 'kind': 'Compare Samples', 'mode': 'compare_means', 'a': [12, 14, 16, 15, 13], 'b': [18, 20, 19, 21, 17], 'question': 'Which sample has the higher mean?'},
+        {'title': 'Second Range Comparison', 'kind': 'Spread', 'mode': 'range', 'a': [20, 21, 19, 20, 20], 'b': [14, 18, 23, 26, 19], 'question': 'Which sample is more consistent based on range?'},
+        {'title': 'Second Claim Check', 'kind': 'Claim Check', 'mode': 'claim', 'story': 'A sports condition occurred in 11 of 15 sampled events.', 'sample': 15, 'success': 11, 'question': 'Does this sample support the claim that the event usually happens?'},
+        {'title': 'Second Representative Method', 'kind': 'Sampling Method', 'mode': 'method', 'story': 'Choose a sampling method that fairly represents a sports population.', 'correct': 'Randomly select people from several different parts of the population', 'question': 'Which method would be most representative?'},
+],
     "NBA": [
         {"title":"Favorite Player Survey","kind":"Sampling","mode":"sample","story":"A school surveys 30 randomly selected students, and 18 choose the same favorite NBA player.","sample":30,"success":18,"population":300,"question":"About how many of 300 students would you predict would choose that player?"},
         {"title":"Student Section Bias","kind":"Sampling Bias","mode":"bias","story":"A basketball team asks only students sitting in the home student section whether home games are exciting.","correct":"Biased","question":"Is this sample likely representative or biased?"},
@@ -4482,7 +4741,14 @@ STATISTICS_CASES = {
         {"title":"Scoring Consistency","kind":"Spread","mode":"range","a":[19,20,21,20,20],"b":[12,18,24,28,18],"question":"Which player is more consistent based on range?"},
         {"title":"Three-Point Claim","kind":"Claim Check","mode":"claim","story":"A player made at least 3 three-pointers in 8 of 10 sampled games.","sample":10,"success":8,"question":"Does this sample support the claim that the player usually makes at least 3 threes?"},
         {"title":"Fair Survey Method","kind":"Sampling Method","mode":"method","story":"A teacher wants a fair sample of students' favorite NBA teams.","correct":"Randomly select students from the entire grade","question":"Which method would be most representative?"}
-    ],
+    ,
+        {'title': 'Second Population Prediction', 'kind': 'Sampling', 'mode': 'sample', 'story': 'Use a random sports sample to estimate a larger population.', 'sample': 25, 'success': 15, 'population': 500, 'question': 'About how many in the larger group would you predict?'},
+        {'title': 'Convenience Sample Bias', 'kind': 'Sampling Bias', 'mode': 'bias', 'story': 'A sports survey asks only the easiest people to reach.', 'correct': 'Biased', 'question': 'Is this sample representative or biased?'},
+        {'title': 'Second Mean Comparison', 'kind': 'Compare Samples', 'mode': 'compare_means', 'a': [12, 14, 16, 15, 13], 'b': [18, 20, 19, 21, 17], 'question': 'Which sample has the higher mean?'},
+        {'title': 'Second Range Comparison', 'kind': 'Spread', 'mode': 'range', 'a': [20, 21, 19, 20, 20], 'b': [14, 18, 23, 26, 19], 'question': 'Which sample is more consistent based on range?'},
+        {'title': 'Second Claim Check', 'kind': 'Claim Check', 'mode': 'claim', 'story': 'A sports condition occurred in 11 of 15 sampled events.', 'sample': 15, 'success': 11, 'question': 'Does this sample support the claim that the event usually happens?'},
+        {'title': 'Second Representative Method', 'kind': 'Sampling Method', 'mode': 'method', 'story': 'Choose a sampling method that fairly represents a sports population.', 'correct': 'Randomly select people from several different parts of the population', 'question': 'Which method would be most representative?'},
+],
     "MLB": [
         {"title":"Ballpark Food Survey","kind":"Sampling","mode":"sample","story":"A team surveys 20 randomly selected fans, and 13 prefer hot dogs over pizza.","sample":20,"success":13,"population":200,"question":"About how many of 200 fans would you predict would prefer hot dogs?"},
         {"title":"Season Ticket Bias","kind":"Sampling Bias","mode":"bias","story":"A baseball team surveys only season-ticket holders about whether ticket prices are affordable.","correct":"Biased","question":"Is this sample likely representative or biased?"},
@@ -4490,7 +4756,14 @@ STATISTICS_CASES = {
         {"title":"Pitching Consistency","kind":"Spread","mode":"range","a":[5,6,5,7,6],"b":[2,5,8,9,4],"question":"Which pitcher is more consistent based on range?"},
         {"title":"Hit Claim","kind":"Claim Check","mode":"claim","story":"A hitter recorded at least one hit in 9 of 12 sampled games.","sample":12,"success":9,"question":"Does this sample support the claim that the hitter usually gets a hit?"},
         {"title":"Fair Fan Sample","kind":"Sampling Method","mode":"method","story":"A team wants a fair sample of fans entering the stadium.","correct":"Select every 20th fan entering through several gates","question":"Which method would be most representative?"}
-    ],
+    ,
+        {'title': 'Second Population Prediction', 'kind': 'Sampling', 'mode': 'sample', 'story': 'Use a random sports sample to estimate a larger population.', 'sample': 25, 'success': 15, 'population': 500, 'question': 'About how many in the larger group would you predict?'},
+        {'title': 'Convenience Sample Bias', 'kind': 'Sampling Bias', 'mode': 'bias', 'story': 'A sports survey asks only the easiest people to reach.', 'correct': 'Biased', 'question': 'Is this sample representative or biased?'},
+        {'title': 'Second Mean Comparison', 'kind': 'Compare Samples', 'mode': 'compare_means', 'a': [12, 14, 16, 15, 13], 'b': [18, 20, 19, 21, 17], 'question': 'Which sample has the higher mean?'},
+        {'title': 'Second Range Comparison', 'kind': 'Spread', 'mode': 'range', 'a': [20, 21, 19, 20, 20], 'b': [14, 18, 23, 26, 19], 'question': 'Which sample is more consistent based on range?'},
+        {'title': 'Second Claim Check', 'kind': 'Claim Check', 'mode': 'claim', 'story': 'A sports condition occurred in 11 of 15 sampled events.', 'sample': 15, 'success': 11, 'question': 'Does this sample support the claim that the event usually happens?'},
+        {'title': 'Second Representative Method', 'kind': 'Sampling Method', 'mode': 'method', 'story': 'Choose a sampling method that fairly represents a sports population.', 'correct': 'Randomly select people from several different parts of the population', 'question': 'Which method would be most representative?'},
+],
     "NHL": [
         {"title":"Favorite Jersey Survey","kind":"Sampling","mode":"sample","story":"A team surveys 25 randomly selected fans, and 16 prefer the alternate jersey.","sample":25,"success":16,"population":250,"question":"About how many of 250 fans would you predict would prefer it?"},
         {"title":"Supporters Club Bias","kind":"Sampling Bias","mode":"bias","story":"A hockey team asks only members of its supporters club whether the arena atmosphere is excellent.","correct":"Biased","question":"Is this sample likely representative or biased?"},
@@ -4498,7 +4771,14 @@ STATISTICS_CASES = {
         {"title":"Save Consistency","kind":"Spread","mode":"range","a":[28,30,29,31,30],"b":[20,25,34,36,24],"question":"Which goalie is more consistent based on range?"},
         {"title":"Save Claim","kind":"Claim Check","mode":"claim","story":"A goalie saved at least 90% of shots in 7 of 9 sampled games.","sample":9,"success":7,"question":"Does this sample support the claim that the goalie usually reaches a .900 save rate?"},
         {"title":"Fair Arena Sample","kind":"Sampling Method","mode":"method","story":"A team wants to know what all arena visitors think about concessions.","correct":"Randomly survey fans from different sections and price levels","question":"Which method would be most representative?"}
-    ],
+    ,
+        {'title': 'Second Population Prediction', 'kind': 'Sampling', 'mode': 'sample', 'story': 'Use a random sports sample to estimate a larger population.', 'sample': 25, 'success': 15, 'population': 500, 'question': 'About how many in the larger group would you predict?'},
+        {'title': 'Convenience Sample Bias', 'kind': 'Sampling Bias', 'mode': 'bias', 'story': 'A sports survey asks only the easiest people to reach.', 'correct': 'Biased', 'question': 'Is this sample representative or biased?'},
+        {'title': 'Second Mean Comparison', 'kind': 'Compare Samples', 'mode': 'compare_means', 'a': [12, 14, 16, 15, 13], 'b': [18, 20, 19, 21, 17], 'question': 'Which sample has the higher mean?'},
+        {'title': 'Second Range Comparison', 'kind': 'Spread', 'mode': 'range', 'a': [20, 21, 19, 20, 20], 'b': [14, 18, 23, 26, 19], 'question': 'Which sample is more consistent based on range?'},
+        {'title': 'Second Claim Check', 'kind': 'Claim Check', 'mode': 'claim', 'story': 'A sports condition occurred in 11 of 15 sampled events.', 'sample': 15, 'success': 11, 'question': 'Does this sample support the claim that the event usually happens?'},
+        {'title': 'Second Representative Method', 'kind': 'Sampling Method', 'mode': 'method', 'story': 'Choose a sampling method that fairly represents a sports population.', 'correct': 'Randomly select people from several different parts of the population', 'question': 'Which method would be most representative?'},
+],
     "Soccer": [
         {"title":"Favorite Formation Survey","kind":"Sampling","mode":"sample","story":"A club surveys 40 randomly selected fans, and 26 prefer a 4-3-3 formation.","sample":40,"success":26,"population":400,"question":"About how many of 400 fans would you predict would prefer it?"},
         {"title":"Supporters Group Bias","kind":"Sampling Bias","mode":"bias","story":"A soccer club asks only members of one supporters group whether that group creates the best atmosphere.","correct":"Biased","question":"Is this sample likely representative or biased?"},
@@ -4506,7 +4786,14 @@ STATISTICS_CASES = {
         {"title":"Passing Consistency","kind":"Spread","mode":"range","a":[78,80,81,79,82],"b":[65,72,84,89,70],"question":"Which player is more consistent based on range?"},
         {"title":"Scoring Claim","kind":"Claim Check","mode":"claim","story":"A forward scored in 6 of 8 sampled matches.","sample":8,"success":6,"question":"Does this sample support the claim that the forward usually scores?"},
         {"title":"Fair Fan Sample","kind":"Sampling Method","mode":"method","story":"A club wants a fair sample of opinions from match-going fans.","correct":"Randomly select fans from multiple seating areas","question":"Which method would be most representative?"}
-    ],
+    ,
+        {'title': 'Second Population Prediction', 'kind': 'Sampling', 'mode': 'sample', 'story': 'Use a random sports sample to estimate a larger population.', 'sample': 25, 'success': 15, 'population': 500, 'question': 'About how many in the larger group would you predict?'},
+        {'title': 'Convenience Sample Bias', 'kind': 'Sampling Bias', 'mode': 'bias', 'story': 'A sports survey asks only the easiest people to reach.', 'correct': 'Biased', 'question': 'Is this sample representative or biased?'},
+        {'title': 'Second Mean Comparison', 'kind': 'Compare Samples', 'mode': 'compare_means', 'a': [12, 14, 16, 15, 13], 'b': [18, 20, 19, 21, 17], 'question': 'Which sample has the higher mean?'},
+        {'title': 'Second Range Comparison', 'kind': 'Spread', 'mode': 'range', 'a': [20, 21, 19, 20, 20], 'b': [14, 18, 23, 26, 19], 'question': 'Which sample is more consistent based on range?'},
+        {'title': 'Second Claim Check', 'kind': 'Claim Check', 'mode': 'claim', 'story': 'A sports condition occurred in 11 of 15 sampled events.', 'sample': 15, 'success': 11, 'question': 'Does this sample support the claim that the event usually happens?'},
+        {'title': 'Second Representative Method', 'kind': 'Sampling Method', 'mode': 'method', 'story': 'Choose a sampling method that fairly represents a sports population.', 'correct': 'Randomly select people from several different parts of the population', 'question': 'Which method would be most representative?'},
+],
     "Formula 1": [
         {"title":"Favorite Driver Survey","kind":"Sampling","mode":"sample","story":"A race event surveys 30 randomly selected fans, and 21 choose the same favorite driver.","sample":30,"success":21,"population":300,"question":"About how many of 300 fans would you predict would choose that driver?"},
         {"title":"Team Fan Bias","kind":"Sampling Bias","mode":"bias","story":"A racing team asks only visitors to its own merchandise booth whether it is the most popular team.","correct":"Biased","question":"Is this sample likely representative or biased?"},
@@ -4514,7 +4801,14 @@ STATISTICS_CASES = {
         {"title":"Lap Time Consistency","kind":"Spread","mode":"range","a":[91.2,91.5,91.3,91.4,91.2],"b":[90.8,91.1,92.0,92.4,91.0],"question":"Which driver is more consistent based on range?"},
         {"title":"Top-10 Claim","kind":"Claim Check","mode":"claim","story":"A driver finished in the top 10 in 9 of 12 sampled races.","sample":12,"success":9,"question":"Does this sample support the claim that the driver usually finishes in the top 10?"},
         {"title":"Fair Grandstand Sample","kind":"Sampling Method","mode":"method","story":"An event organizer wants a fair sample of spectators' opinions.","correct":"Randomly survey spectators from several grandstands and ticket levels","question":"Which method would be most representative?"}
-    ],
+    ,
+        {'title': 'Second Population Prediction', 'kind': 'Sampling', 'mode': 'sample', 'story': 'Use a random sports sample to estimate a larger population.', 'sample': 25, 'success': 15, 'population': 500, 'question': 'About how many in the larger group would you predict?'},
+        {'title': 'Convenience Sample Bias', 'kind': 'Sampling Bias', 'mode': 'bias', 'story': 'A sports survey asks only the easiest people to reach.', 'correct': 'Biased', 'question': 'Is this sample representative or biased?'},
+        {'title': 'Second Mean Comparison', 'kind': 'Compare Samples', 'mode': 'compare_means', 'a': [12, 14, 16, 15, 13], 'b': [18, 20, 19, 21, 17], 'question': 'Which sample has the higher mean?'},
+        {'title': 'Second Range Comparison', 'kind': 'Spread', 'mode': 'range', 'a': [20, 21, 19, 20, 20], 'b': [14, 18, 23, 26, 19], 'question': 'Which sample is more consistent based on range?'},
+        {'title': 'Second Claim Check', 'kind': 'Claim Check', 'mode': 'claim', 'story': 'A sports condition occurred in 11 of 15 sampled events.', 'sample': 15, 'success': 11, 'question': 'Does this sample support the claim that the event usually happens?'},
+        {'title': 'Second Representative Method', 'kind': 'Sampling Method', 'mode': 'method', 'story': 'Choose a sampling method that fairly represents a sports population.', 'correct': 'Randomly select people from several different parts of the population', 'question': 'Which method would be most representative?'},
+],
 }
 
 def make_dynamic_statistics_case(sport, template, previous=None):
@@ -4710,7 +5004,14 @@ EXPRESSION_CASES = {
         {"title":"Practice Rep Groups","kind":"Distributive Property","mode":"distribute"},
         {"title":"Touchdown Scoring Forms","kind":"Equivalent Expressions","mode":"equivalent"},
         {"title":"Write a Football Expression","kind":"Write Expression","mode":"write"},
-    ],
+    
+        {'title': 'Alternate Translate Situation', 'kind': 'Translate Expression', 'mode': 'translate'},
+        {'title': 'Alternate Evaluate Situation', 'kind': 'Evaluate Expression', 'mode': 'evaluate'},
+        {'title': 'Alternate Combine Like Terms', 'kind': 'Combine Like Terms', 'mode': 'combine'},
+        {'title': 'Alternate Distributive Situation', 'kind': 'Distributive Property', 'mode': 'distribute'},
+        {'title': 'Alternate Equivalent Form', 'kind': 'Equivalent Expressions', 'mode': 'equivalent'},
+        {'title': 'Alternate Write Expression', 'kind': 'Write Expression', 'mode': 'write'},
+],
     "NBA": [
         {"title":"Basketball Scoring Formula","kind":"Translate Expression","mode":"translate"},
         {"title":"Evaluate a Scoring Line","kind":"Evaluate Expression","mode":"evaluate"},
@@ -4718,7 +5019,14 @@ EXPRESSION_CASES = {
         {"title":"Quarter Scoring Groups","kind":"Distributive Property","mode":"distribute"},
         {"title":"Equivalent Scoring Forms","kind":"Equivalent Expressions","mode":"equivalent"},
         {"title":"Write a Basketball Expression","kind":"Write Expression","mode":"write"},
-    ],
+    
+        {'title': 'Alternate Translate Situation', 'kind': 'Translate Expression', 'mode': 'translate'},
+        {'title': 'Alternate Evaluate Situation', 'kind': 'Evaluate Expression', 'mode': 'evaluate'},
+        {'title': 'Alternate Combine Like Terms', 'kind': 'Combine Like Terms', 'mode': 'combine'},
+        {'title': 'Alternate Distributive Situation', 'kind': 'Distributive Property', 'mode': 'distribute'},
+        {'title': 'Alternate Equivalent Form', 'kind': 'Equivalent Expressions', 'mode': 'equivalent'},
+        {'title': 'Alternate Write Expression', 'kind': 'Write Expression', 'mode': 'write'},
+],
     "MLB": [
         {"title":"Total Bases Formula","kind":"Translate Expression","mode":"translate"},
         {"title":"Evaluate a Hitting Line","kind":"Evaluate Expression","mode":"evaluate"},
@@ -4726,7 +5034,14 @@ EXPRESSION_CASES = {
         {"title":"Batting Practice Groups","kind":"Distributive Property","mode":"distribute"},
         {"title":"Equivalent Total-Base Forms","kind":"Equivalent Expressions","mode":"equivalent"},
         {"title":"Write a Baseball Expression","kind":"Write Expression","mode":"write"},
-    ],
+    
+        {'title': 'Alternate Translate Situation', 'kind': 'Translate Expression', 'mode': 'translate'},
+        {'title': 'Alternate Evaluate Situation', 'kind': 'Evaluate Expression', 'mode': 'evaluate'},
+        {'title': 'Alternate Combine Like Terms', 'kind': 'Combine Like Terms', 'mode': 'combine'},
+        {'title': 'Alternate Distributive Situation', 'kind': 'Distributive Property', 'mode': 'distribute'},
+        {'title': 'Alternate Equivalent Form', 'kind': 'Equivalent Expressions', 'mode': 'equivalent'},
+        {'title': 'Alternate Write Expression', 'kind': 'Write Expression', 'mode': 'write'},
+],
     "NHL": [
         {"title":"Hockey Points Formula","kind":"Translate Expression","mode":"translate"},
         {"title":"Evaluate a Points Line","kind":"Evaluate Expression","mode":"evaluate"},
@@ -4734,7 +5049,14 @@ EXPRESSION_CASES = {
         {"title":"Shift Groups","kind":"Distributive Property","mode":"distribute"},
         {"title":"Equivalent Goal Forms","kind":"Equivalent Expressions","mode":"equivalent"},
         {"title":"Write a Hockey Expression","kind":"Write Expression","mode":"write"},
-    ],
+    
+        {'title': 'Alternate Translate Situation', 'kind': 'Translate Expression', 'mode': 'translate'},
+        {'title': 'Alternate Evaluate Situation', 'kind': 'Evaluate Expression', 'mode': 'evaluate'},
+        {'title': 'Alternate Combine Like Terms', 'kind': 'Combine Like Terms', 'mode': 'combine'},
+        {'title': 'Alternate Distributive Situation', 'kind': 'Distributive Property', 'mode': 'distribute'},
+        {'title': 'Alternate Equivalent Form', 'kind': 'Equivalent Expressions', 'mode': 'equivalent'},
+        {'title': 'Alternate Write Expression', 'kind': 'Write Expression', 'mode': 'write'},
+],
     "Soccer": [
         {"title":"Table Points Formula","kind":"Translate Expression","mode":"translate"},
         {"title":"Evaluate League Points","kind":"Evaluate Expression","mode":"evaluate"},
@@ -4742,7 +5064,14 @@ EXPRESSION_CASES = {
         {"title":"Training Drill Groups","kind":"Distributive Property","mode":"distribute"},
         {"title":"Equivalent Points Forms","kind":"Equivalent Expressions","mode":"equivalent"},
         {"title":"Write a Soccer Expression","kind":"Write Expression","mode":"write"},
-    ],
+    
+        {'title': 'Alternate Translate Situation', 'kind': 'Translate Expression', 'mode': 'translate'},
+        {'title': 'Alternate Evaluate Situation', 'kind': 'Evaluate Expression', 'mode': 'evaluate'},
+        {'title': 'Alternate Combine Like Terms', 'kind': 'Combine Like Terms', 'mode': 'combine'},
+        {'title': 'Alternate Distributive Situation', 'kind': 'Distributive Property', 'mode': 'distribute'},
+        {'title': 'Alternate Equivalent Form', 'kind': 'Equivalent Expressions', 'mode': 'equivalent'},
+        {'title': 'Alternate Write Expression', 'kind': 'Write Expression', 'mode': 'write'},
+],
     "Formula 1": [
         {"title":"Race Points Formula","kind":"Translate Expression","mode":"translate"},
         {"title":"Evaluate Championship Points","kind":"Evaluate Expression","mode":"evaluate"},
@@ -4750,7 +5079,14 @@ EXPRESSION_CASES = {
         {"title":"Tire Set Groups","kind":"Distributive Property","mode":"distribute"},
         {"title":"Equivalent Lap Forms","kind":"Equivalent Expressions","mode":"equivalent"},
         {"title":"Write a Racing Expression","kind":"Write Expression","mode":"write"},
-    ],
+    
+        {'title': 'Alternate Translate Situation', 'kind': 'Translate Expression', 'mode': 'translate'},
+        {'title': 'Alternate Evaluate Situation', 'kind': 'Evaluate Expression', 'mode': 'evaluate'},
+        {'title': 'Alternate Combine Like Terms', 'kind': 'Combine Like Terms', 'mode': 'combine'},
+        {'title': 'Alternate Distributive Situation', 'kind': 'Distributive Property', 'mode': 'distribute'},
+        {'title': 'Alternate Equivalent Form', 'kind': 'Equivalent Expressions', 'mode': 'equivalent'},
+        {'title': 'Alternate Write Expression', 'kind': 'Write Expression', 'mode': 'write'},
+],
 }
 
 def normalize_expression_text(text):
@@ -5233,7 +5569,14 @@ FRACTION_CASES = {
         {"title":"Game Plan Portion","kind":"Multiply Fractions","mode":"multiply"},
         {"title":"Split Practice Time","kind":"Divide Fractions","mode":"divide"},
         {"title":"Fraction to Decimal","kind":"Convert Fraction","mode":"convert"},
-    ],
+    
+        {'title': 'Alternate Fraction of a Set', 'kind': 'Fraction of a Set', 'mode': 'fraction_of'},
+        {'title': 'Alternate Add Fractions', 'kind': 'Add Fractions', 'mode': 'add'},
+        {'title': 'Alternate Subtract Fractions', 'kind': 'Subtract Fractions', 'mode': 'subtract'},
+        {'title': 'Alternate Multiply Fractions', 'kind': 'Multiply Fractions', 'mode': 'multiply'},
+        {'title': 'Alternate Divide Fractions', 'kind': 'Divide Fractions', 'mode': 'divide'},
+        {'title': 'Alternate Fraction Conversion', 'kind': 'Convert Fraction', 'mode': 'convert'},
+],
     "NBA": [
         {"title":"Shots Made","kind":"Fraction of a Set","mode":"fraction_of"},
         {"title":"Workout Completion","kind":"Add Fractions","mode":"add"},
@@ -5241,7 +5584,14 @@ FRACTION_CASES = {
         {"title":"Shooting Drill Portion","kind":"Multiply Fractions","mode":"multiply"},
         {"title":"Split Court Time","kind":"Divide Fractions","mode":"divide"},
         {"title":"Free-Throw Rate","kind":"Convert Fraction","mode":"convert"},
-    ],
+    
+        {'title': 'Alternate Fraction of a Set', 'kind': 'Fraction of a Set', 'mode': 'fraction_of'},
+        {'title': 'Alternate Add Fractions', 'kind': 'Add Fractions', 'mode': 'add'},
+        {'title': 'Alternate Subtract Fractions', 'kind': 'Subtract Fractions', 'mode': 'subtract'},
+        {'title': 'Alternate Multiply Fractions', 'kind': 'Multiply Fractions', 'mode': 'multiply'},
+        {'title': 'Alternate Divide Fractions', 'kind': 'Divide Fractions', 'mode': 'divide'},
+        {'title': 'Alternate Fraction Conversion', 'kind': 'Convert Fraction', 'mode': 'convert'},
+],
     "MLB": [
         {"title":"Hits in At-Bats","kind":"Fraction of a Set","mode":"fraction_of"},
         {"title":"Bullpen Work","kind":"Add Fractions","mode":"add"},
@@ -5249,7 +5599,14 @@ FRACTION_CASES = {
         {"title":"Batting Practice Portion","kind":"Multiply Fractions","mode":"multiply"},
         {"title":"Split Pitch Count","kind":"Divide Fractions","mode":"divide"},
         {"title":"Hit Rate Conversion","kind":"Convert Fraction","mode":"convert"},
-    ],
+    
+        {'title': 'Alternate Fraction of a Set', 'kind': 'Fraction of a Set', 'mode': 'fraction_of'},
+        {'title': 'Alternate Add Fractions', 'kind': 'Add Fractions', 'mode': 'add'},
+        {'title': 'Alternate Subtract Fractions', 'kind': 'Subtract Fractions', 'mode': 'subtract'},
+        {'title': 'Alternate Multiply Fractions', 'kind': 'Multiply Fractions', 'mode': 'multiply'},
+        {'title': 'Alternate Divide Fractions', 'kind': 'Divide Fractions', 'mode': 'divide'},
+        {'title': 'Alternate Fraction Conversion', 'kind': 'Convert Fraction', 'mode': 'convert'},
+],
     "NHL": [
         {"title":"Shots on Goal","kind":"Fraction of a Set","mode":"fraction_of"},
         {"title":"Practice Blocks","kind":"Add Fractions","mode":"add"},
@@ -5257,7 +5614,14 @@ FRACTION_CASES = {
         {"title":"Power-Play Drill Portion","kind":"Multiply Fractions","mode":"multiply"},
         {"title":"Split Ice Time","kind":"Divide Fractions","mode":"divide"},
         {"title":"Save Rate Fraction","kind":"Convert Fraction","mode":"convert"},
-    ],
+    
+        {'title': 'Alternate Fraction of a Set', 'kind': 'Fraction of a Set', 'mode': 'fraction_of'},
+        {'title': 'Alternate Add Fractions', 'kind': 'Add Fractions', 'mode': 'add'},
+        {'title': 'Alternate Subtract Fractions', 'kind': 'Subtract Fractions', 'mode': 'subtract'},
+        {'title': 'Alternate Multiply Fractions', 'kind': 'Multiply Fractions', 'mode': 'multiply'},
+        {'title': 'Alternate Divide Fractions', 'kind': 'Divide Fractions', 'mode': 'divide'},
+        {'title': 'Alternate Fraction Conversion', 'kind': 'Convert Fraction', 'mode': 'convert'},
+],
     "Soccer": [
         {"title":"Passes Completed","kind":"Fraction of a Set","mode":"fraction_of"},
         {"title":"Training Session","kind":"Add Fractions","mode":"add"},
@@ -5265,7 +5629,14 @@ FRACTION_CASES = {
         {"title":"Shooting Drill Portion","kind":"Multiply Fractions","mode":"multiply"},
         {"title":"Split Possession Time","kind":"Divide Fractions","mode":"divide"},
         {"title":"Passing Rate Conversion","kind":"Convert Fraction","mode":"convert"},
-    ],
+    
+        {'title': 'Alternate Fraction of a Set', 'kind': 'Fraction of a Set', 'mode': 'fraction_of'},
+        {'title': 'Alternate Add Fractions', 'kind': 'Add Fractions', 'mode': 'add'},
+        {'title': 'Alternate Subtract Fractions', 'kind': 'Subtract Fractions', 'mode': 'subtract'},
+        {'title': 'Alternate Multiply Fractions', 'kind': 'Multiply Fractions', 'mode': 'multiply'},
+        {'title': 'Alternate Divide Fractions', 'kind': 'Divide Fractions', 'mode': 'divide'},
+        {'title': 'Alternate Fraction Conversion', 'kind': 'Convert Fraction', 'mode': 'convert'},
+],
     "Formula 1": [
         {"title":"Laps Completed","kind":"Fraction of a Set","mode":"fraction_of"},
         {"title":"Practice Session","kind":"Add Fractions","mode":"add"},
@@ -5273,7 +5644,14 @@ FRACTION_CASES = {
         {"title":"Tire-Stint Portion","kind":"Multiply Fractions","mode":"multiply"},
         {"title":"Split Fuel Load","kind":"Divide Fractions","mode":"divide"},
         {"title":"Lap Fraction Conversion","kind":"Convert Fraction","mode":"convert"},
-    ],
+    
+        {'title': 'Alternate Fraction of a Set', 'kind': 'Fraction of a Set', 'mode': 'fraction_of'},
+        {'title': 'Alternate Add Fractions', 'kind': 'Add Fractions', 'mode': 'add'},
+        {'title': 'Alternate Subtract Fractions', 'kind': 'Subtract Fractions', 'mode': 'subtract'},
+        {'title': 'Alternate Multiply Fractions', 'kind': 'Multiply Fractions', 'mode': 'multiply'},
+        {'title': 'Alternate Divide Fractions', 'kind': 'Divide Fractions', 'mode': 'divide'},
+        {'title': 'Alternate Fraction Conversion', 'kind': 'Convert Fraction', 'mode': 'convert'},
+],
 }
 
 def _fraction_text(fr):
