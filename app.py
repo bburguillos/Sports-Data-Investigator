@@ -3,6 +3,7 @@ import streamlit as st
 import json
 import math
 import random
+from fractions import Fraction
 import uuid
 import base64
 from io import BytesIO
@@ -1816,14 +1817,48 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
         st.session_state.ratio_attempts = 0
 
     def ratio_is_correct(text):
-        compact = str(text).lower().replace(" ", "").replace(",", "")
-        acceptable = {
-            f"{int(total)}/{int(games)}",
-            f"{int(total)}:{int(games)}",
-            f"{int(total)}÷{int(games)}",
-            f"{int(total)}/{int(games)}games",
-        }
-        return compact in acceptable
+        """Accept equivalent ratios in simplified or unsimplified form."""
+        compact = str(text).lower().strip().replace(" ", "").replace(",", "")
+        if not compact:
+            return False
+
+        # Remove a few optional words students may type.
+        for word in [
+            "games", "game", "matches", "match", "races", "race",
+            "attempts", "attempt", "carries", "carry", "targets", "target",
+            "minutes", "minute", "innings", "inning", "laps", "lap",
+            "quarters", "quarter", "shots", "shot", "sprints", "sprint",
+            "power-playchances", "power-playchance",
+            "penaltyattempts", "penaltyattempt"
+        ]:
+            compact = compact.replace(word, "")
+
+        # Normalize common ratio separators.
+        compact = compact.replace("÷", "/").replace(":", "/")
+
+        # Accept a fraction/ratio such as 90/50, 9/5, 18/10, etc.
+        if "/" in compact:
+            parts = compact.split("/")
+            if len(parts) != 2:
+                return False
+            try:
+                student_num = Fraction(parts[0])
+                student_den = Fraction(parts[1])
+                if student_den == 0:
+                    return False
+                student_ratio = student_num / student_den
+                true_ratio = Fraction(str(total)) / Fraction(str(games))
+                return student_ratio == true_ratio
+            except (ValueError, ZeroDivisionError):
+                return False
+
+        # Also accept a decimal equivalent if a student chooses to enter one.
+        try:
+            student_value = float(compact)
+            true_value = total / games
+            return math.isclose(student_value, true_value, rel_tol=1e-9, abs_tol=1e-9)
+        except ValueError:
+            return False
 
     if st.button("Check My Ratio", use_container_width=True):
         if ratio_is_correct(ratio_raw):
@@ -1838,9 +1873,10 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
                 )
             else:
                 st.warning(
-                    f"Use the total first and the number of games second: "
+                    f"Use the total first and the comparison amount second: "
                     f"**{fmt(total)} to {fmt(games)}**. "
-                    "You may write a ratio with a colon, fraction bar, or division sign."
+                    "You may write the original ratio or any equivalent simplified ratio "
+                    "using a colon, fraction bar, or division sign."
                 )
 
     # -----------------------------
