@@ -4206,6 +4206,242 @@ def rational_numbers_engine(sport_filter="Any Sport", difficulty="Guided", gener
         key=f"ratnum_reasoning_{case_id}",
         placeholder="Use the sports context in your explanation."
     )
+
+# =========================================================
+# 7TH GRADE MATH LAB — GEOMETRY
+# =========================================================
+GEOMETRY_CASES = {
+    "NFL": [
+        {"title":"Midfield Logo Circle","kind":"Circle Area","story":"A circular midfield logo has a radius of 8 yards.","question":"What is the area of the logo?","shape":"circle_area","a":8,"answer":math.pi*8**2,"unit":"square yards"},
+        {"title":"Practice Ring","kind":"Circumference","story":"A circular agility ring has a diameter of 12 feet.","question":"What is its circumference?","shape":"circumference_d","a":12,"answer":math.pi*12,"unit":"feet"},
+        {"title":"End-Zone Banner","kind":"Rectangle Area","story":"An end-zone banner is 18 feet long and 7 feet tall.","question":"What is the area of the banner?","shape":"rectangle","a":18,"b":7,"answer":126,"unit":"square feet"},
+        {"title":"Equipment Box","kind":"Volume","story":"An equipment box is 4 feet long, 3 feet wide, and 2 feet high.","question":"What is its volume?","shape":"volume","a":4,"b":3,"c":2,"answer":24,"unit":"cubic feet"},
+        {"title":"Play Diagram Scale","kind":"Scale Drawing","story":"On a play diagram, 1 inch represents 5 yards. A route measures 7 inches on the diagram.","question":"How long is the real route?","shape":"scale","a":5,"b":7,"answer":35,"unit":"yards"},
+        {"title":"Sideline Angle","kind":"Angle Relationship","story":"Two adjacent angles form a straight line. One angle measures 68°.","question":"What is the other angle?","shape":"supplement","a":68,"answer":112,"unit":"degrees"},
+    ],
+    "NBA": [
+        {"title":"Center-Court Circle","kind":"Circle Area","story":"A circular center-court design has a radius of 6 feet.","question":"What is the area of the circle?","shape":"circle_area","a":6,"answer":math.pi*6**2,"unit":"square feet"},
+        {"title":"Training Hoop","kind":"Circumference","story":"A circular training target has a diameter of 3 feet.","question":"What is its circumference?","shape":"circumference_d","a":3,"answer":math.pi*3,"unit":"feet"},
+        {"title":"Backboard Panel","kind":"Rectangle Area","story":"A practice panel is 6 feet wide and 4 feet tall.","question":"What is its area?","shape":"rectangle","a":6,"b":4,"answer":24,"unit":"square feet"},
+        {"title":"Ball Storage Crate","kind":"Volume","story":"A basketball storage crate is 5 feet long, 2 feet wide, and 3 feet high.","question":"What is its volume?","shape":"volume","a":5,"b":2,"c":3,"answer":30,"unit":"cubic feet"},
+        {"title":"Court Diagram Scale","kind":"Scale Drawing","story":"On a court diagram, 1 inch represents 8 feet. A passing lane is 4.5 inches long.","question":"How long is it on the real court?","shape":"scale","a":8,"b":4.5,"answer":36,"unit":"feet"},
+        {"title":"Passing Angle","kind":"Angle Relationship","story":"Two angles are complementary. One angle is 37°.","question":"What is the other angle?","shape":"complement","a":37,"answer":53,"unit":"degrees"},
+    ],
+    "MLB": [
+        {"title":"On-Deck Circle","kind":"Circle Area","story":"An on-deck training circle has a radius of 5 feet.","question":"What is its area?","shape":"circle_area","a":5,"answer":math.pi*5**2,"unit":"square feet"},
+        {"title":"Batting Circle Edge","kind":"Circumference","story":"A circular batting-practice marker has a diameter of 10 feet.","question":"What is its circumference?","shape":"circumference_d","a":10,"answer":math.pi*10,"unit":"feet"},
+        {"title":"Tarp Section","kind":"Rectangle Area","story":"A tarp section is 30 feet long and 18 feet wide.","question":"What is its area?","shape":"rectangle","a":30,"b":18,"answer":540,"unit":"square feet"},
+        {"title":"Baseball Storage Bin","kind":"Volume","story":"A storage bin is 4 feet long, 2.5 feet wide, and 2 feet high.","question":"What is its volume?","shape":"volume","a":4,"b":2.5,"c":2,"answer":20,"unit":"cubic feet"},
+        {"title":"Ballpark Map","kind":"Scale Drawing","story":"On a ballpark map, 1 inch represents 20 feet. A walkway measures 6 inches.","question":"How long is the real walkway?","shape":"scale","a":20,"b":6,"answer":120,"unit":"feet"},
+        {"title":"Foul-Line Angle","kind":"Angle Relationship","story":"Two adjacent angles form a straight line. One angle is 74°.","question":"What is the other angle?","shape":"supplement","a":74,"answer":106,"unit":"degrees"},
+    ],
+    "NHL": [
+        {"title":"Faceoff Circle","kind":"Circle Area","story":"A practice faceoff circle has a radius of 15 feet.","question":"What is its area?","shape":"circle_area","a":15,"answer":math.pi*15**2,"unit":"square feet"},
+        {"title":"Goal-Crease Arc","kind":"Circumference","story":"A circular training marking has a diameter of 8 feet.","question":"What is its circumference?","shape":"circumference_d","a":8,"answer":math.pi*8,"unit":"feet"},
+        {"title":"Rink Advertising Panel","kind":"Rectangle Area","story":"An advertising panel is 12 feet long and 3 feet tall.","question":"What is its area?","shape":"rectangle","a":12,"b":3,"answer":36,"unit":"square feet"},
+        {"title":"Puck Storage Box","kind":"Volume","story":"A puck box is 3 feet long, 2 feet wide, and 1.5 feet high.","question":"What is its volume?","shape":"volume","a":3,"b":2,"c":1.5,"answer":9,"unit":"cubic feet"},
+        {"title":"Rink Diagram Scale","kind":"Scale Drawing","story":"On a rink diagram, 1 inch represents 10 feet. A skating path measures 7.5 inches.","question":"How long is the real skating path?","shape":"scale","a":10,"b":7.5,"answer":75,"unit":"feet"},
+        {"title":"Passing Lane Angle","kind":"Angle Relationship","story":"Two angles are complementary. One measures 42°.","question":"What is the other angle?","shape":"complement","a":42,"answer":48,"unit":"degrees"},
+    ],
+    "Soccer": [
+        {"title":"Center Circle","kind":"Circle Area","story":"A circular training area has a radius of 10 yards.","question":"What is its area?","shape":"circle_area","a":10,"answer":math.pi*10**2,"unit":"square yards"},
+        {"title":"Training Circle Border","kind":"Circumference","story":"A circular drill area has a diameter of 18 yards.","question":"What is its circumference?","shape":"circumference_d","a":18,"answer":math.pi*18,"unit":"yards"},
+        {"title":"Goal Banner","kind":"Rectangle Area","story":"A banner behind the goal is 14 feet wide and 6 feet tall.","question":"What is its area?","shape":"rectangle","a":14,"b":6,"answer":84,"unit":"square feet"},
+        {"title":"Equipment Crate","kind":"Volume","story":"A soccer equipment crate is 5 feet long, 3 feet wide, and 2 feet high.","question":"What is its volume?","shape":"volume","a":5,"b":3,"c":2,"answer":30,"unit":"cubic feet"},
+        {"title":"Field Diagram Scale","kind":"Scale Drawing","story":"On a field diagram, 1 inch represents 12 yards. A run measures 5.5 inches.","question":"How long is the actual run?","shape":"scale","a":12,"b":5.5,"answer":66,"unit":"yards"},
+        {"title":"Corner-Kick Angle","kind":"Angle Relationship","story":"Two adjacent angles form a straight line. One angle measures 63°.","question":"What is the other angle?","shape":"supplement","a":63,"answer":117,"unit":"degrees"},
+    ],
+    "Formula 1": [
+        {"title":"Circular Test Pad","kind":"Circle Area","story":"A circular test pad has a radius of 20 meters.","question":"What is its area?","shape":"circle_area","a":20,"answer":math.pi*20**2,"unit":"square meters"},
+        {"title":"Tire Training Ring","kind":"Circumference","story":"A circular training ring has a diameter of 2 meters.","question":"What is its circumference?","shape":"circumference_d","a":2,"answer":math.pi*2,"unit":"meters"},
+        {"title":"Garage Floor Section","kind":"Rectangle Area","story":"A garage work area is 12 meters long and 8 meters wide.","question":"What is its area?","shape":"rectangle","a":12,"b":8,"answer":96,"unit":"square meters"},
+        {"title":"Parts Container","kind":"Volume","story":"A parts container is 3 meters long, 2 meters wide, and 1.5 meters high.","question":"What is its volume?","shape":"volume","a":3,"b":2,"c":1.5,"answer":9,"unit":"cubic meters"},
+        {"title":"Track Map Scale","kind":"Scale Drawing","story":"On a track map, 1 centimeter represents 200 meters. A straight measures 3.5 centimeters.","question":"How long is the real straight?","shape":"scale","a":200,"b":3.5,"answer":700,"unit":"meters"},
+        {"title":"Turn Angle","kind":"Angle Relationship","story":"Two angles are complementary. One angle measures 28°.","question":"What is the other angle?","shape":"complement","a":28,"answer":62,"unit":"degrees"},
+    ],
+}
+
+def geometry_tolerance(case):
+    """Student-friendly tolerance, especially for circle calculations using pi."""
+    answer = float(case["answer"])
+    if case["shape"] in ("circle_area", "circumference_d"):
+        # Accept common pi approximations, ordinary rounding, and minor calculator-entry differences.
+        # About ±2% with an absolute floor of 0.5.
+        return max(0.5, abs(answer) * 0.02)
+    if abs(answer) < 10:
+        return 0.1
+    return max(0.25, abs(answer) * 0.005)
+
+def geometry_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None):
+    st.markdown('<div class="step">7th Grade Math Lab · Geometry</div>', unsafe_allow_html=True)
+    st.subheader("📐 Sports Geometry Lab")
+    st.write(
+        "Use sports spaces, equipment, diagrams, circles, angles, area, and volume to solve geometry problems."
+    )
+
+    if generated_sport and generated_title:
+        sport = generated_sport
+        matches = [c for c in GEOMETRY_CASES[sport] if c["title"] == generated_title]
+        if not matches:
+            st.error("The generated geometry problem could not be found.")
+            return
+        case = matches[0]
+    else:
+        sports = list(GEOMETRY_CASES)
+        if sport_filter != "Any Sport":
+            sports = [sport_filter]
+        sport = st.selectbox("Sport", sports, key="geo_sport")
+        labels = {f"{c['kind']} · {c['title']}": c for c in GEOMETRY_CASES[sport]}
+        selected = st.selectbox("Scenario", list(labels), key="geo_case")
+        case = labels[selected]
+
+    case_id = clean_filename(f"{sport}_{case['title']}")
+    correct = float(case["answer"])
+
+    st.markdown(f"""
+    <div class="card">
+      <div class="step">{SPORT_ICONS.get(sport,'')} {sport} · {case['kind']}</div>
+      <h2>{case['title']}</h2>
+      <p><b>Situation:</b> {case['story']}</p>
+      <p><b>Question:</b> {case['question']}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("### Step 1 · Choose a plan")
+    if case["shape"] == "circle_area":
+        options = ["πr²", "2πr", "length × width", "πd"]
+        correct_plan = "πr²"
+    elif case["shape"] == "circumference_d":
+        options = ["πd", "πr²", "length × width", "2r²"]
+        correct_plan = "πd"
+    elif case["shape"] == "rectangle":
+        options = ["length × width", "2(length + width)", "πr²", "length + width"]
+        correct_plan = "length × width"
+    elif case["shape"] == "volume":
+        options = ["length × width × height", "length × width", "2(length + width)", "base + height"]
+        correct_plan = "length × width × height"
+    elif case["shape"] == "scale":
+        options = ["use the scale factor to multiply", "add the scale numbers", "subtract the scale numbers", "divide the real distance by itself"]
+        correct_plan = "use the scale factor to multiply"
+    elif case["shape"] == "supplement":
+        options = ["subtract from 180°", "subtract from 90°", "double the angle", "divide the angle by 2"]
+        correct_plan = "subtract from 180°"
+    else:
+        options = ["subtract from 90°", "subtract from 180°", "double the angle", "add 90°"]
+        correct_plan = "subtract from 90°"
+
+    order_key = f"geo_plan_order_{case_id}"
+    if order_key not in st.session_state:
+        shuffled = list(options)
+        random.shuffle(shuffled)
+        st.session_state[order_key] = shuffled
+
+    plan = st.radio(
+        "Which plan or formula fits this problem?",
+        st.session_state[order_key],
+        key=f"geo_plan_{case_id}"
+    )
+
+    if st.button("Check My Plan", key=f"geo_plan_check_{case_id}", use_container_width=True):
+        if plan == correct_plan:
+            st.success("✅ Correct plan.")
+        else:
+            if difficulty == "Guided":
+                st.info("Think about what the question asks you to measure: around, inside, space, scale, or angle.")
+            else:
+                st.info("Try another plan.")
+
+    st.markdown("### Step 2 · Calculate")
+    if case["shape"] in ("circle_area", "circumference_d"):
+        st.caption("For circle problems, answers using π, 3.14, 3.1416, or normal rounding are accepted within a reasonable range.")
+
+    raw = st.text_input(
+        f"Your answer ({case['unit']})",
+        key=f"geo_answer_{case_id}",
+        placeholder="Type your answer"
+    )
+    student = parse_student_number(raw)
+
+    attempts_key = f"geo_attempts_{case_id}"
+    if attempts_key not in st.session_state:
+        st.session_state[attempts_key] = 0
+
+    if st.button("Check My Answer", key=f"geo_answer_check_{case_id}", use_container_width=True):
+        tol = geometry_tolerance(case)
+        if student is not None and math.isclose(student, correct, abs_tol=tol):
+            if case["shape"] in ("circle_area", "circumference_d"):
+                st.success(f"✅ Correct — your rounded answer is within the accepted range. Using π gives about **{correct:.2f} {case['unit']}**.")
+            else:
+                st.success(f"✅ Correct — {fmt(correct)} {case['unit']}.")
+            st.session_state[attempts_key] = 0
+        else:
+            st.session_state[attempts_key] += 1
+            if st.session_state[attempts_key] == 1:
+                if case["shape"] == "circle_area":
+                    st.info("Area of a circle uses the radius twice: π × r × r.")
+                elif case["shape"] == "circumference_d":
+                    st.info("If you know the diameter, circumference can be found with π × diameter.")
+                elif case["shape"] == "rectangle":
+                    st.info("Think about how many square units cover the rectangle.")
+                elif case["shape"] == "volume":
+                    st.info("Volume measures three-dimensional space.")
+                elif case["shape"] == "scale":
+                    st.info("Use the amount represented by 1 unit on the drawing.")
+                elif case["shape"] == "supplement":
+                    st.info("Angles on a straight line total 180°.")
+                else:
+                    st.info("Complementary angles total 90°.")
+            else:
+                if case["shape"] == "circle_area":
+                    st.warning(f"Use **π × {case['a']}²**. Using 3.14 or your calculator's π button is fine.")
+                elif case["shape"] == "circumference_d":
+                    st.warning(f"Use **π × {case['a']}**. Using 3.14 or your calculator's π button is fine.")
+                elif case["shape"] == "rectangle":
+                    st.warning(f"Use **{case['a']} × {case['b']}**.")
+                elif case["shape"] == "volume":
+                    st.warning(f"Use **{case['a']} × {case['b']} × {case['c']}**.")
+                elif case["shape"] == "scale":
+                    st.warning(f"Use **{case['a']} × {case['b']}**.")
+                elif case["shape"] == "supplement":
+                    st.warning(f"Use **180 − {case['a']}**.")
+                else:
+                    st.warning(f"Use **90 − {case['a']}**.")
+
+    st.markdown("### Step 3 · Check the unit")
+    if "square" in case["unit"]:
+        unit_options = [case["unit"], case["unit"].replace("square ", ""), "cubic " + case["unit"].replace("square ", ""), "degrees"]
+    elif "cubic" in case["unit"]:
+        unit_options = [case["unit"], case["unit"].replace("cubic ", ""), "square " + case["unit"].replace("cubic ", ""), "degrees"]
+    elif case["unit"] == "degrees":
+        unit_options = ["degrees", "square degrees", "feet", "cubic degrees"]
+    else:
+        unit_options = [case["unit"], "square " + case["unit"], "cubic " + case["unit"], "degrees"]
+
+    unit_options = list(dict.fromkeys(unit_options))
+    unit_order_key = f"geo_unit_order_{case_id}"
+    if unit_order_key not in st.session_state:
+        shuffled = list(unit_options)
+        random.shuffle(shuffled)
+        st.session_state[unit_order_key] = shuffled
+
+    unit_choice = st.radio(
+        "Which unit belongs with your answer?",
+        st.session_state[unit_order_key],
+        key=f"geo_unit_{case_id}"
+    )
+
+    if st.button("Check My Unit", key=f"geo_unit_check_{case_id}", use_container_width=True):
+        if unit_choice == case["unit"]:
+            st.success("✅ Correct unit.")
+        else:
+            st.info("Think about whether you measured length, area, volume, or an angle.")
+
+    st.markdown("### Final · Explain your reasoning")
+    st.text_area(
+        "Explain why your formula or strategy matched the sports situation.",
+        key=f"geo_reasoning_{case_id}",
+        placeholder="Explain your geometry thinking in your own words."
+    )
 # =========================================================
 # SPORTS MATH CHALLENGE — MULTI-SKILL HIGHER-LEVEL THINKING
 # =========================================================
@@ -5523,13 +5759,13 @@ if branch == "Teacher Assignment Builder":
 
     assignment_type = st.selectbox(
         "Assignment type",
-        ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Sports Math Challenge"],
+        ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Sports Math Challenge"],
         key="teacher_topic"
     )
     count = st.selectbox("Activities required", [1,2,3], key="teacher_count")
     sport_limit = st.selectbox("Allowed sport", ["Any Sport"] + list(RATE_CASES), key="teacher_sport")
 
-    if assignment_type in ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers"]:
+    if assignment_type in ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry"]:
         difficulty = st.selectbox("Difficulty", ["Guided","Independent"], key="teacher_difficulty")
         challenge_level = "Any Level"
     else:
@@ -5673,7 +5909,7 @@ if branch == "7th Grade Math Lab":
         with s1:
             config["topic"] = st.selectbox(
                 "Math topic",
-                ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers"],
+                ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry"],
                 key="math_topic_select"
             )
         with s2:
@@ -5755,6 +5991,17 @@ if branch == "7th Grade Math Lab":
                 "difficulty": config.get("difficulty", "Guided"),
                 "title": selected["title"],
             }
+        elif topic == "Geometry":
+            options = GEOMETRY_CASES[actual_sport]
+            if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
+                options = [c for c in options if c["title"] != previous.get("title")] or options
+            selected = random.choice(options)
+            generated = {
+                "topic": topic,
+                "sport": actual_sport,
+                "difficulty": config.get("difficulty", "Guided"),
+                "title": selected["title"],
+            }
         else:
             athletes = list(RATE_CASES[actual_sport])
             if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
@@ -5779,7 +6026,9 @@ if branch == "7th Grade Math Lab":
             "pct_direction_", "pct_reasoning_",
             "ratnum_sign_", "ratnum_sign_order_", "ratnum_expr_", "ratnum_expr_order_",
             "ratnum_answer_", "ratnum_attempts_", "ratnum_context_", "ratnum_context_order_",
-            "ratnum_reasoning_"
+            "ratnum_reasoning_",
+            "geo_plan_", "geo_plan_order_", "geo_answer_", "geo_attempts_",
+            "geo_unit_", "geo_unit_order_", "geo_reasoning_"
         )
         for key in list(st.session_state.keys()):
             if key.startswith(clear_prefixes):
@@ -5852,6 +6101,13 @@ if branch == "7th Grade Math Lab":
                 generated_sport=generated["sport"],
                 generated_title=generated["title"]
             )
+        elif generated["topic"] == "Geometry":
+            geometry_engine(
+                generated["sport"],
+                generated["difficulty"],
+                generated_sport=generated["sport"],
+                generated_title=generated["title"]
+            )
         else:
             ratios_rates_engine(
                 generated["sport"],
@@ -5863,7 +6119,7 @@ if branch == "7th Grade Math Lab":
         st.caption("No practice question has been generated yet.")
 
     st.markdown("---")
-    st.caption("7th Grade Math Lab · Ratios & Proportions · Equations & Inequalities · Probability · Percent & Percent Change · Rational Numbers")
+    st.caption("7th Grade Math Lab · Ratios & Proportions · Equations & Inequalities · Probability · Percent & Percent Change · Rational Numbers · Geometry")
     st.stop()
 
 st.markdown("""
