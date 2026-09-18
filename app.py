@@ -5221,6 +5221,367 @@ def expressions_engine(sport_filter="Any Sport", difficulty="Guided", generated_
         placeholder="Example: 3x represents three points for each made three-pointer..."
     )
 
+
+# =========================================================
+# 7TH GRADE MATH LAB — FRACTIONS & RATIONAL NUMBER OPERATIONS
+# =========================================================
+FRACTION_CASES = {
+    "NFL": [
+        {"title":"Completed Passes","kind":"Fraction of a Set","mode":"fraction_of"},
+        {"title":"Practice Completion","kind":"Add Fractions","mode":"add"},
+        {"title":"Drive Progress","kind":"Subtract Fractions","mode":"subtract"},
+        {"title":"Game Plan Portion","kind":"Multiply Fractions","mode":"multiply"},
+        {"title":"Split Practice Time","kind":"Divide Fractions","mode":"divide"},
+        {"title":"Fraction to Decimal","kind":"Convert Fraction","mode":"convert"},
+    ],
+    "NBA": [
+        {"title":"Shots Made","kind":"Fraction of a Set","mode":"fraction_of"},
+        {"title":"Workout Completion","kind":"Add Fractions","mode":"add"},
+        {"title":"Game Time Remaining","kind":"Subtract Fractions","mode":"subtract"},
+        {"title":"Shooting Drill Portion","kind":"Multiply Fractions","mode":"multiply"},
+        {"title":"Split Court Time","kind":"Divide Fractions","mode":"divide"},
+        {"title":"Free-Throw Rate","kind":"Convert Fraction","mode":"convert"},
+    ],
+    "MLB": [
+        {"title":"Hits in At-Bats","kind":"Fraction of a Set","mode":"fraction_of"},
+        {"title":"Bullpen Work","kind":"Add Fractions","mode":"add"},
+        {"title":"Innings Remaining","kind":"Subtract Fractions","mode":"subtract"},
+        {"title":"Batting Practice Portion","kind":"Multiply Fractions","mode":"multiply"},
+        {"title":"Split Pitch Count","kind":"Divide Fractions","mode":"divide"},
+        {"title":"Hit Rate Conversion","kind":"Convert Fraction","mode":"convert"},
+    ],
+    "NHL": [
+        {"title":"Shots on Goal","kind":"Fraction of a Set","mode":"fraction_of"},
+        {"title":"Practice Blocks","kind":"Add Fractions","mode":"add"},
+        {"title":"Period Remaining","kind":"Subtract Fractions","mode":"subtract"},
+        {"title":"Power-Play Drill Portion","kind":"Multiply Fractions","mode":"multiply"},
+        {"title":"Split Ice Time","kind":"Divide Fractions","mode":"divide"},
+        {"title":"Save Rate Fraction","kind":"Convert Fraction","mode":"convert"},
+    ],
+    "Soccer": [
+        {"title":"Passes Completed","kind":"Fraction of a Set","mode":"fraction_of"},
+        {"title":"Training Session","kind":"Add Fractions","mode":"add"},
+        {"title":"Match Time Remaining","kind":"Subtract Fractions","mode":"subtract"},
+        {"title":"Shooting Drill Portion","kind":"Multiply Fractions","mode":"multiply"},
+        {"title":"Split Possession Time","kind":"Divide Fractions","mode":"divide"},
+        {"title":"Passing Rate Conversion","kind":"Convert Fraction","mode":"convert"},
+    ],
+    "Formula 1": [
+        {"title":"Laps Completed","kind":"Fraction of a Set","mode":"fraction_of"},
+        {"title":"Practice Session","kind":"Add Fractions","mode":"add"},
+        {"title":"Race Remaining","kind":"Subtract Fractions","mode":"subtract"},
+        {"title":"Tire-Stint Portion","kind":"Multiply Fractions","mode":"multiply"},
+        {"title":"Split Fuel Load","kind":"Divide Fractions","mode":"divide"},
+        {"title":"Lap Fraction Conversion","kind":"Convert Fraction","mode":"convert"},
+    ],
+}
+
+def _fraction_text(fr):
+    fr = Fraction(fr)
+    if fr.denominator == 1:
+        return str(fr.numerator)
+    return f"{fr.numerator}/{fr.denominator}"
+
+def _parse_fraction_answer(text):
+    """Accept fractions, mixed numbers, decimals, or whole numbers."""
+    raw = str(text).strip().replace(" ", "")
+    if not raw:
+        return None
+
+    # Mixed number forms like 1 1/2 become 11/2 after removing spaces,
+    # so handle mixed number before stripping spaces in a second pass.
+    original = str(text).strip()
+    try:
+        if " " in original and "/" in original:
+            whole, frac = original.split(None, 1)
+            f = Fraction(frac)
+            sign = -1 if whole.startswith("-") else 1
+            w = abs(int(whole))
+            return float(sign * (Fraction(w, 1) + f))
+    except Exception:
+        pass
+
+    try:
+        if "/" in raw:
+            return float(Fraction(raw))
+        return float(raw)
+    except Exception:
+        return None
+
+def make_dynamic_fraction_case(sport, template, previous=None):
+    case = copy.deepcopy(template)
+    mode = case["mode"]
+
+    if mode == "fraction_of":
+        denominator = random.choice([4,5,6,8,10,12])
+        numerator = random.randint(1, denominator-1)
+        total = denominator * random.choice([3,4,5,6,8,10])
+        answer = Fraction(numerator, denominator) * total
+
+        noun = {
+            "NFL":"passes",
+            "NBA":"shots",
+            "MLB":"at-bats",
+            "NHL":"shots",
+            "Soccer":"passes",
+            "Formula 1":"laps",
+        }[sport]
+
+        case.update({
+            "story": f"A {sport} athlete completes {_fraction_text(Fraction(numerator,denominator))} of {total} {noun}.",
+            "question": f"How many {noun} does that represent?",
+            "fraction": Fraction(numerator,denominator),
+            "total": total,
+            "answer": float(answer),
+            "unit": noun,
+            "hint1": "Multiply the total amount by the fraction.",
+            "hint2": f"{_fraction_text(Fraction(numerator,denominator))} × {total} = {float(answer):g}.",
+        })
+
+    elif mode == "add":
+        d1 = random.choice([4,6,8,10,12])
+        d2 = random.choice([4,6,8,10,12])
+        n1 = random.randint(1,d1-1)
+        n2 = random.randint(1,d2-1)
+        f1 = Fraction(n1,d1)
+        f2 = Fraction(n2,d2)
+        answer = f1 + f2
+
+        noun = {
+            "NFL":"practice session",
+            "NBA":"workout",
+            "MLB":"bullpen session",
+            "NHL":"practice",
+            "Soccer":"training session",
+            "Formula 1":"practice session",
+        }[sport]
+
+        case.update({
+            "story": f"An athlete completes {_fraction_text(f1)} of a {noun} in one block and {_fraction_text(f2)} in another block.",
+            "question": "What total fraction of the session was completed?",
+            "f1": f1, "f2": f2, "answer": float(answer),
+            "unit": "of the session",
+            "hint1": "Find a common denominator before adding.",
+            "hint2": f"{_fraction_text(f1)} + {_fraction_text(f2)} = {_fraction_text(answer)}.",
+        })
+
+    elif mode == "subtract":
+        d = random.choice([4,5,6,8,10,12])
+        start_num = random.randint(2,d)
+        sub_num = random.randint(1,start_num-1)
+        f1 = Fraction(start_num,d)
+        f2 = Fraction(sub_num,d)
+        answer = f1-f2
+
+        context = {
+            "NFL":"game plan completed",
+            "NBA":"game time used",
+            "MLB":"innings completed",
+            "NHL":"period completed",
+            "Soccer":"match time used",
+            "Formula 1":"race completed",
+        }[sport]
+
+        case.update({
+            "story": f"A team had {_fraction_text(f1)} of the {context}, then {_fraction_text(f2)} was removed from that amount.",
+            "question": "What fraction remains?",
+            "f1": f1, "f2": f2, "answer": float(answer),
+            "unit": "remaining",
+            "hint1": "Subtract the second fraction from the first.",
+            "hint2": f"{_fraction_text(f1)} − {_fraction_text(f2)} = {_fraction_text(answer)}.",
+        })
+
+    elif mode == "multiply":
+        f1 = Fraction(random.randint(1,4), random.choice([4,5,6,8]))
+        f2 = Fraction(random.randint(1,4), random.choice([4,5,6,8]))
+        answer = f1*f2
+
+        context = {
+            "NFL":"practice reps",
+            "NBA":"shooting drill",
+            "MLB":"batting-practice swings",
+            "NHL":"power-play drill",
+            "Soccer":"shooting drill",
+            "Formula 1":"tire-stint plan",
+        }[sport]
+
+        case.update({
+            "story": f"A coach uses {_fraction_text(f1)} of the full {context}, and then uses {_fraction_text(f2)} of that selected part.",
+            "question": "What fraction of the full amount is actually used?",
+            "f1": f1, "f2": f2, "answer": float(answer),
+            "unit": "of the full amount",
+            "hint1": "The word 'of' usually signals multiplication.",
+            "hint2": f"{_fraction_text(f1)} × {_fraction_text(f2)} = {_fraction_text(answer)}.",
+        })
+
+    elif mode == "divide":
+        # Choose values that often produce a simple quotient.
+        divisor = Fraction(random.choice([1,2,3]), random.choice([2,3,4,5]))
+        groups = random.randint(2,6)
+        total = divisor * groups
+        if total > 1:
+            # Keep contexts easy to interpret as portions of a whole.
+            divisor = Fraction(1, random.choice([3,4,5,6]))
+            groups = random.randint(2, min(5, divisor.denominator))
+            total = divisor * groups
+
+        context = {
+            "NFL":"practice time",
+            "NBA":"court time",
+            "MLB":"pitch-count budget",
+            "NHL":"ice time",
+            "Soccer":"possession time",
+            "Formula 1":"fuel load",
+        }[sport]
+
+        case.update({
+            "story": f"A team has {_fraction_text(total)} of its {context} available. Each equal segment uses {_fraction_text(divisor)} of the full amount.",
+            "question": "How many equal segments can be made?",
+            "f1": total, "f2": divisor, "answer": float(groups),
+            "unit": "segments",
+            "hint1": "Ask how many times the smaller fraction fits into the larger fraction.",
+            "hint2": f"{_fraction_text(total)} ÷ {_fraction_text(divisor)} = {groups}.",
+        })
+
+    else:  # convert
+        denominator = random.choice([4,5,8,10,20])
+        numerator = random.randint(1,denominator-1)
+        fr = Fraction(numerator,denominator)
+        decimal = float(fr)
+
+        context = {
+            "NFL":"completion rate",
+            "NBA":"shooting rate",
+            "MLB":"hit rate",
+            "NHL":"save rate",
+            "Soccer":"passing rate",
+            "Formula 1":"lap-completion rate",
+        }[sport]
+
+        case.update({
+            "story": f"A {sport} {context} is {_fraction_text(fr)}.",
+            "question": "Write this fraction as a decimal.",
+            "fraction": fr, "answer": decimal,
+            "unit": "decimal",
+            "hint1": "A fraction bar means division.",
+            "hint2": f"{fr.numerator} ÷ {fr.denominator} = {decimal:g}.",
+        })
+
+    case["dynamic_id"] = f"{sport}|{mode}|{case.get('f1')}|{case.get('f2')}|{case.get('fraction')}|{case.get('total')}|{case.get('answer')}"
+    return case
+
+def fractions_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None, generated_case=None):
+    st.markdown('<div class="step">7th Grade Math Lab · Fractions & Rational Number Operations</div>', unsafe_allow_html=True)
+    st.subheader("➗ Sports Fractions Lab")
+    st.write(
+        "Use fractions as real parts of sports totals, practice sessions, rates, and game situations."
+    )
+
+    if generated_case is not None and generated_sport:
+        sport = generated_sport
+        case = generated_case
+    else:
+        sports = list(FRACTION_CASES)
+        if sport_filter != "Any Sport":
+            sports = [sport_filter]
+        sport = st.selectbox("Sport", sports, key="frac_sport")
+        labels = {f"{c['kind']} · {c['title']}": c for c in FRACTION_CASES[sport]}
+        selected = st.selectbox("Scenario", list(labels), key="frac_case")
+        case = make_dynamic_fraction_case(sport, labels[selected])
+
+    cid = clean_filename(f"{sport}_{case['title']}")
+    correct = float(case["answer"])
+
+    st.markdown(f"""
+    <div class="card">
+      <div class="step">{SPORT_ICONS.get(sport,'')} {sport} · {case['kind']}</div>
+      <h2>{case['title']}</h2>
+      <p><b>Situation:</b> {case['story']}</p>
+      <p><b>Question:</b> {case['question']}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("### Step 1 · Choose the operation")
+    mode = case["mode"]
+    correct_op = {
+        "fraction_of":"Multiply",
+        "add":"Add",
+        "subtract":"Subtract",
+        "multiply":"Multiply",
+        "divide":"Divide",
+        "convert":"Divide numerator by denominator",
+    }[mode]
+
+    choices = ["Add","Subtract","Multiply","Divide"]
+    if mode == "convert":
+        choices = [
+            "Divide numerator by denominator",
+            "Add numerator and denominator",
+            "Multiply numerator and denominator",
+            "Subtract denominator from numerator",
+        ]
+
+    order_key=f"frac_op_order_{cid}"
+    if order_key not in st.session_state:
+        vals=list(choices); random.shuffle(vals); st.session_state[order_key]=vals
+
+    op = st.radio("What should you do first?", st.session_state[order_key], key=f"frac_op_{cid}")
+    if st.button("Check My Plan", key=f"frac_op_check_{cid}", use_container_width=True):
+        if op == correct_op:
+            st.success("✅ Correct plan.")
+        else:
+            if difficulty == "Guided":
+                st.info(case.get("hint1","Think about what the fractions represent."))
+            else:
+                st.info("Try another operation.")
+
+    st.markdown("### Step 2 · Solve")
+    if mode in ("add","subtract","multiply"):
+        st.caption("You may enter a fraction, mixed number, or decimal.")
+    elif mode == "divide":
+        st.caption("Your final answer is the number of equal segments.")
+    elif mode == "convert":
+        st.caption("Enter the decimal equivalent.")
+    else:
+        st.caption("Enter the number represented by the fraction of the total.")
+
+    raw = st.text_input(
+        f"Your answer ({case['unit']})",
+        key=f"frac_answer_{cid}",
+        placeholder="Examples: 3/4, 1 1/2, 0.75, or 6"
+    )
+    ans = _parse_fraction_answer(raw)
+
+    if st.button("Check My Answer", key=f"frac_answer_check_{cid}", use_container_width=True):
+        tol = 0.01 if abs(correct) < 10 else max(0.1,abs(correct)*0.01)
+        if ans is not None and math.isclose(ans,correct,abs_tol=tol):
+            exact = Fraction(correct).limit_denominator(100)
+            if mode in ("add","subtract","multiply"):
+                st.success(f"✅ Correct — {_fraction_text(exact)} (about {correct:.3f} as a decimal).")
+            else:
+                st.success(f"✅ Correct — {fmt(correct)}.")
+        else:
+            if difficulty == "Guided":
+                st.info(case.get("hint1","Check how the fractions are related."))
+                st.caption(case.get("hint2",""))
+            else:
+                st.info("Check your fraction operation and try again.")
+
+    st.markdown("### Step 3 · Interpret the result")
+    if mode == "fraction_of":
+        prompt = "What does your answer count in this sports situation?"
+    elif mode == "convert":
+        prompt = "What does this decimal represent as a rate?"
+    elif mode == "divide":
+        prompt = "What do the equal segments represent?"
+    else:
+        prompt = "What does your fraction tell you about the sports situation?"
+
+    st.text_area(
+        prompt,
+        key=f"frac_reasoning_{cid}",
+        placeholder="Explain your answer using the sports situation."
+    )
 # =========================================================
 # SPORTS MATH CHALLENGE — MULTI-SKILL HIGHER-LEVEL THINKING
 # =========================================================
@@ -6538,13 +6899,13 @@ if branch == "Teacher Assignment Builder":
 
     assignment_type = st.selectbox(
         "Assignment type",
-        ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Statistics & Sampling", "Expressions & Algebraic Reasoning", "Sports Math Challenge"],
+        ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Statistics & Sampling", "Expressions & Algebraic Reasoning", "Fractions & Rational Number Operations", "Sports Math Challenge"],
         key="teacher_topic"
     )
     count = st.selectbox("Activities required", [1,2,3], key="teacher_count")
     sport_limit = st.selectbox("Allowed sport", ["Any Sport"] + list(RATE_CASES), key="teacher_sport")
 
-    if assignment_type in ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Statistics & Sampling", "Expressions & Algebraic Reasoning"]:
+    if assignment_type in ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Statistics & Sampling", "Expressions & Algebraic Reasoning", "Fractions & Rational Number Operations"]:
         difficulty = st.selectbox("Difficulty", ["Guided","Independent"], key="teacher_difficulty")
         challenge_level = "Any Level"
     else:
@@ -7053,6 +7414,8 @@ def make_dynamic_math_case(topic, sport, template, previous_case=None):
         return make_dynamic_statistics_case(sport, template, previous_case)
     if topic == "Expressions & Algebraic Reasoning":
         return make_dynamic_expression_case(sport, template, previous_case)
+    if topic == "Fractions & Rational Number Operations":
+        return make_dynamic_fraction_case(sport, template, previous_case)
     return copy.deepcopy(template)
 
 
@@ -7081,6 +7444,8 @@ def math_lab_final_reasoning(generated):
         return st.session_state.get(f"stats_reasoning_{cid}", "").strip()
     if topic == "Expressions & Algebraic Reasoning":
         return st.session_state.get(f"expr_reasoning_{cid}", "").strip()
+    if topic == "Fractions & Rational Number Operations":
+        return st.session_state.get(f"frac_reasoning_{cid}", "").strip()
     return ""
 
 def math_lab_answer_summary(generated):
@@ -7158,6 +7523,12 @@ def math_lab_answer_summary(generated):
             ("Written expression", st.session_state.get(f"expr_written_{cid}", "")),
             ("Evaluated value", st.session_state.get(f"expr_answer_{cid}", "")),
             ("Reasoning", st.session_state.get(f"expr_reasoning_{cid}", "")),
+        ]
+    elif topic == "Fractions & Rational Number Operations":
+        rows = [
+            ("Operation/plan", st.session_state.get(f"frac_op_{cid}", "")),
+            ("Answer", st.session_state.get(f"frac_answer_{cid}", "")),
+            ("Reasoning", st.session_state.get(f"frac_reasoning_{cid}", "")),
         ]
 
     return [(label, str(value)) for label, value in rows if str(value).strip()]
@@ -7265,6 +7636,12 @@ def math_lab_core_answer_correct(generated):
                 ans = parse_student_number(st.session_state.get(f"expr_answer_{cid}",""))
                 return ans is not None and math.isclose(ans,float(case.get("answer",0)),abs_tol=.05)
             return False
+
+        if topic == "Fractions & Rational Number Operations":
+            ans = _parse_fraction_answer(st.session_state.get(f"frac_answer_{cid}",""))
+            correct = float(case.get("answer",0))
+            tol = 0.01 if abs(correct) < 10 else max(0.1, abs(correct)*0.01)
+            return ans is not None and math.isclose(ans,correct,abs_tol=tol)
     except Exception:
         return False
 
@@ -7487,7 +7864,7 @@ if branch == "7th Grade Math Lab":
         with s1:
             config["topic"] = st.selectbox(
                 "Math topic",
-                ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Statistics & Sampling", "Expressions & Algebraic Reasoning"],
+                ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Geometry", "Statistics & Sampling", "Expressions & Algebraic Reasoning", "Fractions & Rational Number Operations"],
                 key="math_topic_select"
             )
         with s2:
@@ -7604,6 +7981,17 @@ if branch == "7th Grade Math Lab":
                 "difficulty": config.get("difficulty", "Guided"),
                 "title": template["title"], "case": fresh_case
             }
+        elif topic == "Fractions & Rational Number Operations":
+            options = FRACTION_CASES[actual_sport]
+            previous_title = previous.get("title") if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport else None
+            choices = [c for c in options if c["title"] != previous_title] or options
+            template = random.choice(choices)
+            fresh_case = make_dynamic_math_case(topic, actual_sport, template, previous_case)
+            generated = {
+                "topic": topic, "sport": actual_sport,
+                "difficulty": config.get("difficulty", "Guided"),
+                "title": template["title"], "case": fresh_case
+            }
         else:
             labels = list(RATE_CASES[actual_sport])
             previous_label = previous.get("athlete") if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport else None
@@ -7636,7 +8024,8 @@ if branch == "7th Grade Math Lab":
             "stats_mean_a_", "stats_mean_b_", "stats_compare_", "stats_range_a_",
             "stats_range_b_", "stats_consistent_", "stats_claim_", "stats_method_",
             "stats_method_order_", "stats_reasoning_",
-            "expr_order_", "expr_choice_", "expr_written_", "expr_answer_", "expr_reasoning_"
+            "expr_order_", "expr_choice_", "expr_written_", "expr_answer_", "expr_reasoning_",
+            "frac_op_order_", "frac_op_", "frac_answer_", "frac_reasoning_"
         )
         for key in list(st.session_state.keys()):
             if key.startswith(clear_prefixes):
@@ -7738,6 +8127,14 @@ if branch == "7th Grade Math Lab":
                 generated_title=generated["title"],
                 generated_case=generated.get("case")
             )
+        elif generated["topic"] == "Fractions & Rational Number Operations":
+            fractions_engine(
+                generated["sport"],
+                generated["difficulty"],
+                generated_sport=generated["sport"],
+                generated_title=generated["title"],
+                generated_case=generated.get("case")
+            )
         else:
             ratios_rates_engine(
                 generated["sport"],
@@ -7752,7 +8149,7 @@ if branch == "7th Grade Math Lab":
         st.caption("No practice question has been generated yet.")
 
     st.markdown("---")
-    st.caption("7th Grade Math Lab · Ratios & Proportions · Equations & Inequalities · Probability · Percent & Percent Change · Rational Numbers · Geometry · Statistics & Sampling · Expressions & Algebraic Reasoning")
+    st.caption("7th Grade Math Lab · Ratios & Proportions · Equations & Inequalities · Probability · Percent & Percent Change · Rational Numbers · Geometry · Statistics & Sampling · Expressions & Algebraic Reasoning · Fractions & Rational Number Operations")
     st.stop()
 
 st.markdown("""
