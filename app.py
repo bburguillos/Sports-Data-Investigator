@@ -5339,12 +5339,13 @@ def make_dynamic_fraction_case(sport, template, previous=None):
         })
 
     elif mode == "add":
-        d1 = random.choice([4,6,8,10,12])
-        d2 = random.choice([4,6,8,10,12])
-        n1 = random.randint(1,d1-1)
-        n2 = random.randint(1,d2-1)
-        f1 = Fraction(n1,d1)
-        f2 = Fraction(n2,d2)
+        # Both fractions are parts of ONE full session, so their sum must not exceed 1.
+        # Using a shared denominator also keeps the sports situation easy to visualize.
+        d = random.choice([4,5,6,8,10,12])
+        n1 = random.randint(1, d-2)
+        n2 = random.randint(1, d-n1)
+        f1 = Fraction(n1, d)
+        f2 = Fraction(n2, d)
         answer = f1 + f2
 
         noun = {
@@ -5356,12 +5357,32 @@ def make_dynamic_fraction_case(sport, template, previous=None):
             "Formula 1":"practice session",
         }[sport]
 
+        block1 = {
+            "NFL":"team-drill block",
+            "NBA":"shooting block",
+            "MLB":"pitching block",
+            "NHL":"skating block",
+            "Soccer":"passing block",
+            "Formula 1":"practice stint",
+        }[sport]
+        block2 = {
+            "NFL":"position-drill block",
+            "NBA":"conditioning block",
+            "MLB":"fielding block",
+            "NHL":"shooting block",
+            "Soccer":"shooting block",
+            "Formula 1":"second practice stint",
+        }[sport]
+
         case.update({
-            "story": f"An athlete completes {_fraction_text(f1)} of a {noun} in one block and {_fraction_text(f2)} in another block.",
-            "question": "What total fraction of the session was completed?",
+            "story": (
+                f"During one full {noun}, an athlete completes {_fraction_text(f1)} of the session "
+                f"in the {block1} and another {_fraction_text(f2)} of the same session in the {block2}."
+            ),
+            "question": "What fraction of the entire session has been completed altogether?",
             "f1": f1, "f2": f2, "answer": float(answer),
             "unit": "of the session",
-            "hint1": "Find a common denominator before adding.",
+            "hint1": "Both fractions describe parts of the same full session, so add them.",
             "hint2": f"{_fraction_text(f1)} + {_fraction_text(f2)} = {_fraction_text(answer)}.",
         })
 
@@ -5537,7 +5558,7 @@ def fractions_engine(sport_filter="Any Sport", difficulty="Guided", generated_sp
 
     st.markdown("### Step 2 · Solve")
     if mode in ("add","subtract","multiply"):
-        st.caption("You may enter a fraction, mixed number, or decimal.")
+        st.caption("You may enter an equivalent fraction, mixed number, or decimal.")
     elif mode == "divide":
         st.caption("Your final answer is the number of equal segments.")
     elif mode == "convert":
