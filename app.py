@@ -2,6 +2,7 @@
 import streamlit as st
 import json
 import math
+import random
 import uuid
 import base64
 from io import BytesIO
@@ -1755,17 +1756,17 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided"):
 EQUATION_CASES = {
     "NFL": [
         {
-            "title": "Reach 1,000 Yards",
+            "title": "Touchdown Pace",
             "kind": "Equation",
-            "story": "A receiver has 780 receiving yards. The goal is to finish with exactly 1,000 yards.",
-            "question": "How many more receiving yards are needed?",
-            "models": ["780 + x = 1000", "780x = 1000", "1000 + x = 780", "780 - x = 1000"],
-            "correct_model": "780 + x = 1000",
-            "answer": 220,
-            "unit": "yards",
-            "hint1": "Think about what must be added to 780 to reach 1,000.",
-            "hint2": "Subtract the current total from the target: 1,000 − 780.",
-            "meaning": "The receiver needs 220 more receiving yards."
+            "story": "A running back has scored 6 touchdowns in 3 games at the same rate each game.",
+            "question": "If x is the average touchdowns per game, what is x?",
+            "models": ["3x = 6", "x + 3 = 6", "6x = 3", "x - 3 = 6"],
+            "correct_model": "3x = 6",
+            "answer": 2,
+            "unit": "touchdowns per game",
+            "hint1": "Three equal game amounts combine to make 6 touchdowns.",
+            "hint2": "3x = 6, so divide both sides by 3.",
+            "meaning": "The running back averaged 2 touchdowns per game."
         },
         {
             "title": "Fantasy Comeback",
@@ -1800,28 +1801,28 @@ EQUATION_CASES = {
             "kind": "Equation",
             "story": "A team already has 52 points. Every remaining made three-pointer adds 3 points. The team wants exactly 70 points.",
             "question": "How many three-pointers are needed?",
-            "models": ["52 + 3x = 70", "52 + x = 70", "3(52 + x) = 70", "70 + 3x = 52"],
+            "models": ["52 + 3x = 70", "52 + x = 70", "3x = 70", "70 + 3x = 52"],
             "correct_model": "52 + 3x = 70",
             "answer": 6,
             "unit": "three-pointers",
-            "hint1": "Each unknown three-pointer is worth 3 points.",
-            "hint2": "70 − 52 = 18, then 18 ÷ 3 = 6.",
+            "hint1": "The team starts with 52, then each unknown three-pointer adds 3 more points.",
+            "hint2": "52 + 3x = 70 → subtract 52, then divide by 3.",
             "meaning": "The team needs 6 more made three-pointers."
         },
     ],
     "MLB": [
         {
-            "title": "Home Run Goal",
+            "title": "Batting Practice Groups",
             "kind": "Equation",
-            "story": "A hitter has 34 home runs and wants to finish with exactly 50.",
-            "question": "How many more home runs are needed?",
-            "models": ["34 + x = 50", "34x = 50", "50 + x = 34", "34 - x = 50"],
-            "correct_model": "34 + x = 50",
-            "answer": 16,
-            "unit": "home runs",
-            "hint1": "What must be added to 34 to reach 50?",
-            "hint2": "50 − 34 = 16.",
-            "meaning": "The hitter needs 16 more home runs."
+            "story": "A coach has 72 baseballs and splits them equally among 6 batting stations.",
+            "question": "How many baseballs should go to each station?",
+            "models": ["6x = 72", "x + 6 = 72", "72x = 6", "x - 6 = 72"],
+            "correct_model": "6x = 72",
+            "answer": 12,
+            "unit": "baseballs per station",
+            "hint1": "Six equal groups make a total of 72.",
+            "hint2": "6x = 72, so divide 72 by 6.",
+            "meaning": "Each batting station gets 12 baseballs."
         },
         {
             "title": "Ballpark Budget",
@@ -1839,17 +1840,17 @@ EQUATION_CASES = {
     ],
     "NHL": [
         {
-            "title": "Point Streak Target",
+            "title": "Penalty Minutes Drop",
             "kind": "Equation",
-            "story": "A hockey player has 41 season points. The player wants exactly 60.",
-            "question": "How many more points are needed?",
-            "models": ["41 + x = 60", "41x = 60", "60 + x = 41", "41 - x = 60"],
-            "correct_model": "41 + x = 60",
-            "answer": 19,
-            "unit": "points",
-            "hint1": "What amount added to 41 reaches 60?",
-            "hint2": "60 − 41 = 19.",
-            "meaning": "The player needs 19 more points."
+            "story": "A player had 18 penalty minutes, then reduced the total by x minutes to finish with 11.",
+            "question": "How many penalty minutes were reduced?",
+            "models": ["18 - x = 11", "18 + x = 11", "11 - x = 18", "18x = 11"],
+            "correct_model": "18 - x = 11",
+            "answer": 7,
+            "unit": "minutes",
+            "hint1": "The starting amount gets smaller by x.",
+            "hint2": "18 − x = 11, so x = 7.",
+            "meaning": "The player's total was reduced by 7 penalty minutes."
         },
         {
             "title": "Shots on Goal",
@@ -1867,17 +1868,17 @@ EQUATION_CASES = {
     ],
     "Soccer": [
         {
-            "title": "Goal Difference",
+            "title": "Training Sessions",
             "kind": "Equation",
-            "story": "A club has scored 47 league goals. Its target is exactly 60.",
-            "question": "How many more goals are needed?",
-            "models": ["47 + x = 60", "47x = 60", "60 + x = 47", "47 - x = 60"],
-            "correct_model": "47 + x = 60",
-            "answer": 13,
-            "unit": "goals",
-            "hint1": "Find the difference between the target and the current total.",
-            "hint2": "60 − 47 = 13.",
-            "meaning": "The club needs 13 more goals."
+            "story": "A player completes 4 identical shooting drills each session. After several sessions, the player has completed 28 drills.",
+            "question": "How many training sessions were completed?",
+            "models": ["4x = 28", "x + 4 = 28", "28x = 4", "x - 4 = 28"],
+            "correct_model": "4x = 28",
+            "answer": 7,
+            "unit": "sessions",
+            "hint1": "Each session contributes 4 drills.",
+            "hint2": "4x = 28, so x = 7.",
+            "meaning": "The player completed 7 training sessions."
         },
         {
             "title": "Tournament Points",
@@ -1895,17 +1896,17 @@ EQUATION_CASES = {
     ],
     "Formula 1": [
         {
-            "title": "Championship Target",
+            "title": "Pit Stop Average",
             "kind": "Equation",
-            "story": "A driver has 186 championship points and wants exactly 250.",
-            "question": "How many more points are needed?",
-            "models": ["186 + x = 250", "186x = 250", "250 + x = 186", "186 - x = 250"],
-            "correct_model": "186 + x = 250",
-            "answer": 64,
-            "unit": "points",
-            "hint1": "Find the difference between the target and the current total.",
-            "hint2": "250 − 186 = 64.",
-            "meaning": "The driver needs 64 more championship points."
+            "story": "A team spends 48 total seconds on 6 equal-length pit stops.",
+            "question": "If each pit stop takes x seconds, what is x?",
+            "models": ["6x = 48", "x + 6 = 48", "48x = 6", "x - 6 = 48"],
+            "correct_model": "6x = 48",
+            "answer": 8,
+            "unit": "seconds",
+            "hint1": "Six equal pit-stop times add up to 48 seconds.",
+            "hint2": "6x = 48, so divide by 6.",
+            "meaning": "Each pit stop averaged 8 seconds."
         },
         {
             "title": "Race Weekend Budget",
@@ -1971,9 +1972,16 @@ def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided")
     # Step 2: choose model.
     st.markdown("### Step 2 · Model the situation")
     st.write("Which mathematical statement best represents the situation?")
+
+    model_order_key = f"eq_model_order_{case_id}"
+    if model_order_key not in st.session_state:
+        shuffled_models = list(case["models"])
+        random.shuffle(shuffled_models)
+        st.session_state[model_order_key] = shuffled_models
+
     model_choice = st.radio(
         "Choose a model",
-        case["models"],
+        st.session_state[model_order_key],
         key=f"eq_model_{case_id}",
         label_visibility="collapsed"
     )
@@ -2035,9 +2043,15 @@ def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided")
             "The variable does not represent a quantity in this situation."
         ]
 
+    interpretation_order_key = f"eq_interpret_order_{case_id}"
+    if interpretation_order_key not in st.session_state:
+        shuffled_interpretations = list(interpretation_options)
+        random.shuffle(shuffled_interpretations)
+        st.session_state[interpretation_order_key] = shuffled_interpretations
+
     interpretation = st.radio(
         "Which statement best explains the solution?",
-        interpretation_options,
+        st.session_state[interpretation_order_key],
         key=f"eq_interpret_{case_id}"
     )
 
