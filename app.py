@@ -3604,6 +3604,575 @@ def percent_engine(sport_filter="Any Sport", difficulty="Guided", generated_spor
         key=f"pct_reasoning_{case_id}",
         placeholder="Use the numbers and the situation in your explanation."
     )
+
+# =========================================================
+# 7TH GRADE MATH LAB — RATIONAL NUMBERS
+# =========================================================
+RATIONAL_CASES = {
+    "NFL": [
+        {
+            "title": "Drive Yardage Change",
+            "kind": "Integer Addition",
+            "story": "An offense gains 18 yards, then loses 7 yards on the next play.",
+            "expression": "18 + (-7)",
+            "answer": 11,
+            "unit": "yards",
+            "question": "What is the net yardage change?",
+            "hint1": "A loss can be represented by a negative number.",
+            "hint2": "18 + (−7) = 11."
+        },
+        {
+            "title": "Penalty Loss",
+            "kind": "Integer Subtraction",
+            "story": "A team is at +12 yards on a drive, then receives a 15-yard penalty.",
+            "expression": "12 - 15",
+            "answer": -3,
+            "unit": "yards",
+            "question": "What is the team's net position compared with where the drive started?",
+            "hint1": "Subtract the penalty from the gain.",
+            "hint2": "12 − 15 = −3."
+        },
+        {
+            "title": "Fantasy Point Swing",
+            "kind": "Decimal Addition",
+            "story": "A fantasy player earns 8.6 points, then loses 2.0 points because of a turnover.",
+            "expression": "8.6 + (-2.0)",
+            "answer": 6.6,
+            "unit": "fantasy points",
+            "question": "What is the player's net fantasy score from those events?",
+            "hint1": "Treat the lost points as a negative value.",
+            "hint2": "8.6 + (−2.0) = 6.6."
+        },
+        {
+            "title": "Field Position Difference",
+            "kind": "Integer Difference",
+            "story": "One drive starts at the 25-yard line and another starts at the 42-yard line.",
+            "expression": "42 - 25",
+            "answer": 17,
+            "unit": "yards",
+            "question": "How much better is the second starting field position?",
+            "hint1": "Find the distance between the two positions.",
+            "hint2": "42 − 25 = 17."
+        },
+        {
+            "title": "Quarter Scoring Differential",
+            "kind": "Signed Difference",
+            "story": "A team scores 10 points in one quarter and allows 17.",
+            "expression": "10 - 17",
+            "answer": -7,
+            "unit": "points",
+            "question": "What is the scoring differential for the quarter?",
+            "hint1": "Differential = points scored − points allowed.",
+            "hint2": "10 − 17 = −7."
+        },
+        {
+            "title": "Average Yardage Adjustment",
+            "kind": "Decimal Subtraction",
+            "story": "A runner averages 5.4 yards per carry before a game and 4.8 after.",
+            "expression": "4.8 - 5.4",
+            "answer": -0.6,
+            "unit": "yards per carry",
+            "question": "What is the change in average yards per carry?",
+            "hint1": "Change = new value − old value.",
+            "hint2": "4.8 − 5.4 = −0.6."
+        },
+    ],
+    "NBA": [
+        {
+            "title": "Plus-Minus Swing",
+            "kind": "Integer Addition",
+            "story": "A player is +9 in the first half and −4 in the second half.",
+            "expression": "9 + (-4)",
+            "answer": 5,
+            "unit": "plus-minus",
+            "question": "What is the player's total plus-minus?",
+            "hint1": "Combine the positive and negative values.",
+            "hint2": "9 + (−4) = 5."
+        },
+        {
+            "title": "Scoring Differential",
+            "kind": "Signed Difference",
+            "story": "A team scores 102 points and allows 110.",
+            "expression": "102 - 110",
+            "answer": -8,
+            "unit": "points",
+            "question": "What is the team's scoring differential?",
+            "hint1": "Differential = points scored − points allowed.",
+            "hint2": "102 − 110 = −8."
+        },
+        {
+            "title": "Three-Point Percentage Change",
+            "kind": "Decimal Subtraction",
+            "story": "A player's three-point percentage changes from 38.5% to 35.2%.",
+            "expression": "35.2 - 38.5",
+            "answer": -3.3,
+            "unit": "percentage points",
+            "question": "What is the change in percentage points?",
+            "hint1": "Use new value − old value.",
+            "hint2": "35.2 − 38.5 = −3.3."
+        },
+        {
+            "title": "Bench Scoring Difference",
+            "kind": "Integer Difference",
+            "story": "One team's bench scores 36 points while the other bench scores 29.",
+            "expression": "36 - 29",
+            "answer": 7,
+            "unit": "points",
+            "question": "What is the scoring difference between the benches?",
+            "hint1": "Subtract the smaller total from the larger.",
+            "hint2": "36 − 29 = 7."
+        },
+        {
+            "title": "Net Rating Change",
+            "kind": "Decimal Addition",
+            "story": "A team's net rating is +6.8, then changes by −2.5.",
+            "expression": "6.8 + (-2.5)",
+            "answer": 4.3,
+            "unit": "rating points",
+            "question": "What is the new net rating?",
+            "hint1": "A decrease is represented by a negative value.",
+            "hint2": "6.8 + (−2.5) = 4.3."
+        },
+        {
+            "title": "Shot Value Difference",
+            "kind": "Rational Difference",
+            "story": "A two-point shot is worth 2 points and a free throw is worth 1 point.",
+            "expression": "2 - 1",
+            "answer": 1,
+            "unit": "point",
+            "question": "What is the difference in value between the two shots?",
+            "hint1": "Compare the two point values.",
+            "hint2": "2 − 1 = 1."
+        },
+    ],
+    "MLB": [
+        {
+            "title": "Run Differential",
+            "kind": "Signed Difference",
+            "story": "A team scores 4 runs and allows 7.",
+            "expression": "4 - 7",
+            "answer": -3,
+            "unit": "runs",
+            "question": "What is the run differential?",
+            "hint1": "Run differential = runs scored − runs allowed.",
+            "hint2": "4 − 7 = −3."
+        },
+        {
+            "title": "Batting Average Change",
+            "kind": "Decimal Subtraction",
+            "story": "A player's batting average changes from .284 to .271.",
+            "expression": "0.271 - 0.284",
+            "answer": -0.013,
+            "unit": "batting-average points",
+            "question": "What is the change in batting average?",
+            "hint1": "Use new average − old average.",
+            "hint2": "0.271 − 0.284 = −0.013."
+        },
+        {
+            "title": "Pitch Count Adjustment",
+            "kind": "Integer Addition",
+            "story": "A pitcher is scheduled for 85 pitches, but the limit is adjusted downward by 12.",
+            "expression": "85 + (-12)",
+            "answer": 73,
+            "unit": "pitches",
+            "question": "What is the new pitch limit?",
+            "hint1": "A downward adjustment can be represented as a negative number.",
+            "hint2": "85 + (−12) = 73."
+        },
+        {
+            "title": "Inning Run Swing",
+            "kind": "Integer Addition",
+            "story": "A team has a +3 run differential through six innings, then is outscored by 5 runs.",
+            "expression": "3 + (-5)",
+            "answer": -2,
+            "unit": "runs",
+            "question": "What is the new run differential?",
+            "hint1": "Being outscored by 5 changes the differential by −5.",
+            "hint2": "3 + (−5) = −2."
+        },
+        {
+            "title": "ERA Difference",
+            "kind": "Decimal Difference",
+            "story": "Pitcher A has a 3.40 ERA and Pitcher B has a 4.15 ERA.",
+            "expression": "4.15 - 3.40",
+            "answer": 0.75,
+            "unit": "ERA",
+            "question": "What is the difference between their ERAs?",
+            "hint1": "Subtract the smaller ERA from the larger.",
+            "hint2": "4.15 − 3.40 = 0.75."
+        },
+        {
+            "title": "Base Advancement",
+            "kind": "Integer Subtraction",
+            "story": "A runner moves forward 3 bases in one sequence, then is forced back 1 base in a classroom simulation.",
+            "expression": "3 - 1",
+            "answer": 2,
+            "unit": "bases",
+            "question": "What is the net advancement?",
+            "hint1": "Forward movement is positive; backward movement reduces it.",
+            "hint2": "3 − 1 = 2."
+        },
+    ],
+    "NHL": [
+        {
+            "title": "Plus-Minus Total",
+            "kind": "Integer Addition",
+            "story": "A player is +6 over one stretch and −9 over another.",
+            "expression": "6 + (-9)",
+            "answer": -3,
+            "unit": "plus-minus",
+            "question": "What is the combined plus-minus?",
+            "hint1": "Combine the positive and negative values.",
+            "hint2": "6 + (−9) = −3."
+        },
+        {
+            "title": "Goal Differential",
+            "kind": "Signed Difference",
+            "story": "A team scores 2 goals and allows 5.",
+            "expression": "2 - 5",
+            "answer": -3,
+            "unit": "goals",
+            "question": "What is the goal differential?",
+            "hint1": "Differential = goals scored − goals allowed.",
+            "hint2": "2 − 5 = −3."
+        },
+        {
+            "title": "Save Percentage Change",
+            "kind": "Decimal Subtraction",
+            "story": "A goalie's save percentage changes from .918 to .904.",
+            "expression": "0.904 - 0.918",
+            "answer": -0.014,
+            "unit": "save-percentage points",
+            "question": "What is the change in save percentage?",
+            "hint1": "Use new − old.",
+            "hint2": "0.904 − 0.918 = −0.014."
+        },
+        {
+            "title": "Penalty Differential",
+            "kind": "Integer Difference",
+            "story": "One team takes 6 penalties and the other takes 4.",
+            "expression": "6 - 4",
+            "answer": 2,
+            "unit": "penalties",
+            "question": "What is the difference in penalty totals?",
+            "hint1": "Compare the two totals.",
+            "hint2": "6 − 4 = 2."
+        },
+        {
+            "title": "Shot Differential Swing",
+            "kind": "Integer Addition",
+            "story": "A team is +8 in shot differential, then is outshot by 11.",
+            "expression": "8 + (-11)",
+            "answer": -3,
+            "unit": "shots",
+            "question": "What is the new shot differential?",
+            "hint1": "Being outshot by 11 changes the differential by −11.",
+            "hint2": "8 + (−11) = −3."
+        },
+        {
+            "title": "Ice Time Difference",
+            "kind": "Decimal Difference",
+            "story": "One player logs 21.5 minutes and another logs 18.75 minutes.",
+            "expression": "21.5 - 18.75",
+            "answer": 2.75,
+            "unit": "minutes",
+            "question": "What is the difference in ice time?",
+            "hint1": "Subtract the smaller time from the larger.",
+            "hint2": "21.5 − 18.75 = 2.75."
+        },
+    ],
+    "Soccer": [
+        {
+            "title": "Goal Differential",
+            "kind": "Signed Difference",
+            "story": "A club scores 1 goal and allows 3.",
+            "expression": "1 - 3",
+            "answer": -2,
+            "unit": "goals",
+            "question": "What is the goal differential?",
+            "hint1": "Goal differential = goals scored − goals allowed.",
+            "hint2": "1 − 3 = −2."
+        },
+        {
+            "title": "Table Point Swing",
+            "kind": "Integer Addition",
+            "story": "A club is 5 points above a rival, then loses 8 points of ground over several matches.",
+            "expression": "5 + (-8)",
+            "answer": -3,
+            "unit": "points",
+            "question": "What is the club's new position relative to the rival?",
+            "hint1": "Losing ground is a negative change.",
+            "hint2": "5 + (−8) = −3."
+        },
+        {
+            "title": "Possession Change",
+            "kind": "Decimal Subtraction",
+            "story": "A team's possession changes from 57.5% to 52.0%.",
+            "expression": "52.0 - 57.5",
+            "answer": -5.5,
+            "unit": "percentage points",
+            "question": "What is the change in possession?",
+            "hint1": "Use new value − old value.",
+            "hint2": "52.0 − 57.5 = −5.5."
+        },
+        {
+            "title": "Shot Difference",
+            "kind": "Integer Difference",
+            "story": "One team takes 14 shots and the opponent takes 9.",
+            "expression": "14 - 9",
+            "answer": 5,
+            "unit": "shots",
+            "question": "What is the shot difference?",
+            "hint1": "Subtract the opponent's total.",
+            "hint2": "14 − 9 = 5."
+        },
+        {
+            "title": "Expected Goals Change",
+            "kind": "Decimal Addition",
+            "story": "A team's expected-goals difference is +1.4, then changes by −2.1.",
+            "expression": "1.4 + (-2.1)",
+            "answer": -0.7,
+            "unit": "xG",
+            "question": "What is the new expected-goals difference?",
+            "hint1": "Combine the positive value with the negative change.",
+            "hint2": "1.4 + (−2.1) = −0.7."
+        },
+        {
+            "title": "Match Rating Difference",
+            "kind": "Decimal Difference",
+            "story": "Two players receive ratings of 8.2 and 6.9.",
+            "expression": "8.2 - 6.9",
+            "answer": 1.3,
+            "unit": "rating points",
+            "question": "What is the difference in their ratings?",
+            "hint1": "Subtract the smaller rating from the larger.",
+            "hint2": "8.2 − 6.9 = 1.3."
+        },
+    ],
+    "Formula 1": [
+        {
+            "title": "Grid Position Change",
+            "kind": "Integer Addition",
+            "story": "A driver gains 6 positions, then loses 4 positions.",
+            "expression": "6 + (-4)",
+            "answer": 2,
+            "unit": "positions",
+            "question": "What is the net change in position?",
+            "hint1": "A loss of position is negative.",
+            "hint2": "6 + (−4) = 2."
+        },
+        {
+            "title": "Championship Point Gap",
+            "kind": "Signed Difference",
+            "story": "Driver A has 188 points and Driver B has 205.",
+            "expression": "188 - 205",
+            "answer": -17,
+            "unit": "points",
+            "question": "What is Driver A's point differential relative to Driver B?",
+            "hint1": "Use Driver A − Driver B.",
+            "hint2": "188 − 205 = −17."
+        },
+        {
+            "title": "Lap Time Change",
+            "kind": "Decimal Subtraction",
+            "story": "A lap improves from 91.8 seconds to 90.9 seconds.",
+            "expression": "90.9 - 91.8",
+            "answer": -0.9,
+            "unit": "seconds",
+            "question": "What is the change in lap time?",
+            "hint1": "Use new time − old time.",
+            "hint2": "90.9 − 91.8 = −0.9."
+        },
+        {
+            "title": "Position Differential",
+            "kind": "Integer Difference",
+            "story": "One driver finishes 4th and another finishes 11th.",
+            "expression": "11 - 4",
+            "answer": 7,
+            "unit": "positions",
+            "question": "How many finishing positions separate the drivers?",
+            "hint1": "Find the distance between 4 and 11.",
+            "hint2": "11 − 4 = 7."
+        },
+        {
+            "title": "Team Point Adjustment",
+            "kind": "Integer Addition",
+            "story": "A team has 46 points, then receives a −10 point penalty.",
+            "expression": "46 + (-10)",
+            "answer": 36,
+            "unit": "points",
+            "question": "What is the adjusted point total?",
+            "hint1": "A penalty can be represented by a negative number.",
+            "hint2": "46 + (−10) = 36."
+        },
+        {
+            "title": "Pit Stop Difference",
+            "kind": "Decimal Difference",
+            "story": "Two pit stops take 2.4 seconds and 3.1 seconds.",
+            "expression": "3.1 - 2.4",
+            "answer": 0.7,
+            "unit": "seconds",
+            "question": "What is the difference in pit-stop time?",
+            "hint1": "Subtract the shorter time from the longer.",
+            "hint2": "3.1 − 2.4 = 0.7."
+        },
+    ],
+}
+
+def rational_numbers_engine(sport_filter="Any Sport", difficulty="Guided", generated_sport=None, generated_title=None):
+    st.markdown('<div class="step">7th Grade Math Lab · Rational Numbers</div>', unsafe_allow_html=True)
+    st.subheader("➕➖ Sports Rational Numbers Lab")
+    st.write(
+        "Use positive and negative numbers, decimals, and differences to describe changes in sports."
+    )
+
+    if generated_sport and generated_title:
+        sport = generated_sport
+        matches = [c for c in RATIONAL_CASES[sport] if c["title"] == generated_title]
+        if not matches:
+            st.error("The generated rational-numbers problem could not be found.")
+            return
+        case = matches[0]
+    else:
+        sports = list(RATIONAL_CASES)
+        if sport_filter != "Any Sport":
+            sports = [sport_filter]
+        sport = st.selectbox("Sport", sports, key="ratnum_sport")
+        labels = {f"{c['kind']} · {c['title']}": c for c in RATIONAL_CASES[sport]}
+        chosen = st.selectbox("Scenario", list(labels), key="ratnum_case")
+        case = labels[chosen]
+
+    case_id = clean_filename(f"{sport}_{case['title']}")
+    correct = float(case["answer"])
+
+    st.markdown(f"""
+    <div class="card">
+      <div class="step">{SPORT_ICONS.get(sport,'')} {sport} · {case['kind']}</div>
+      <h2>{case['title']}</h2>
+      <p><b>Situation:</b> {case['story']}</p>
+      <p><b>Question:</b> {case['question']}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("### Step 1 · Predict the sign")
+    sign_options = ["Positive", "Negative", "Zero"]
+    sign_key = f"ratnum_sign_order_{case_id}"
+    if sign_key not in st.session_state:
+        shuffled = list(sign_options)
+        random.shuffle(shuffled)
+        st.session_state[sign_key] = shuffled
+
+    sign_choice = st.radio(
+        "Before calculating, should the answer be positive, negative, or zero?",
+        st.session_state[sign_key],
+        key=f"ratnum_sign_{case_id}"
+    )
+    expected_sign = "Positive" if correct > 0 else "Negative" if correct < 0 else "Zero"
+
+    if st.button("Check My Sign", key=f"ratnum_sign_check_{case_id}", use_container_width=True):
+        if sign_choice == expected_sign:
+            st.success("✅ Correct.")
+        else:
+            st.info("Think about whether the situation ends above, below, or exactly at zero.")
+
+    st.markdown("### Step 2 · Write the numerical expression")
+    expression_options = [
+        case["expression"],
+        case["expression"].replace("+ (-", "- ").replace(")", "") if "+ (-" in case["expression"] else f"-({case['expression']})",
+        f"{abs(correct)} + {abs(correct)}",
+        f"{abs(correct)} - 0"
+    ]
+    # Remove duplicates while preserving order.
+    expression_options = list(dict.fromkeys(expression_options))
+    expr_order_key = f"ratnum_expr_order_{case_id}"
+    if expr_order_key not in st.session_state:
+        shuffled = list(expression_options)
+        random.shuffle(shuffled)
+        st.session_state[expr_order_key] = shuffled
+
+    expr_choice = st.radio(
+        "Which expression matches the situation?",
+        st.session_state[expr_order_key],
+        key=f"ratnum_expr_{case_id}"
+    )
+
+    if st.button("Check My Expression", key=f"ratnum_expr_check_{case_id}", use_container_width=True):
+        if expr_choice == case["expression"]:
+            st.success("✅ Correct expression.")
+        else:
+            st.info("Match the direction of each change in the story to a positive or negative value.")
+
+    st.markdown("### Step 3 · Calculate")
+    raw = st.text_input(
+        f"Answer in {case['unit']}",
+        key=f"ratnum_answer_{case_id}",
+        placeholder="Type your answer"
+    )
+    student = parse_student_number(raw)
+
+    attempts_key = f"ratnum_attempts_{case_id}"
+    if attempts_key not in st.session_state:
+        st.session_state[attempts_key] = 0
+
+    if st.button("Check My Answer", key=f"ratnum_answer_check_{case_id}", use_container_width=True):
+        tolerance = 0.001 if abs(correct) < 1 else 0.05
+        if student is not None and math.isclose(student, correct, abs_tol=tolerance):
+            st.success(f"✅ Correct — {fmt(correct)} {case['unit']}.")
+            st.session_state[attempts_key] = 0
+        else:
+            st.session_state[attempts_key] += 1
+            if st.session_state[attempts_key] == 1:
+                st.info(case["hint1"])
+            else:
+                st.warning(case["hint2"])
+
+    st.markdown("### Step 4 · Interpret the answer")
+    if correct < 0:
+        context_options = [
+            f"The result is negative, meaning the situation represents a decrease, loss, or value below the comparison point.",
+            f"The result is positive, meaning the value increased.",
+            "The sign does not matter in this situation."
+        ]
+        correct_context = context_options[0]
+    elif correct > 0:
+        context_options = [
+            f"The result is positive, meaning the situation represents a gain, advantage, or value above the comparison point.",
+            f"The result is negative, meaning the value decreased.",
+            "The sign does not matter in this situation."
+        ]
+        correct_context = context_options[0]
+    else:
+        context_options = [
+            "The result is zero, meaning there is no net difference.",
+            "The result must be positive.",
+            "The result must be negative."
+        ]
+        correct_context = context_options[0]
+
+    context_order_key = f"ratnum_context_order_{case_id}"
+    if context_order_key not in st.session_state:
+        shuffled = list(context_options)
+        random.shuffle(shuffled)
+        st.session_state[context_order_key] = shuffled
+
+    context_choice = st.radio(
+        "Which interpretation fits best?",
+        st.session_state[context_order_key],
+        key=f"ratnum_context_{case_id}"
+    )
+
+    if st.button("Check My Interpretation", key=f"ratnum_context_check_{case_id}", use_container_width=True):
+        if context_choice == correct_context:
+            st.success("✅ Correct.")
+        else:
+            st.info("Connect the sign of your answer back to the sports situation.")
+
+    st.markdown("### Final · Explain it in your own words")
+    st.text_area(
+        "Explain what the positive or negative answer means in this situation.",
+        key=f"ratnum_reasoning_{case_id}",
+        placeholder="Use the sports context in your explanation."
+    )
 # =========================================================
 # SPORTS MATH CHALLENGE — MULTI-SKILL HIGHER-LEVEL THINKING
 # =========================================================
@@ -4921,13 +5490,13 @@ if branch == "Teacher Assignment Builder":
 
     assignment_type = st.selectbox(
         "Assignment type",
-        ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Sports Math Challenge"],
+        ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers", "Sports Math Challenge"],
         key="teacher_topic"
     )
     count = st.selectbox("Activities required", [1,2,3], key="teacher_count")
     sport_limit = st.selectbox("Allowed sport", ["Any Sport"] + list(RATE_CASES), key="teacher_sport")
 
-    if assignment_type in ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change"]:
+    if assignment_type in ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers"]:
         difficulty = st.selectbox("Difficulty", ["Guided","Independent"], key="teacher_difficulty")
         challenge_level = "Any Level"
     else:
@@ -5071,7 +5640,7 @@ if branch == "7th Grade Math Lab":
         with s1:
             config["topic"] = st.selectbox(
                 "Math topic",
-                ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change"],
+                ["Ratios, Rates & Proportions", "Equations & Inequalities", "Probability", "Percent & Percent Change", "Rational Numbers"],
                 key="math_topic_select"
             )
         with s2:
@@ -5142,6 +5711,17 @@ if branch == "7th Grade Math Lab":
                 "difficulty": config.get("difficulty", "Guided"),
                 "title": selected["title"],
             }
+        elif topic == "Rational Numbers":
+            options = RATIONAL_CASES[actual_sport]
+            if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
+                options = [c for c in options if c["title"] != previous.get("title")] or options
+            selected = random.choice(options)
+            generated = {
+                "topic": topic,
+                "sport": actual_sport,
+                "difficulty": config.get("difficulty", "Guided"),
+                "title": selected["title"],
+            }
         else:
             athletes = list(RATE_CASES[actual_sport])
             if previous and previous.get("topic") == topic and previous.get("sport") == actual_sport:
@@ -5163,7 +5743,10 @@ if branch == "7th Grade Math Lab":
             "prob_ratio_", "prob_decimal_", "prob_percent_", "prob_prediction_",
             "prob_reasoning_", "prob_ratio_attempts_",
             "pct_model_", "pct_model_order_", "pct_answer_", "pct_attempts_",
-            "pct_direction_", "pct_reasoning_"
+            "pct_direction_", "pct_reasoning_",
+            "ratnum_sign_", "ratnum_sign_order_", "ratnum_expr_", "ratnum_expr_order_",
+            "ratnum_answer_", "ratnum_attempts_", "ratnum_context_", "ratnum_context_order_",
+            "ratnum_reasoning_"
         )
         for key in list(st.session_state.keys()):
             if key.startswith(clear_prefixes):
@@ -5229,6 +5812,13 @@ if branch == "7th Grade Math Lab":
                 generated_sport=generated["sport"],
                 generated_title=generated["title"]
             )
+        elif generated["topic"] == "Rational Numbers":
+            rational_numbers_engine(
+                generated["sport"],
+                generated["difficulty"],
+                generated_sport=generated["sport"],
+                generated_title=generated["title"]
+            )
         else:
             ratios_rates_engine(
                 generated["sport"],
@@ -5240,7 +5830,7 @@ if branch == "7th Grade Math Lab":
         st.caption("No practice question has been generated yet.")
 
     st.markdown("---")
-    st.caption("7th Grade Math Lab · Ratios & Proportions · Equations & Inequalities · Probability · Percent & Percent Change")
+    st.caption("7th Grade Math Lab · Ratios & Proportions · Equations & Inequalities · Probability · Percent & Percent Change · Rational Numbers")
     st.stop()
 
 st.markdown("""
