@@ -3,6 +3,7 @@ import streamlit as st
 import json
 import math
 import uuid
+import base64
 from io import BytesIO
 from datetime import datetime
 from reportlab.lib import colors
@@ -1409,6 +1410,166 @@ def score_argument(original, revised, observation, answers):
             "total":claim+evidence+reasoning+fairness}
 
 
+
+def encode_assignment(config):
+    raw = json.dumps(config, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    return base64.urlsafe_b64encode(raw).decode("utf-8").rstrip("=")
+
+def decode_assignment(code):
+    try:
+        text = str(code).strip()
+        padding = "=" * (-len(text) % 4)
+        raw = base64.urlsafe_b64decode((text + padding).encode("utf-8"))
+        data = json.loads(raw.decode("utf-8"))
+        return data if isinstance(data, dict) else None
+    except Exception:
+        return None
+
+RATE_CASES = {
+    "NFL": {
+        "Patrick Mahomes": {"total": 4839, "games": 17, "projection_games": 12, "label": "passing yards",
+                           "unit": "passing yards per game", "story": "Patrick Mahomes threw for 4,839 yards over 17 games."},
+        "Josh Allen": {"total": 42, "games": 17, "projection_games": 10, "label": "total touchdowns",
+                       "unit": "total touchdowns per game", "story": "Josh Allen recorded 42 total touchdowns over 17 games."},
+        "Justin Jefferson": {"total": 1616, "games": 17, "projection_games": 12, "label": "receiving yards",
+                             "unit": "receiving yards per game", "story": "Justin Jefferson recorded 1,616 receiving yards over 17 games."},
+        "Dan Marino": {"total": 5084, "games": 16, "projection_games": 12, "label": "passing yards",
+                       "unit": "passing yards per game", "story": "Dan Marino threw for 5,084 yards over 16 games in 1984."},
+    },
+    "NBA": {
+        "LeBron James": {"total": 1695, "games": 63, "projection_games": 70, "label": "points",
+                         "unit": "points per game", "story": "LeBron James scored 1,695 points over 63 games."},
+        "Stephen Curry": {"total": 337, "games": 63, "projection_games": 70, "label": "made 3-pointers",
+                          "unit": "made 3-pointers per game", "story": "Stephen Curry made 337 three-pointers over 63 games."},
+        "Michael Jordan": {"total": 3041, "games": 82, "projection_games": 60, "label": "points",
+                           "unit": "points per game", "story": "Michael Jordan scored 3,041 points over 82 games in 1986-87."},
+    },
+    "MLB": {
+        "Aaron Judge": {"total": 62, "games": 157, "projection_games": 100, "label": "home runs",
+                        "unit": "home runs per game", "story": "Aaron Judge hit 62 home runs over 157 games in 2022."},
+        "Shohei Ohtani": {"total": 54, "games": 159, "projection_games": 100, "label": "home runs",
+                          "unit": "home runs per game", "story": "Shohei Ohtani hit 54 home runs over 159 games."},
+        "Babe Ruth": {"total": 59, "games": 152, "projection_games": 100, "label": "home runs",
+                      "unit": "home runs per game", "story": "Babe Ruth hit 59 home runs over 152 games in 1921."},
+    },
+    "NHL": {
+        "Connor McDavid": {"total": 153, "games": 82, "projection_games": 60, "label": "points",
+                           "unit": "points per game", "story": "Connor McDavid recorded 153 points over 82 games."},
+        "Auston Matthews": {"total": 69, "games": 81, "projection_games": 60, "label": "goals",
+                            "unit": "goals per game", "story": "Auston Matthews scored 69 goals over 81 games."},
+        "Wayne Gretzky": {"total": 212, "games": 80, "projection_games": 60, "label": "points",
+                          "unit": "points per game", "story": "Wayne Gretzky recorded 212 points over 80 games in 1981-82."},
+    },
+    "Soccer": {
+        "Lionel Messi": {"total": 43, "games": 38, "projection_games": 30, "label": "league goals",
+                         "unit": "league goals per match", "story": "Lionel Messi scored 43 league goals over 38 matches in 2014-15."},
+        "Erling Haaland": {"total": 36, "games": 35, "projection_games": 30, "label": "league goals",
+                           "unit": "league goals per match", "story": "Erling Haaland scored 36 league goals over 35 matches in 2022-23."},
+        "Pelé": {"total": 6, "games": 4, "projection_games": 7, "label": "World Cup goals",
+                 "unit": "World Cup goals per match", "story": "Pelé scored 6 goals over 4 matches at the 1958 World Cup."},
+    },
+    "Formula 1": {
+        "Max Verstappen": {"total": 575, "games": 22, "projection_games": 20, "label": "championship points",
+                           "unit": "championship points per race", "story": "Max Verstappen scored 575 championship points over 22 races in 2023."},
+        "Lewis Hamilton": {"total": 413, "games": 21, "projection_games": 20, "label": "championship points",
+                           "unit": "championship points per race", "story": "Lewis Hamilton scored 413 championship points over 21 races in 2019."},
+        "Ayrton Senna": {"total": 90, "games": 16, "projection_games": 12, "label": "championship points",
+                         "unit": "championship points per race", "story": "Ayrton Senna scored 90 championship points over 16 races in 1988."},
+    },
+}
+
+def rate_tolerance(correct):
+    return max(0.1, abs(correct) * 0.015)
+
+def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided"):
+    st.markdown('<div class="step">7th Grade Math Lab · Ratios, Rates & Proportions</div>', unsafe_allow_html=True)
+    st.subheader("🏁 Sports Rate Lab")
+    st.write("Use a real sports total to find a unit rate, build a proportion, and make a prediction.")
+
+    allowed = list(RATE_CASES)
+    if sport_filter != "Any Sport":
+        allowed = [sport_filter]
+
+    a, b = st.columns(2)
+    with a:
+        sport = st.selectbox("Sport", allowed, format_func=lambda s:f"{SPORT_ICONS.get(s,'')} {s}", key="rate_sport")
+    with b:
+        athlete = st.selectbox("Athlete", list(RATE_CASES[sport]), key="rate_athlete")
+
+    case = RATE_CASES[sport][athlete]
+    total = float(case["total"])
+    games = float(case["games"])
+    target_games = float(case["projection_games"])
+    true_rate = total / games
+    true_projection = true_rate * target_games
+
+    st.markdown(f"""
+    <div class="card">
+      <div class="step">{SPORT_ICONS.get(sport,'')} {sport}</div>
+      <h2>{athlete}</h2>
+      <p><b>Situation:</b> {case["story"]}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("### Step 1 · Write the ratio")
+    st.write(f"Compare **{fmt(total)} {case['label']}** to **{fmt(games)} games/matches/races**.")
+    st.text_input("Write the ratio as total ÷ games", key="rate_ratio", placeholder=f"{fmt(total)} ÷ {fmt(games)}")
+
+    st.markdown("### Step 2 · Find the unit rate")
+    st.markdown(f'<div class="formula">Unit Rate = {fmt(total)} ÷ {fmt(games)}</div>', unsafe_allow_html=True)
+    rate_raw = st.text_input(f"About how many {case['unit']}?", key="rate_unit_answer", placeholder="Type your answer")
+    rate_ans = parse_student_number(rate_raw)
+
+    if "rate_attempts" not in st.session_state:
+        st.session_state.rate_attempts = 0
+    if st.button("Check My Unit Rate", use_container_width=True):
+        if rate_ans is not None and math.isclose(rate_ans, true_rate, abs_tol=rate_tolerance(true_rate)):
+            st.success(f"✅ Correct — or close enough. The unit rate is about {true_rate:.2f}.")
+            st.session_state.rate_attempts = 0
+        else:
+            st.session_state.rate_attempts += 1
+            if st.session_state.rate_attempts < 2:
+                st.info("Try again. Divide the total amount by the number of games.")
+            else:
+                st.warning(f"Use **{fmt(total)} ÷ {fmt(games)}**. That gives about **{true_rate:.2f} {case['unit']}**.")
+
+    st.markdown("### Step 3 · Use a proportion")
+    st.write(f"At the same rate, what total would you predict over **{fmt(target_games)}** games/matches/races?")
+    st.markdown(f'<div class="formula">{fmt(total)} / {fmt(games)} = x / {fmt(target_games)}</div>', unsafe_allow_html=True)
+    if difficulty == "Guided":
+        st.caption("Use your unit rate and multiply it by the new number of games.")
+
+    pred_raw = st.text_input("Predicted total", key="rate_projection", placeholder="Type your answer")
+    pred_ans = parse_student_number(pred_raw)
+
+    if "projection_attempts" not in st.session_state:
+        st.session_state.projection_attempts = 0
+    if st.button("Check My Prediction", use_container_width=True):
+        tol = max(0.5, abs(true_projection) * 0.02)
+        if pred_ans is not None and math.isclose(pred_ans, true_projection, abs_tol=tol):
+            st.success(f"✅ Good prediction. About {true_projection:.1f} is reasonable.")
+            st.session_state.projection_attempts = 0
+        else:
+            st.session_state.projection_attempts += 1
+            if st.session_state.projection_attempts < 2:
+                st.info("Try again: unit rate × new number of games.")
+            else:
+                st.warning(f"Take about **{true_rate:.2f}** per game and multiply by **{fmt(target_games)}**.")
+
+    st.markdown("### Step 4 · Proportional or not?")
+    answer = st.radio("If the same rate continues, is this proportional?", ["Yes","No","I'm not sure"],
+                      horizontal=True, key="rate_proportional")
+    if st.button("Check Proportional Thinking", use_container_width=True):
+        if answer == "Yes":
+            st.success("✅ Yes. This model assumes the same unit rate stays constant.")
+        else:
+            st.info("For this model, the unit rate is constant, so the relationship is proportional.")
+
+    st.markdown("### Step 5 · Explain it")
+    st.text_area("What does the unit rate mean in this sports situation?",
+                 key="rate_explanation",
+                 placeholder=f"Example: This means {athlete} averaged about ... per game.")
+
 def clean_filename(text):
     safe = "".join(ch if ch.isalnum() else "_" for ch in str(text).strip())
     return "_".join(part for part in safe.split("_") if part) or "student"
@@ -2149,7 +2310,7 @@ def frequency_engine(rec):
 st.markdown("""
 <div class="hero">
 <h1>📊 Sports by the Numbers</h1>
-<p>Choose an athlete, work the math, read the graph, and defend your claim.</p>
+<p>Sports investigations and standards-based 7th-grade math through real athletic data.</p>
 </div>
 <div class="progress-ribbon">
     <div class="progress-chip"><strong>1</strong> Data</div>
@@ -2160,6 +2321,81 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+
+
+if "app_branch" not in st.session_state:
+    st.session_state.app_branch = "Sports Data Investigations"
+
+branch = st.radio(
+    "Choose a learning path",
+    ["Sports Data Investigations", "7th Grade Math Lab", "Teacher Assignment Builder"],
+    key="app_branch",
+    horizontal=True
+)
+
+if branch == "Teacher Assignment Builder":
+    st.markdown("""
+    <div class="card">
+      <div class="step">Teacher Assignment Builder</div>
+      <h2>Create a class-specific assignment</h2>
+      <p>Your choices are stored only inside the assignment code, so one teacher never changes another teacher's settings.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    topic = st.selectbox("Topic", ["Ratios, Rates & Proportions"], key="teacher_topic")
+    count = st.selectbox("Activities required", [1,2,3], key="teacher_count")
+    sport_limit = st.selectbox("Allowed sport", ["Any Sport"] + list(RATE_CASES), key="teacher_sport")
+    difficulty = st.selectbox("Difficulty", ["Guided","Independent"], key="teacher_difficulty")
+    require_pdf = st.checkbox("Require PDF submission report", value=True, key="teacher_pdf")
+
+    assignment_code = encode_assignment({
+        "v":1, "topic":topic, "count":count, "sport":sport_limit,
+        "difficulty":difficulty, "pdf":require_pdf
+    })
+    st.markdown("### Assignment Code")
+    st.code(assignment_code, language=None)
+    st.caption("Post this code in Google Classroom. Students paste it into Math Lab. No database or teacher account is needed.")
+    st.stop()
+
+if branch == "7th Grade Math Lab":
+    st.markdown("""
+    <div class="card">
+      <div class="step">7th Grade Math Lab</div>
+      <h2>Real sports. Real 7th-grade math.</h2>
+      <p>The original Sports Data Investigations stay unchanged. This is the first standards-based branch.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    entry = st.radio("How are you entering?", ["Free Explore","I Have an Assignment Code"],
+                     horizontal=True, key="math_entry")
+    config = {"topic":"Ratios, Rates & Proportions","count":1,"sport":"Any Sport","difficulty":"Guided","pdf":False}
+
+    if entry == "I Have an Assignment Code":
+        code_in = st.text_input("Assignment Code", key="student_assignment_code", placeholder="Paste code from your teacher")
+        if code_in.strip():
+            decoded = decode_assignment(code_in)
+            if decoded:
+                config.update(decoded)
+                st.success(f"Loaded: {config['topic']} · {config['count']} activity(ies) · {config['sport']} · {config['difficulty']}")
+            else:
+                st.error("That assignment code could not be read.")
+
+    st.markdown("""
+    <div class="card">
+      <div class="step">Student Information</div>
+      <p><b>Enter this before beginning.</b></p>
+    </div>
+    """, unsafe_allow_html=True)
+    x,y = st.columns([2,1])
+    with x:
+        st.text_input("Student Name", key="math_student_name", placeholder="First and last name")
+    with y:
+        st.text_input("Class Period", key="math_class_period", placeholder="Example: 4E")
+
+    ratios_rates_engine(config.get("sport","Any Sport"), config.get("difficulty","Guided"))
+    st.markdown("---")
+    st.caption("7th Grade Math Lab · Ratios, Rates & Proportions · more standards branches can be added later.")
+    st.stop()
 
 st.markdown("""
 <div class="card">
