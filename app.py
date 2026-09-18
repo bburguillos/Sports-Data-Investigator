@@ -2216,9 +2216,12 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
 
     if st.button("Check My Ratio", use_container_width=True):
         if ratio_is_correct(ratio_raw):
+            record_math_event(st.session_state.get("math_generated_question"), "Ratio setup", True, detail=ratio_raw)
             st.success("✅ Yes. You compared the total statistic to the number of games.")
             st.session_state.ratio_attempts = 0
         else:
+            mistake = analyze_ratio_mistake("ratio", case, raw=ratio_raw)
+            record_math_event(st.session_state.get("math_generated_question"), "Ratio setup", False, mistake=mistake, used_hint=True, detail=ratio_raw)
             st.session_state.ratio_attempts += 1
             if st.session_state.ratio_attempts == 1:
                 st.info(
@@ -2298,6 +2301,10 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
         )
 
         if fraction_ok and decimal_ok:
+            record_math_event(
+                st.session_state.get("math_generated_question"), "Unit rate", True,
+                detail=f"{rate_num_raw}/{rate_den_raw} = {rate_decimal_raw}"
+            )
             st.success(
                 f"✅ Correct. The simplified fraction is "
                 f"**{true_fraction.numerator}/{true_fraction.denominator}**, "
@@ -2306,6 +2313,11 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
             )
             st.session_state.rate_attempts = 0
         else:
+            mistake = analyze_ratio_mistake("rate", case, num=rate_num, den=rate_den, decimal=rate_ans)
+            record_math_event(
+                st.session_state.get("math_generated_question"), "Unit rate", False, mistake=mistake, used_hint=True,
+                detail=f"{rate_num_raw}/{rate_den_raw} = {rate_decimal_raw}"
+            )
             st.session_state.rate_attempts += 1
 
             if not fraction_ok and not decimal_ok:
@@ -2361,11 +2373,16 @@ def ratios_rates_engine(sport_filter="Any Sport", difficulty="Guided", generated
         if pred_ans is not None and math.isclose(
             pred_ans, true_projection, abs_tol=tol
         ):
+            record_math_event(st.session_state.get("math_generated_question"), "Proportional prediction", True, detail=pred_raw)
             st.success(
                 f"✅ Good prediction. About **{true_projection:.1f}** is reasonable."
             )
             st.session_state.projection_attempts = 0
         else:
+            mistake = analyze_ratio_mistake("projection", case, prediction=pred_ans)
+            record_math_event(
+                st.session_state.get("math_generated_question"), "Proportional prediction", False, mistake=mistake, used_hint=True, detail=pred_raw
+            )
             st.session_state.projection_attempts += 1
             if st.session_state.projection_attempts == 1:
                 st.info(
@@ -8236,6 +8253,247 @@ def math_lab_case_id(generated):
     title = generated.get("title") or generated.get("athlete") or "Math_Lab"
     return clean_filename(f"{generated.get('sport','Sport')}_{title}")
 
+
+def valid_player_name(value):
+    """Classroom-safe player name: 4-16 letters/numbers only."""
+    value = str(value or "").strip()
+    return bool(re.fullmatch(r"[A-Za-z0-9]{4,16}", value))
+
+
+# =========================================================
+# MATH LAB PERFORMANCE LAYER
+# Adds tracking/reports/gamification without changing core math.
+# =========================================================
+def math_perf_key(generated):
+    if not generated:
+        return "math_perf_unknown"
+    cid = math_lab_case_id(generated)
+    dyn = generated.get("case", {}).get("dynamic_id", "")
+    return f"{cid}_{dyn}"
+
+def math_perf_store():
+    if "math_performance_log" not in st.session_state:
+        st.session_state.math_performance_log = {}
+    return st.session_state.math_performance_log
+
+def record_math_event(generated, skill, correct, mistake="", used_hint=False, detail=""):
+    if not generated:
+        return
+    store = math_perf_store()
+    key = math_perf_key(generated)
+    if key not in store:
+        store[key] = {
+            "player_name": st.session_state.get("math_player_name","").strip(),
+            "student_name": st.session_state.get("math_student_name","").strip(),
+            "class_period": st.session_state.get("math_class_period","").strip(),
+            "topic": generated.get("topic",""),
+            "sport": generated.get("sport",""),
+            "title": generated.get("title") or generated.get("athlete") or "Generated Practice",
+            "events": [],
+            "submitted": False,
+        }
+    store[key]["events"].append({
+        "skill": str(skill),
+        "correct": bool(correct),
+        "mistake": str(mistake or ""),
+        "used_hint": bool(used_hint),
+        "detail": str(detail or ""),
+    })
+
+def math_perf_summary(generated):
+    rec = math_perf_store().get(math_perf_key(generated), {})
+    events = rec.get("events", [])
+    skills = {}
+    for e in events:
+        skills.setdefault(e.get("skill","Math"), []).append(e)
+
+    first_try = 0
+    solved_skills = 0
+    strengths, work_on = [], []
+    for skill, evs in skills.items():
+        first_correct = next((i for i,e in enumerate(evs) if e.get("correct")), None)
+        if first_correct is not None:
+            solved_skills += 1
+            if first_correct == 0:
+                first_try += 1
+                strengths.append(skill)
+            else:
+                work_on.append(skill)
+        else:
+            work_on.append(skill)
+
+    mistakes = [e.get("mistake") for e in events if not e.get("correct") and e.get("mistake")]
+    common = max(set(mistakes), key=mistakes.count) if mistakes else ""
+
+    game_points = 0
+    for evs in skills.values():
+        first_correct = next((i for i,e in enumerate(evs) if e.get("correct")), None)
+        if first_correct == 0:
+            game_points += 3
+        elif first_correct == 1:
+            game_points += 2
+        elif first_correct is not None:
+            game_points += 1
+
+    return {
+        "events": events,
+        "checks": len(events),
+        "incorrect_checks": sum(1 for e in events if not e.get("correct")),
+        "hints": sum(1 for e in events if e.get("used_hint")),
+        "skills": skills,
+        "solved_skills": solved_skills,
+        "first_try": first_try,
+        "strengths": strengths,
+        "work_on": work_on,
+        "common_mistake": common,
+        "game_points": game_points,
+    }
+
+def analyze_ratio_mistake(stage, case, **answers):
+    try:
+        total = float(case["total"])
+        den = float(case["games"])
+        true_rate = total / den
+
+        if stage == "ratio":
+            raw = str(answers.get("raw","")).strip()
+            compact = raw.lower().replace(" ", "").replace("÷","/").replace(":", "/")
+            if "/" in compact:
+                p = compact.split("/")
+                if len(p) == 2:
+                    a, b = float(Fraction(p[0])), float(Fraction(p[1]))
+                    if math.isclose(a, den, abs_tol=.01) and math.isclose(b, total, abs_tol=.01):
+                        return "Ratio was reversed"
+            return "Ratio setup needs attention"
+
+        if stage == "rate":
+            num, d, dec = answers.get("num"), answers.get("den"), answers.get("decimal")
+            true_fraction = (Fraction(str(total)) / Fraction(str(den))).limit_denominator(1000)
+            fraction_ok = (
+                num is not None and d is not None and d != 0
+                and math.isclose(num/d, float(true_fraction), rel_tol=1e-9, abs_tol=1e-9)
+            )
+            decimal_ok = dec is not None and math.isclose(dec, true_rate, abs_tol=rate_tolerance(true_rate))
+            if fraction_ok and not decimal_ok:
+                return "Fraction is correct, but decimal conversion needs work"
+            if decimal_ok and not fraction_ok:
+                return "Decimal rate is correct, but fraction form needs work"
+            if num is not None and d is not None and num != 0:
+                if math.isclose(d/num, true_rate, abs_tol=rate_tolerance(true_rate)):
+                    return "Fraction appears reversed"
+            return "Unit-rate conversion needs attention"
+
+        if stage == "projection":
+            pred = answers.get("prediction")
+            target = float(case["projection_games"])
+            true_pred = true_rate * target
+            if pred is not None:
+                if math.isclose(pred, true_rate, abs_tol=rate_tolerance(true_rate)):
+                    return "Used the unit rate but did not scale to the new amount"
+                if math.isclose(pred, total, abs_tol=max(.5, abs(total)*.02)):
+                    return "Used the original total instead of the projected total"
+                if true_rate and math.isclose(pred, target/true_rate, abs_tol=max(.5, abs(true_pred)*.02)):
+                    return "Divided when the rate should have been multiplied"
+            return "Proportional projection needs attention"
+    except Exception:
+        pass
+    return "Check the setup and calculation"
+
+def render_math_game_status(generated):
+    s = math_perf_summary(generated)
+    pts = s["game_points"]
+    if pts == 0:
+        label, msg = "🏟️ Pregame", "Make your first check to start building momentum."
+    elif pts <= 3:
+        label, msg = "🔥 Building Momentum", "You are on the board. Keep building the drive."
+    elif pts <= 6:
+        label, msg = "⚡ In the Zone", "Strong work — your math is creating scoring chances."
+    else:
+        label, msg = "🏆 All-Star Run", "Excellent run. You are stacking strong decisions."
+
+    st.markdown(
+        f"""<div class="card">
+        <div class="step">GAME DAY PERFORMANCE</div>
+        <h3>{label} · {pts} Performance Points</h3>
+        <p>{msg}</p>
+        <p><b>First-try solves:</b> {s['first_try']} &nbsp; · &nbsp; <b>Hints used:</b> {s['hints']}</p>
+        </div>""",
+        unsafe_allow_html=True
+    )
+
+def scouting_report_data(generated):
+    s = math_perf_summary(generated)
+    strengths = s["strengths"] or ["Completed the core calculation"]
+    work_on = s["work_on"] or ["Keep practicing for speed and confidence"]
+    common = s["common_mistake"] or "No repeated misconception detected"
+    if s["first_try"] >= max(1, s["solved_skills"]):
+        note = "Accurate from the start. Keep explaining why your setup works."
+    elif s["solved_skills"] > 0:
+        note = "You improved after feedback. Focus on recognizing the setup before calculating."
+    else:
+        note = "Use the feedback to identify the setup before calculating."
+    return {"summary":s, "strengths":strengths, "work_on":work_on, "common":common, "note":note}
+
+def build_teacher_quick_report_pdf(player_name, student_name, class_period, generated, completion_id):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        "TeacherQuickTitle", parent=styles["Heading1"], fontSize=17, leading=20,
+        textColor=colors.HexColor("#0F2747"), spaceAfter=8
+    )
+    heading = ParagraphStyle(
+        "TeacherQuickHeading", parent=styles["Heading2"], fontSize=11, leading=14,
+        textColor=colors.HexColor("#173F73"), spaceBefore=7, spaceAfter=4
+    )
+    body = ParagraphStyle("TeacherQuickBody", parent=styles["BodyText"], fontSize=9.5, leading=12.5, spaceAfter=3)
+    report = scouting_report_data(generated)
+    s = report["summary"]
+
+    def p(v):
+        return Paragraph(html.escape(str(v)).replace("\n","<br/>"), body)
+
+    elements = [
+        Paragraph("Sports by the Numbers · Teacher Quick Report", title_style),
+    ]
+    if player_name:
+        elements.append(p(f"Player Name: {player_name}"))
+    elements += [
+        p(f"Student: {student_name}"),
+        p(f"Class Period: {class_period}"),
+        p(f"Completion ID: {completion_id}"),
+        p(f"Topic: {generated.get('topic','')}"),
+        p(f"Sport: {generated.get('sport','')}"),
+        p(f"Scenario: {generated.get('title','')}"),
+        Spacer(1,6),
+        Paragraph("Performance Snapshot", heading),
+        p(f"Recorded checks: {s['checks']}"),
+        p(f"First-try solves: {s['first_try']}"),
+        p(f"Hints used: {s['hints']}"),
+        p(f"Performance points: {s['game_points']}"),
+        p(f"Most common mistake: {report['common']}"),
+        Paragraph("Strengths", heading),
+        p(", ".join(report["strengths"])),
+        Paragraph("Skills to Work On", heading),
+        p(", ".join(report["work_on"])),
+        Paragraph("Coach Note", heading),
+        p(report["note"]),
+        Paragraph("Attempt Log", heading),
+    ]
+    if s["events"]:
+        for i,e in enumerate(s["events"],1):
+            status = "Correct" if e.get("correct") else "Needs correction"
+            line = f"{i}. {e.get('skill','Math')}: {status}"
+            if e.get("mistake"):
+                line += f" — {e.get('mistake')}"
+            elements.append(p(line))
+    else:
+        elements.append(p("No detailed attempt events were recorded for this activity."))
+
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer.getvalue()
+
 def math_lab_final_reasoning(generated):
     """Read the final written response for the active Math Lab strand."""
     topic = generated.get("topic")
@@ -8479,7 +8737,7 @@ def math_lab_core_answer_correct(generated):
 
     return False
 
-def build_math_lab_receipt_pdf(student_name, class_period, generated, completion_id):
+def build_math_lab_receipt_pdf(player_name, student_name, class_period, generated, completion_id):
     """Create a compact PDF completion receipt for any Math Lab strand."""
     buffer = BytesIO()
     generated_time = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -8532,6 +8790,10 @@ def build_math_lab_receipt_pdf(student_name, class_period, generated, completion
 
     elements = [
         Paragraph("Sports by the Numbers · Math Lab Completion Receipt", title_style),
+    ]
+    if player_name:
+        elements.append(p(f"Player Name: {player_name}"))
+    elements += [
         p(f"Student: {student_name}"),
         p(f"Class Period: {class_period}"),
         p(f"Topic: {topic}"),
@@ -8566,6 +8828,8 @@ def render_math_lab_submission(generated):
     if not generated:
         return
 
+    render_math_game_status(generated)
+
     st.markdown("---")
     st.markdown("## 🏁 Finish & Submit")
     st.write(
@@ -8583,10 +8847,13 @@ def render_math_lab_submission(generated):
     ):
         missing = []
 
+        player_name = st.session_state.get("math_player_name", "").strip()
         student_name = st.session_state.get("math_student_name", "").strip()
         class_period = st.session_state.get("math_class_period", "").strip()
         reasoning = math_lab_final_reasoning(generated)
 
+        if player_name and not valid_player_name(player_name):
+            missing.append("valid player name (4-16 letters/numbers)")
         if not student_name:
             missing.append("student name")
         if not class_period:
@@ -8602,17 +8869,84 @@ def render_math_lab_submission(generated):
         else:
             if completion_key not in st.session_state:
                 st.session_state[completion_key] = uuid.uuid4().hex[:8].upper()
+
+            perf = math_perf_store()
+            pkey = math_perf_key(generated)
+            if pkey not in perf:
+                perf[pkey] = {
+                    "player_name": st.session_state.get("math_player_name","").strip(),
+                    "student_name": st.session_state.get("math_student_name","").strip(),
+                    "class_period": st.session_state.get("math_class_period","").strip(),
+                    "topic": generated.get("topic",""),
+                    "sport": generated.get("sport",""),
+                    "title": generated.get("title") or "Generated Practice",
+                    "events": [],
+                    "submitted": False,
+                }
+            if not perf[pkey].get("submitted"):
+                if not perf[pkey]["events"]:
+                    record_math_event(generated, "Core calculation", True, detail="Verified at submission")
+                perf[pkey]["submitted"] = True
+
             st.session_state[receipt_key] = True
 
     if st.session_state.get(receipt_key, False):
         completion_id = st.session_state.get(completion_key, "")
+        player_name = st.session_state.get("math_player_name", "").strip()
         student_name = st.session_state.get("math_student_name", "").strip()
         class_period = st.session_state.get("math_class_period", "").strip()
 
         st.success(f"✅ Math Lab Complete · Completion ID: **{completion_id}**")
+        if player_name:
+            st.caption(f"🏷️ Player: {player_name} · Student: {student_name} · Period: {class_period}")
+        else:
+            st.caption(f"Student: {student_name} · Period: {class_period}")
+
+        report = scouting_report_data(generated)
+        perf_summary = report["summary"]
+
+        st.markdown("## 🧢 Postgame Scouting Report")
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            st.metric("Performance Points", perf_summary["game_points"])
+        with c2:
+            st.metric("First-Try Solves", perf_summary["first_try"])
+        with c3:
+            st.metric("Hints Used", perf_summary["hints"])
+
+        st.markdown(
+            f"""<div class="card">
+            <div class="step">PLAYER DEVELOPMENT{(" · " + html.escape(player_name)) if player_name else ""}</div>
+            <p><b>Student:</b> {html.escape(student_name)} · <b>Period:</b> {html.escape(class_period)}</p>
+            <p><b>Strengths:</b> {html.escape(", ".join(report["strengths"]))}</p>
+            <p><b>Work On:</b> {html.escape(", ".join(report["work_on"]))}</p>
+            <p><b>Most Common Mistake:</b> {html.escape(report["common"])}</p>
+            <p><b>Coach's Note:</b> {html.escape(report["note"])}</p>
+            </div>""",
+            unsafe_allow_html=True
+        )
+
+        teacher_pdf = build_teacher_quick_report_pdf(
+            player_name, student_name, class_period, generated, completion_id
+        )
+        st.download_button(
+            "📋 Download Teacher Quick Report",
+            data=teacher_pdf,
+            file_name=(
+                f"Teacher_Report_"
+                f"{(clean_filename(player_name) + '_') if player_name else ''}"
+                f"{clean_filename(student_name)}_"
+                f"{clean_filename(generated.get('topic','Topic'))}_{completion_id}.pdf"
+            ),
+            mime="application/pdf",
+            key=f"teacher_report_{completion_id}",
+            use_container_width=True,
+        )
+
         st.write("Download your PDF receipt and submit it using your teacher's normal class submission method.")
 
         pdf_bytes = build_math_lab_receipt_pdf(
+            player_name,
             student_name,
             class_period,
             generated,
@@ -8622,6 +8956,7 @@ def render_math_lab_submission(generated):
         title = generated.get("title") or generated.get("athlete") or "Math_Lab"
         filename = (
             f"Math_Lab_"
+            f"{(clean_filename(player_name) + '_') if player_name else ''}"
             f"{clean_filename(student_name)}_"
             f"{clean_filename(generated.get('topic','Topic'))}_"
             f"{clean_filename(title)}_"
@@ -8719,11 +9054,35 @@ if branch == "7th Grade Math Lab":
     </div>
     """, unsafe_allow_html=True)
 
-    x,y = st.columns([2,1])
-    with x:
+    p1,p2,p3 = st.columns([1.2,2,1])
+    with p1:
+        st.text_input(
+            "Player Name (optional)",
+            key="math_player_name",
+            placeholder="Example: TigerStats24",
+            help="Optional. Use this only if you want your work grouped under the same player identity across activities."
+        )
+    with p2:
         st.text_input("Student Name", key="math_student_name", placeholder="First and last name")
-    with y:
+    with p3:
         st.text_input("Class Period", key="math_class_period", placeholder="Example: 4E")
+
+    player_name_preview = st.session_state.get("math_player_name", "").strip()
+    if player_name_preview and not valid_player_name(player_name_preview):
+        st.warning("Player Name must be 4-16 characters using letters and numbers only.")
+    elif player_name_preview:
+        st.success(f"🏷️ Player Name active: {player_name_preview}")
+        st.info(
+            "Use this SAME Player Name every time if you want your scouting reports and future progress "
+            "to stay connected. Save it somewhere you will remember — for example in your school notes, "
+            "Google Keep, or a paper notebook."
+        )
+    else:
+        st.caption("Player Name is optional. Leave it blank if you do not want to use a continuing player identity.")
+        st.info(
+            "Want to track your progress over time? Create a Player Name, then use that exact same name "
+            "every time. Save it somewhere you will remember."
+        )
 
     def generate_math_question():
         topic = config.get("topic")
