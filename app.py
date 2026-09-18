@@ -2271,14 +2271,23 @@ def equations_inequalities_engine(sport_filter="Any Sport", difficulty="Guided")
         st.session_state[sport_state_key] = eq_sport
         st.session_state.pop("eq_case", None)
 
+    def choose_different_equation_problem(options):
+        """Change the selectbox safely inside a Streamlit callback."""
+        current = st.session_state.get("eq_case")
+        choices = [label for label in options if label != current]
+        if choices:
+            st.session_state["eq_case"] = random.choice(choices)
+
     with c2:
         case_label = st.selectbox("Problem", list(labels), key="eq_case")
 
-    if st.button("🎲 Give Me a Different Problem", key="eq_new_problem", use_container_width=True):
-        choices = [label for label in labels if label != st.session_state.get("eq_case")]
-        if choices:
-            st.session_state.eq_case = random.choice(choices)
-            st.rerun()
+    st.button(
+        "🎲 Give Me a Different Problem",
+        key="eq_new_problem",
+        use_container_width=True,
+        on_click=choose_different_equation_problem,
+        args=(list(labels),),
+    )
 
     case = labels[st.session_state.get("eq_case", case_label)]
 
